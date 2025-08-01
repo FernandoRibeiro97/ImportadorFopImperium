@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO.Packaging;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
@@ -129,6 +130,9 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
                 ImportacaoImperium.Dt_Familia = CarregarFamilia();
                 ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
+                ImportacaoImperium.Dt_Grupo = CarregarGrupo();
+                ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
+                ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
             }
             catch (Exception)
             {
@@ -266,7 +270,18 @@ namespace ImportadorFopImperium
         }
         private DataTable CarregarGrupo()
         {
-            string comando = @"";
+            string comando = @"SELECT * FROM CadProduto.SuperDepto;";
+            return RecuperaDataTableSQLServer(comando);
+        }
+        private DataTable CarregarSubGrupo()
+        {
+            string comando = @"SELECT * FROM CadProduto.Categoria;";
+            return RecuperaDataTableSQLServer(comando);
+        }
+        private DataTable CarregarSubGrupo1()
+        {
+            string comando = @"SELECT * FROM CadProduto.SubCategoria;";
+            return RecuperaDataTableSQLServer(comando);
         }
         private List<ClienteImperium> FiltraEntidadeCliente()
         {
@@ -324,6 +339,13 @@ namespace ImportadorFopImperium
                 {
                     ImportarFamilia();
                 }
+
+                if (true) //TODO: ARVORE MERCADOLOGICO
+                {
+                    ImportarGrupo();
+                    ImportarSubGrupo();
+                    ImportarSubGrupo1();
+                }
             }
 
             if (chkClientes.Checked)
@@ -335,7 +357,6 @@ namespace ImportadorFopImperium
             {
                 ImportarFornecedores();
             }
-            
         }
         private void ImportarTributacoes()
         {
@@ -406,6 +427,26 @@ namespace ImportadorFopImperium
         {
             ExecutaComandoForncedor();
         }
+        private void ImportarFamilia()
+        {
+            Dictionary<long, string> familias = new Dictionary<long, string>();
+
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Familia.Rows)
+                    familias.Add(ConverterInt64(r["id"].ToString()), r["nomeFamilia"].ToString());
+
+                if (familias.Count > 0)
+                {
+                    ExecutaComandoFamilia(familias);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
         private void ImportarItensFornecedor(List<ProdutoImperium> lstProduto)
         {
             List<ProdutoFornecedor> produtosFornecedor = new List<ProdutoFornecedor>();
@@ -428,7 +469,6 @@ namespace ImportadorFopImperium
                     }
                 }
 
-
                 ExecutaComandoItensFornecedor(produtosFornecedor);
             }
             catch (Exception)
@@ -436,9 +476,77 @@ namespace ImportadorFopImperium
 
                 throw;
             }
+        }
+        private void ImportarGrupo()
+        {
+            List<Grupo> grupos = new List<Grupo>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Grupo.Rows)
+                    grupos.Add(new Grupo()
+                    {
+                        Id = ConverterInt64(r["id"].ToString()),
+                        Descricao = r["nomeDepto"].ToString()
+                    });
 
+                if (grupos.Count > 0)
+                    ExecutaComandoGrupo(grupos);
+            }
+            catch (Exception)
+            {
 
-            
+                throw;
+            }
+        }
+        private void ImportarSubGrupo()
+        {
+            List<SubGrupo> subgrupos = new List<SubGrupo>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo.Rows)
+                {
+                    subgrupos.Add(new SubGrupo()
+                    {
+                        Id = ConverterInt64(r["id"].ToString()),
+                        Id_Grupo = ConverterInt64(r["fkDepto"].ToString()),
+                        Descricao = r["nomeCategoria"].ToString()
+                    });
+                }
+
+                if (subgrupos.Count > 0)
+                    ExecutaComandoSubGrupo(subgrupos);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private void ImportarSubGrupo1()
+        {
+            List<SubGrupo1> subgrupos1 = new List<SubGrupo1>();
+
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo1.Rows)
+                    subgrupos1.Add(new SubGrupo1()
+                    {
+                        Id = ConverterInt64(r["id"].ToString()),
+                        Id_Grupo = RetornaFkDeptoCategoria(ConverterInt64(r["fkCategoria"].ToString())),
+                        Id_SubGrupo = ConverterInt64(r["fkCategoria"].ToString()),
+                        Descricao = r["nomeCategoria"].ToString(),
+                        
+                    });
+
+                if (subgrupos1.Count > 0)
+                    ExecutaComandoSubGrupo1(subgrupos1);
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         #endregion
@@ -1227,26 +1335,6 @@ namespace ImportadorFopImperium
 
         #region FAMILIA
 
-        private void ImportarFamilia()
-        {
-            Dictionary<long, string> familias = new Dictionary<long, string>();
-
-            try
-            {
-                foreach (DataRow r in ImportacaoImperium.Dt_Familia.Rows)
-                    familias.Add(ConverterInt64(r["id"].ToString()), r["nomeFamilia"].ToString());
-
-                if (familias.Count > 0)
-                {
-                    ExecutaComandoFamilia(familias);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
         private void ExecutaComandoFamilia(Dictionary<long, string> dicionarioFamilia)
         {
             try
@@ -1293,6 +1381,167 @@ namespace ImportadorFopImperium
             {
                 FecharConexaoMysql();
             }
+        }
+
+        #endregion
+
+        #region ÁRVORE MERCADOLÓGICA
+        private void ExecutaComandoGrupo(List<Grupo> grupos)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE grupo;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO grupo (IDGRUPO, NOME) VALUES ";
+                StringBuilder strGrupo = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (Grupo g in grupos)
+                {
+                    strGrupo.AppendLine(RetornaLinhaInserirGrupo(g));
+                    cont++;
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strGrupo, command);
+                        strGrupo.Clear();
+                        strGrupo.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strGrupo, command);
+                    strGrupo.Clear();
+                    strGrupo.Append(comando);
+                    cont = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        private string RetornaLinhaInserirGrupo(Grupo grupo)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{grupo.Id},");
+            stringBuilder.Append($"'{grupo.Descricao}'");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
+        private void ExecutaComandoSubGrupo(List<SubGrupo> grupos)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE subgrupo;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO subgrupo (IdSubGrupo, IdGrupo, Nome) VALUES ";
+                StringBuilder strGrupo = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (SubGrupo g in grupos)
+                {
+                    cont++;
+                    strGrupo.AppendLine(RetornaLinhaInserirSubGrupo(g));
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strGrupo, command);
+                        strGrupo.Clear();
+                        strGrupo.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strGrupo, command);
+                    strGrupo.Clear();
+                    strGrupo.Append(comando);
+                    cont = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            finally
+            {
+                FecharConexaoMysql();
+            }
+        }
+        private string RetornaLinhaInserirSubGrupo(SubGrupo grupo)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{grupo.Id},");
+            stringBuilder.Append($"{grupo.Id_Grupo},");
+            stringBuilder.Append($"'{grupo.Descricao}'");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
+        private void ExecutaComandoSubGrupo1(List<SubGrupo1> subgrupos)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE subgrupo1;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO subgrupo1 (idSubGrupo1, idGrupo, idSubGrupo, Nome) VALUES ";
+                StringBuilder strSubGrupo = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (SubGrupo1 s in subgrupos)
+                {
+                    strSubGrupo.AppendLine(RetornaLinhaInserirSubGrupo1(s));
+                    cont++;
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strSubGrupo, command);
+                        strSubGrupo.Clear();
+                        strSubGrupo.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strSubGrupo, command);
+                    strSubGrupo.Clear();
+                    strSubGrupo.Append(comando);
+                    cont = 0;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private string RetornaLinhaInserirSubGrupo1(SubGrupo1 subgrupo1)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{subgrupo1.Id},");
+            stringBuilder.Append($"{subgrupo1.Id_Grupo},");
+            stringBuilder.Append($"{subgrupo1.Id_SubGrupo},");
+            stringBuilder.Append($"'{subgrupo1.Descricao}'");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
         }
 
         #endregion
@@ -1838,7 +2087,16 @@ namespace ImportadorFopImperium
 
             return "";
         }
+        private long RetornaFkDeptoCategoria(long idCategoria)
+        {
+            if (ImportacaoImperium.Dt_SubGrupo.Rows.Count > 0)
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo.Select($"id = {idCategoria}"))
+                    return ConverterInt64(r["fkDepto"].ToString());
+            }
 
+            return 0;
+        }
         private void HabiltaCheckBox()
         {
             if (ImportacaoImperium != null)

@@ -138,6 +138,8 @@
     <Compile Include="Model\ClienteImperium.cs" />
     <Compile Include="Model\ContadorImportacao.cs" />
     <Compile Include="Model\FornecedorImperium.cs" />
+    <Compile Include="Model\Grupo.cs" />
+    <Compile Include="Model\SubGrupo.cs" />
     <Compile Include="Model\Importacao.cs" />
     <Compile Include="Model\ProdutoEan.cs" />
     <Compile Include="Model\ProdutoEstoque.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Model\ProdutoImperium.cs" />
     <Compile Include="Model\ProdutoPreco.cs" />
     <Compile Include="Model\ProdutoTributacao.cs" />
+    <Compile Include="Model\SubGrupo1.cs" />
     <Compile Include="Model\Tributacao.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

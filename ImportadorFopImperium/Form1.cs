@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -41,6 +42,7 @@ namespace ImportadorFopImperium
 
         private void frmPrincipal_Load(object sender, EventArgs e)
         {
+            Logar("Teste de log");
             string strServer = "localhost";
             string strDataBase = "sc2010";
 
@@ -232,6 +234,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
+                Logar("Erro ao carregar informações de telefone das entidades");
+                Logar(ex.Message);
                 return null;
             }
         }
@@ -244,7 +248,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                FecharConexaoSqlServer();
+                Logar("Erro ao carregar informações de email das entidades");
+                Logar(ex.Message);
                 return null;
             }
         }
@@ -257,8 +262,9 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao carregar informações da familia dos produtos");
+                Logar(ex.Message);
+                return null;
             }
         }
         private DataTable CarregarItensFornecedor()
@@ -297,7 +303,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
+                Logar("Erro ao filtrar entidade do tipo cliente");
+                Logar(ex.Message);
                 return null;
             }
         }
@@ -317,8 +324,9 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao filtrar entidade do tipo fornecedor");
+                Logar(ex.Message);
+                return null;
             }
         }
 
@@ -441,8 +449,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao importar familias dos produtos");
+                Logar(ex.Message);
             }
         }
         private void ImportarItensFornecedor(List<ProdutoImperium> lstProduto)
@@ -1421,8 +1429,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao executar comando de inserção de grupos");
+                Logar(ex.Message);
             }
         }
         private string RetornaLinhaInserirGrupo(Grupo grupo)
@@ -1471,8 +1479,9 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao executar comando de inserção de subgrupos");
+                Logar(ex.Message);
+            
             }
             finally
             {
@@ -1586,8 +1595,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao executar comando de inserção de itens fornecedor");
+                Logar(ex.Message);
             }
         }
         private string RetornaLinhaIserirProdutoFornecedor(ProdutoFornecedor produto)
@@ -1746,8 +1755,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro Geral ao inserir clientes");
-                throw;
+                Logar("Erro Geral ao inserir clientes");
+                Logar(ex.Message);
             }
             finally
             {
@@ -1810,8 +1819,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao vincular telefone ao cliente");
+                Logar(ex.Message);
             }
         }
         private void AdicionarEmailCliente(ClienteImperium cliente)
@@ -1838,8 +1847,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao adicionar email ao cliente");
+                Logar(ex.Message);
             }
         }
 
@@ -1912,7 +1921,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                throw;
+                Logar("Erro ao executar comando de inserção de fornecedor");
+                Logar(ex.Message);
             }
             finally
             {
@@ -2051,7 +2061,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao retornar fone do cliente");
+                Logar("Erro ao retornar fone da entidade");
+                Logar(ex.Message);
                 return new Dictionary<string, string>();
             }
         }
@@ -2071,7 +2082,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
+                Logar("Erro ao retornar email da entidade");
+                Logar(ex.Message);
                 return new Dictionary<string, string>(); ;
             }
         }
@@ -2119,6 +2131,30 @@ namespace ImportadorFopImperium
             lblContFornecedores.Text = contadorImportacao.Cont_Fornecedores.ToString();
             lblContFamilias.Text = contadorImportacao.Cont_Familias.ToString();
             lblContItensFornecedor.Text = contadorImportacao.Cont_ItensFornecedor.ToString();
+        }
+        private void Logar(string mensagem)
+        {
+            try
+            {
+                string nomeArquivo = $"LOG_{DateTime.Now:yyyyMMdd}.log";
+                string caminhoArquivo = $"{Directory.GetCurrentDirectory()}\\{nomeArquivo}";
+
+                if (!File.Exists(caminhoArquivo))
+                    File.Create(caminhoArquivo);
+
+                using (StreamWriter sw = File.AppendText(caminhoArquivo))
+                {
+                    string hora = DateTime.Now.ToString("HH:mm:ss");
+                    sw.WriteLine($"{hora}-> {mensagem}");
+                    sw.Flush();
+                    sw.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao criar arquivo de log");
+                MessageBox.Show(ex.Message);
+            }
         }
 
         #endregion

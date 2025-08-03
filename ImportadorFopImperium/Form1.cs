@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO.Packaging;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Windows.Forms;
 
@@ -1436,7 +1434,7 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
-        private void ExecutaComandoSubGrupo(List<SubGrupo> grupos)
+        private void ExecutaComandoSubGrupo(List<SubGrupo> subgrupos)
         {
             try
             {
@@ -1449,7 +1447,7 @@ namespace ImportadorFopImperium
                 StringBuilder strGrupo = new StringBuilder(comando);
                 int cont = 0;
 
-                foreach (SubGrupo g in grupos)
+                foreach (SubGrupo g in subgrupos)
                 {
                     cont++;
                     strGrupo.AppendLine(RetornaLinhaInserirSubGrupo(g));
@@ -1481,17 +1479,17 @@ namespace ImportadorFopImperium
                 FecharConexaoMysql();
             }
         }
-        private string RetornaLinhaInserirSubGrupo(SubGrupo grupo)
+        private string RetornaLinhaInserirSubGrupo(SubGrupo subgrupo)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
-            stringBuilder.Append($"{grupo.Id},");
-            stringBuilder.Append($"{grupo.Id_Grupo},");
-            stringBuilder.Append($"'{grupo.Descricao}'");
+            stringBuilder.Append($"{subgrupo.Id},");
+            stringBuilder.Append($"{subgrupo.Id_Grupo},");
+            stringBuilder.Append($"'{subgrupo.Descricao}'");
             stringBuilder.Append("),");
 
             return stringBuilder.ToString();
         }
-        private void ExecutaComandoSubGrupo1(List<SubGrupo1> subgrupos)
+        private void ExecutaComandoSubGrupo1(List<SubGrupo1> subgrupos1)
         {
             try
             {
@@ -1504,7 +1502,7 @@ namespace ImportadorFopImperium
                 StringBuilder strSubGrupo = new StringBuilder(comando);
                 int cont = 0;
 
-                foreach (SubGrupo1 s in subgrupos)
+                foreach (SubGrupo1 s in subgrupos1)
                 {
                     strSubGrupo.AppendLine(RetornaLinhaInserirSubGrupo1(s));
                     cont++;

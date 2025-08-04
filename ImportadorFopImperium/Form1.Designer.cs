@@ -712,7 +712,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
             this.Name = "frmPrincipal";
-            this.Text = "Form1";
+            this.Text = "Importador";
             this.Load += new System.EventHandler(this.frmPrincipal_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

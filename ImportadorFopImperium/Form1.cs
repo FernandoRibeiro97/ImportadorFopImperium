@@ -2560,8 +2560,15 @@ namespace ImportadorFopImperium
         {
             return valor.Replace(",", ".");
         }
-        #endregion
 
-        //TODO: VERIFICAR OS CHECKBOXS PRINCIPAIS PARA DESABILITAR OS DEPENDENTES 
+        private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
+        {
+            chkContasPagar.Enabled = chkFornecedores.Checked;
+        }
+        private void chkClientes_CheckedChanged(object sender, EventArgs e)
+        {
+            chkContasReceber.Enabled = chkClientes.Checked;
+        }
+        #endregion
     }
 }

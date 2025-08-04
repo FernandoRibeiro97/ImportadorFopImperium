@@ -199,6 +199,7 @@
             this.chkFornecedores.TabIndex = 23;
             this.chkFornecedores.Text = "Fornecedores";
             this.chkFornecedores.UseVisualStyleBackColor = true;
+            this.chkFornecedores.CheckedChanged += new System.EventHandler(this.chkFornecedores_CheckedChanged);
             // 
             // chkClientes
             // 
@@ -211,6 +212,7 @@
             this.chkClientes.TabIndex = 22;
             this.chkClientes.Text = "Clientes";
             this.chkClientes.UseVisualStyleBackColor = true;
+            this.chkClientes.CheckedChanged += new System.EventHandler(this.chkClientes_CheckedChanged);
             // 
             // chkNFEntrada
             // 

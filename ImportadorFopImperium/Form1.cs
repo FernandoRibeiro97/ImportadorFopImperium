@@ -927,6 +927,68 @@ namespace ImportadorFopImperium
                 FecharConexaoMysql();
             }
         }
+        private ProdutoImperium RetornaProdutoImperiumPorDataRow(DataRow r)
+        {
+            int loja = ConverterInt32(r["fkCliente"].ToString());
+            string descricaoReduzida = r["nomeImpressao"].ToString().Length > 24 ? r["nomeImpressao"].ToString().Substring(0, 24) : r["nomeImpressao"].ToString();
+            string cest = r["cest"].ToString().Length > 7 ? r["cest"].ToString().Substring(0, 7) : r["cest"].ToString();
+
+            ProdutoImperium produto = new ProdutoImperium();
+            produto.Id = ConverterInt64(r["id"].ToString());
+            produto.Descricao = r["nomeProduto"].ToString();
+            produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao : descricaoReduzida;
+            produto.Unidade_Entrada = r["unidade"].ToString();
+            produto.Unidade_Saida = r["unidade"].ToString();
+            produto.Embalagem_Entrada = ConverterDecimal(r["tamCaixa"].ToString());
+            produto.Embalagem_Saida = ConverterDecimal(r["tamEmbVenda"].ToString());
+            produto.Obs = "IMPORTADO";
+            produto.Validade = 0; //TODO: VERIFICAR CAMPO
+            produto.Id_Grupo = ConverterInt32(r["fkCategoria"].ToString());
+            produto.Id_SubGrupo = ConverterInt32(r["fkSubCategoria"].ToString());
+            produto.Id_SubGrupo1 = 0;
+            produto.Id_Situacao = r["ativo"].ToString() == "0" ? 2 : 1;
+            produto.Peso_Variavel = r["balanca"].ToString() == "1" ? 1 : 0;
+            produto.Etiqueta = 1;
+            produto.Ean = ConverterInt64(r["id"].ToString()).ToString();
+            produto.Ean1 = r["id"].ToString();
+            produto.ClassFiscal = r["classFiscal"].ToString();
+            produto.Cest = cest;
+            produto.Vasilhame = ConverterInt32(r["isvasilhame"].ToString());
+            produto.Tipo = r["balanca"].ToString() == "1" ? "P" : "U";
+            produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
+            produto.Id_Familia = ConverterInt64(r["fkFamilia"].ToString());
+
+            produto.Preco = new ProdutoPreco();
+            int tamanhoCaixa = ConverterInt32(r["tamCaixa"].ToString()) == 0 ? 1 : ConverterInt32(r["tamCaixa"].ToString());
+            DateTime inicioPromo = new DateTime(2021, 1, 1);
+            DateTime finalPromo = new DateTime(2021, 1, 1);
+            decimal precoVenda = r["precoVenda"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoVenda"].ToString());
+            decimal precoAnterior = r["precoAnterior"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoAnterior"].ToString());
+            produto.Preco.LOJA = loja;
+            produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 3);
+            produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["custoMedio"].ToString());
+            produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["precoVenda"].ToString()), 3);
+            produto.Preco.VENDA2 = 0;
+            produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
+            produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
+            produto.Preco.MARGEM = ConverterDecimal(r["margemDesejada"].ToString());
+            produto.Preco.VENDA1_ANTERIOR = Math.Round(precoAnterior, 3);
+            produto.Preco.IDFAMILIA = ConverterInt32(r["fkFamilia"].ToString());
+
+            produto.Estoque = new ProdutoEstoque();
+            produto.Estoque.Loja = loja;
+            produto.Estoque.Estoque_Atual = ConverterDecimal(r["estoqueAtual"].ToString());
+            produto.Estoque.Estoque_Minimo = ConverterDecimal(r["estoqueMin"].ToString());
+            produto.Estoque.Cobertura_Estoque = 0;
+
+            produto.Tributacao = new ProdutoTributacao();
+            produto.Tributacao.Loja = loja;
+            produto.Tributacao.Origem = "0 - NACIONAL";
+            produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
+            AjustaTributacaoProduto(produto);
+
+            return produto;
+        }
         private string RetornaLinhaInserirProduto(ProdutoImperium produto)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -1042,68 +1104,6 @@ namespace ImportadorFopImperium
             stringBuilder.Append("),");
 
             return stringBuilder.ToString();
-        }
-        private ProdutoImperium RetornaProdutoImperiumPorDataRow(DataRow r)
-        {
-            int loja = ConverterInt32(r["fkCliente"].ToString());
-            string descricaoReduzida = r["nomeImpressao"].ToString().Length > 24 ? r["nomeImpressao"].ToString().Substring(0, 24) : r["nomeImpressao"].ToString();
-            string cest = r["cest"].ToString().Length > 7 ? r["cest"].ToString().Substring(0, 7) : r["cest"].ToString();
-
-            ProdutoImperium produto = new ProdutoImperium();
-            produto.Id = ConverterInt64(r["id"].ToString());
-            produto.Descricao = r["nomeProduto"].ToString();
-            produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) :  produto.Descricao : descricaoReduzida;
-            produto.Unidade_Entrada = r["unidade"].ToString();
-            produto.Unidade_Saida = r["unidade"].ToString();
-            produto.Embalagem_Entrada = ConverterDecimal(r["tamCaixa"].ToString());
-            produto.Embalagem_Saida = ConverterDecimal(r["tamEmbVenda"].ToString());
-            produto.Obs = "IMPORTADO";
-            produto.Validade = 0; //TODO: VERIFICAR CAMPO
-            produto.Id_Grupo = ConverterInt32(r["fkCategoria"].ToString());
-            produto.Id_SubGrupo = ConverterInt32(r["fkSubCategoria"].ToString());
-            produto.Id_SubGrupo1 = 0;
-            produto.Id_Situacao = r["ativo"].ToString() == "0" ? 2 : 1;
-            produto.Peso_Variavel = r["balanca"].ToString() == "1" ? 1 : 0;
-            produto.Etiqueta = 1;
-            produto.Ean = ConverterInt64(r["id"].ToString()).ToString();
-            produto.Ean1 = r["id"].ToString();
-            produto.ClassFiscal = r["classFiscal"].ToString();
-            produto.Cest = cest;
-            produto.Vasilhame = ConverterInt32(r["isvasilhame"].ToString());
-            produto.Tipo = r["balanca"].ToString() == "1" ? "P" : "U";
-            produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
-            produto.Id_Familia = ConverterInt64(r["fkFamilia"].ToString());
-
-            produto.Preco = new ProdutoPreco();
-            int tamanhoCaixa = ConverterInt32(r["tamCaixa"].ToString()) == 0 ? 1 : ConverterInt32(r["tamCaixa"].ToString());
-            DateTime inicioPromo = new DateTime(2021, 1, 1);
-            DateTime finalPromo = new DateTime(2021, 1, 1);
-            decimal precoVenda = r["precoVenda"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoVenda"].ToString());
-            decimal precoAnterior = r["precoAnterior"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoAnterior"].ToString());
-            produto.Preco.LOJA = loja;
-            produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 3);
-            produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["custoMedio"].ToString());
-            produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["precoVenda"].ToString()), 3);
-            produto.Preco.VENDA2 = 0;
-            produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
-            produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
-            produto.Preco.MARGEM = ConverterDecimal(r["margemDesejada"].ToString());
-            produto.Preco.VENDA1_ANTERIOR = Math.Round(precoAnterior, 3);
-            produto.Preco.IDFAMILIA = ConverterInt32(r["fkFamilia"].ToString());
-
-            produto.Estoque = new ProdutoEstoque();
-            produto.Estoque.Loja = loja;
-            produto.Estoque.Estoque_Atual = ConverterDecimal(r["estoqueAtual"].ToString());
-            produto.Estoque.Estoque_Minimo = ConverterDecimal(r["estoqueMin"].ToString());
-            produto.Estoque.Cobertura_Estoque = 0;
-
-            produto.Tributacao = new ProdutoTributacao();
-            produto.Tributacao.Loja = loja;
-            produto.Tributacao.Origem = r["origem"].ToString() != "0" ? r["origem"].ToString() : "0 - NACIONAL";
-            produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
-            AjustaTributacaoProduto(produto);
-
-            return produto;
         }
         private void AjustaTributacaoProduto(ProdutoImperium produto)
         {

@@ -963,6 +963,8 @@ namespace ImportadorFopImperium
         }
         private string RetornaLinhaInserirPreco(ProdutoImperium produto)
         {
+            CorrigirCamposProdutoPreco(produto.Preco);
+
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
             stringBuilder.Append($"{produto.Preco.LOJA},");
@@ -970,11 +972,11 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO_MEDIO.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA2.ToString())},");
-            stringBuilder.Append($"{produto.Preco.DTINICIOPROMOCAO},");
-            stringBuilder.Append($"{produto.Preco.DTFINALPROMOCAO},");
+            stringBuilder.Append($"'{produto.Preco.DTINICIOPROMOCAO}',");
+            stringBuilder.Append($"'{produto.Preco.DTFINALPROMOCAO}',");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.MARGEM.ToString())},");
             stringBuilder.Append($"{produto.Preco.IDFAMILIA},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1_ANTERIOR.ToString())}");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1_ANTERIOR > 0 ? produto.Preco.VENDA1_ANTERIOR.ToString() : "0.00")}");
             stringBuilder.Append($"),");
 
             return stringBuilder.ToString();
@@ -1076,15 +1078,17 @@ namespace ImportadorFopImperium
             int tamanhoCaixa = ConverterInt32(r["tamCaixa"].ToString()) == 0 ? 1 : ConverterInt32(r["tamCaixa"].ToString());
             DateTime inicioPromo = new DateTime(2021, 1, 1);
             DateTime finalPromo = new DateTime(2021, 1, 1);
+            decimal precoVenda = r["precoVenda"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoVenda"].ToString());
+            decimal precoAnterior = r["precoAnterior"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoAnterior"].ToString());
             produto.Preco.LOJA = loja;
-            produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 4);
+            produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 3);
             produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["custoMedio"].ToString());
-            produto.Preco.VENDA1 = ConverterDecimal(r["precoVenda"].ToString());
+            produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["precoVenda"].ToString()), 3);
             produto.Preco.VENDA2 = 0;
             produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
             produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
             produto.Preco.MARGEM = ConverterDecimal(r["margemDesejada"].ToString());
-            produto.Preco.VENDA1_ANTERIOR = ConverterDecimal(r["precoAnterior"].ToString());
+            produto.Preco.VENDA1_ANTERIOR = Math.Round(precoAnterior, 3);
             produto.Preco.IDFAMILIA = ConverterInt32(r["fkFamilia"].ToString());
 
             produto.Estoque = new ProdutoEstoque();
@@ -1357,6 +1361,14 @@ namespace ImportadorFopImperium
                 var x = ex.Message;
                 return 0M;
             }
+        }
+        private void CorrigirCamposProdutoPreco(ProdutoPreco preco)
+        {
+            if (preco.VENDA1 > 99999.99M)
+                preco.VENDA1 = 0;
+
+            if (preco.VENDA1_ANTERIOR > 99999.99M)
+                preco.VENDA1_ANTERIOR = 0;
         }
         #endregion
 

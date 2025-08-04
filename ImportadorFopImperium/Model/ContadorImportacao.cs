@@ -10,5 +10,8 @@
         public long Cont_Contas_Pagar { get; set; } = 0;
         public long Cont_Contas_Receber { get; set; } = 0;
         public long Cont_Nota_Entrada { get; set; } = 0;
+        public long Cont_Grupo { get; set; }
+        public long Cont_SubGrupo { get; set; }
+        public long Cont_SubGrupo1 { get; set; }
     }
 }

@@ -42,16 +42,14 @@
             this.chkNFEntrada = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
             this.chkContasReceber = new System.Windows.Forms.CheckBox();
-            this.chkSecoes = new System.Windows.Forms.CheckBox();
+            this.chkGrupo = new System.Windows.Forms.CheckBox();
             this.chkItensFornecedor = new System.Windows.Forms.CheckBox();
             this.barraProgresso = new System.Windows.Forms.ProgressBar();
             this.btnImportar = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.lblUsuarios = new System.Windows.Forms.Label();
             this.lblLojas = new System.Windows.Forms.Label();
-            this.lblMapa = new System.Windows.Forms.Label();
             this.lblContaPagar = new System.Windows.Forms.Label();
             this.lblMovCaixa = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
@@ -62,12 +60,10 @@
             this.lblFornecedores = new System.Windows.Forms.Label();
             this.lblFamilias = new System.Windows.Forms.Label();
             this.lblClientes = new System.Windows.Forms.Label();
-            this.lblSecoes = new System.Windows.Forms.Label();
+            this.lblGrupo = new System.Windows.Forms.Label();
             this.lblItensFornecedor = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.lblContUsuario = new System.Windows.Forms.Label();
             this.lblContLojas = new System.Windows.Forms.Label();
-            this.lblContMapa = new System.Windows.Forms.Label();
             this.lblContContaPagar = new System.Windows.Forms.Label();
             this.lblContMovCaixa = new System.Windows.Forms.Label();
             this.lblContNFEntrada = new System.Windows.Forms.Label();
@@ -78,8 +74,14 @@
             this.lblContFamilias = new System.Windows.Forms.Label();
             this.lblContFornecedores = new System.Windows.Forms.Label();
             this.lblContClientes = new System.Windows.Forms.Label();
-            this.lblContSecoes = new System.Windows.Forms.Label();
+            this.lblContGrupos = new System.Windows.Forms.Label();
             this.lblContItensFornecedor = new System.Windows.Forms.Label();
+            this.chkSubGrupo = new System.Windows.Forms.CheckBox();
+            this.chkSubGrupo1 = new System.Windows.Forms.CheckBox();
+            this.lblSubGrupo = new System.Windows.Forms.Label();
+            this.lblSubGrupo1 = new System.Windows.Forms.Label();
+            this.lblContSubGrupo = new System.Windows.Forms.Label();
+            this.lblContSubGrupo1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -109,6 +111,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chkSubGrupo1);
+            this.groupBox2.Controls.Add(this.chkSubGrupo);
             this.groupBox2.Controls.Add(this.chkLojas);
             this.groupBox2.Controls.Add(this.chkFamilias);
             this.groupBox2.Controls.Add(this.chkProdutos);
@@ -119,7 +123,7 @@
             this.groupBox2.Controls.Add(this.chkNFEntrada);
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.chkContasReceber);
-            this.groupBox2.Controls.Add(this.chkSecoes);
+            this.groupBox2.Controls.Add(this.chkGrupo);
             this.groupBox2.Controls.Add(this.chkItensFornecedor);
             this.groupBox2.Location = new System.Drawing.Point(8, 52);
             this.groupBox2.Name = "groupBox2";
@@ -144,7 +148,7 @@
             this.chkFamilias.AutoSize = true;
             this.chkFamilias.Enabled = false;
             this.chkFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkFamilias.Location = new System.Drawing.Point(22, 289);
+            this.chkFamilias.Location = new System.Drawing.Point(23, 350);
             this.chkFamilias.Name = "chkFamilias";
             this.chkFamilias.Size = new System.Drawing.Size(71, 17);
             this.chkFamilias.TabIndex = 25;
@@ -181,7 +185,7 @@
             this.chkMovCaixa.AutoSize = true;
             this.chkMovCaixa.Enabled = false;
             this.chkMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkMovCaixa.Location = new System.Drawing.Point(22, 269);
+            this.chkMovCaixa.Location = new System.Drawing.Point(23, 330);
             this.chkMovCaixa.Name = "chkMovCaixa";
             this.chkMovCaixa.Size = new System.Drawing.Size(86, 17);
             this.chkMovCaixa.TabIndex = 32;
@@ -219,7 +223,7 @@
             this.chkNFEntrada.AutoSize = true;
             this.chkNFEntrada.Enabled = false;
             this.chkNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkNFEntrada.Location = new System.Drawing.Point(22, 249);
+            this.chkNFEntrada.Location = new System.Drawing.Point(23, 310);
             this.chkNFEntrada.Name = "chkNFEntrada";
             this.chkNFEntrada.Size = new System.Drawing.Size(88, 17);
             this.chkNFEntrada.TabIndex = 31;
@@ -248,24 +252,25 @@
             this.chkContasReceber.Text = "Contas a Receber";
             this.chkContasReceber.UseVisualStyleBackColor = true;
             // 
-            // chkSecoes
+            // chkGrupo
             // 
-            this.chkSecoes.AutoSize = true;
-            this.chkSecoes.Enabled = false;
-            this.chkSecoes.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkSecoes.Location = new System.Drawing.Point(22, 205);
-            this.chkSecoes.Name = "chkSecoes";
-            this.chkSecoes.Size = new System.Drawing.Size(67, 17);
-            this.chkSecoes.TabIndex = 24;
-            this.chkSecoes.Text = "Seções";
-            this.chkSecoes.UseVisualStyleBackColor = true;
+            this.chkGrupo.AutoSize = true;
+            this.chkGrupo.Enabled = false;
+            this.chkGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkGrupo.Location = new System.Drawing.Point(22, 205);
+            this.chkGrupo.Name = "chkGrupo";
+            this.chkGrupo.Size = new System.Drawing.Size(67, 17);
+            this.chkGrupo.TabIndex = 24;
+            this.chkGrupo.Text = "Seções";
+            this.chkGrupo.UseVisualStyleBackColor = true;
+            this.chkGrupo.CheckedChanged += new System.EventHandler(this.chkGrupo_CheckedChanged);
             // 
             // chkItensFornecedor
             // 
             this.chkItensFornecedor.AutoSize = true;
             this.chkItensFornecedor.Enabled = false;
             this.chkItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkItensFornecedor.Location = new System.Drawing.Point(22, 228);
+            this.chkItensFornecedor.Location = new System.Drawing.Point(23, 289);
             this.chkItensFornecedor.Name = "chkItensFornecedor";
             this.chkItensFornecedor.Size = new System.Drawing.Size(123, 17);
             this.chkItensFornecedor.TabIndex = 28;
@@ -325,9 +330,9 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.lblUsuarios);
+            this.groupBox3.Controls.Add(this.lblSubGrupo1);
+            this.groupBox3.Controls.Add(this.lblSubGrupo);
             this.groupBox3.Controls.Add(this.lblLojas);
-            this.groupBox3.Controls.Add(this.lblMapa);
             this.groupBox3.Controls.Add(this.lblContaPagar);
             this.groupBox3.Controls.Add(this.lblMovCaixa);
             this.groupBox3.Controls.Add(this.label18);
@@ -338,23 +343,13 @@
             this.groupBox3.Controls.Add(this.lblFornecedores);
             this.groupBox3.Controls.Add(this.lblFamilias);
             this.groupBox3.Controls.Add(this.lblClientes);
-            this.groupBox3.Controls.Add(this.lblSecoes);
+            this.groupBox3.Controls.Add(this.lblGrupo);
             this.groupBox3.Controls.Add(this.lblItensFornecedor);
             this.groupBox3.Location = new System.Drawing.Point(197, 52);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(106, 378);
             this.groupBox3.TabIndex = 68;
             this.groupBox3.TabStop = false;
-            // 
-            // lblUsuarios
-            // 
-            this.lblUsuarios.AutoSize = true;
-            this.lblUsuarios.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUsuarios.Location = new System.Drawing.Point(6, 320);
-            this.lblUsuarios.Name = "lblUsuarios";
-            this.lblUsuarios.Size = new System.Drawing.Size(11, 13);
-            this.lblUsuarios.TabIndex = 26;
-            this.lblUsuarios.Text = ".";
             // 
             // lblLojas
             // 
@@ -365,16 +360,6 @@
             this.lblLojas.Size = new System.Drawing.Size(11, 13);
             this.lblLojas.TabIndex = 25;
             this.lblLojas.Text = ".";
-            // 
-            // lblMapa
-            // 
-            this.lblMapa.AutoSize = true;
-            this.lblMapa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMapa.Location = new System.Drawing.Point(6, 310);
-            this.lblMapa.Name = "lblMapa";
-            this.lblMapa.Size = new System.Drawing.Size(11, 13);
-            this.lblMapa.TabIndex = 24;
-            this.lblMapa.Text = ".";
             // 
             // lblContaPagar
             // 
@@ -390,7 +375,7 @@
             // 
             this.lblMovCaixa.AutoSize = true;
             this.lblMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMovCaixa.Location = new System.Drawing.Point(6, 270);
+            this.lblMovCaixa.Location = new System.Drawing.Point(6, 330);
             this.lblMovCaixa.Name = "lblMovCaixa";
             this.lblMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblMovCaixa.TabIndex = 23;
@@ -410,7 +395,7 @@
             // 
             this.lblNFEntrada.AutoSize = true;
             this.lblNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNFEntrada.Location = new System.Drawing.Point(6, 249);
+            this.lblNFEntrada.Location = new System.Drawing.Point(6, 309);
             this.lblNFEntrada.Name = "lblNFEntrada";
             this.lblNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblNFEntrada.TabIndex = 22;
@@ -460,7 +445,7 @@
             // 
             this.lblFamilias.AutoSize = true;
             this.lblFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFamilias.Location = new System.Drawing.Point(6, 289);
+            this.lblFamilias.Location = new System.Drawing.Point(6, 349);
             this.lblFamilias.Name = "lblFamilias";
             this.lblFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblFamilias.TabIndex = 9;
@@ -476,21 +461,21 @@
             this.lblClientes.TabIndex = 6;
             this.lblClientes.Text = ".";
             // 
-            // lblSecoes
+            // lblGrupo
             // 
-            this.lblSecoes.AutoSize = true;
-            this.lblSecoes.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSecoes.Location = new System.Drawing.Point(7, 204);
-            this.lblSecoes.Name = "lblSecoes";
-            this.lblSecoes.Size = new System.Drawing.Size(11, 13);
-            this.lblSecoes.TabIndex = 8;
-            this.lblSecoes.Text = ".";
+            this.lblGrupo.AutoSize = true;
+            this.lblGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGrupo.Location = new System.Drawing.Point(7, 204);
+            this.lblGrupo.Name = "lblGrupo";
+            this.lblGrupo.Size = new System.Drawing.Size(11, 13);
+            this.lblGrupo.TabIndex = 8;
+            this.lblGrupo.Text = ".";
             // 
             // lblItensFornecedor
             // 
             this.lblItensFornecedor.AutoSize = true;
             this.lblItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblItensFornecedor.Location = new System.Drawing.Point(6, 228);
+            this.lblItensFornecedor.Location = new System.Drawing.Point(6, 288);
             this.lblItensFornecedor.Name = "lblItensFornecedor";
             this.lblItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblItensFornecedor.TabIndex = 18;
@@ -498,9 +483,9 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.lblContUsuario);
+            this.groupBox4.Controls.Add(this.lblContSubGrupo1);
+            this.groupBox4.Controls.Add(this.lblContSubGrupo);
             this.groupBox4.Controls.Add(this.lblContLojas);
-            this.groupBox4.Controls.Add(this.lblContMapa);
             this.groupBox4.Controls.Add(this.lblContContaPagar);
             this.groupBox4.Controls.Add(this.lblContMovCaixa);
             this.groupBox4.Controls.Add(this.lblContNFEntrada);
@@ -511,23 +496,13 @@
             this.groupBox4.Controls.Add(this.lblContFamilias);
             this.groupBox4.Controls.Add(this.lblContFornecedores);
             this.groupBox4.Controls.Add(this.lblContClientes);
-            this.groupBox4.Controls.Add(this.lblContSecoes);
+            this.groupBox4.Controls.Add(this.lblContGrupos);
             this.groupBox4.Controls.Add(this.lblContItensFornecedor);
             this.groupBox4.Location = new System.Drawing.Point(309, 52);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(106, 378);
             this.groupBox4.TabIndex = 69;
             this.groupBox4.TabStop = false;
-            // 
-            // lblContUsuario
-            // 
-            this.lblContUsuario.AutoSize = true;
-            this.lblContUsuario.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContUsuario.Location = new System.Drawing.Point(7, 331);
-            this.lblContUsuario.Name = "lblContUsuario";
-            this.lblContUsuario.Size = new System.Drawing.Size(11, 13);
-            this.lblContUsuario.TabIndex = 27;
-            this.lblContUsuario.Text = ".";
             // 
             // lblContLojas
             // 
@@ -538,16 +513,6 @@
             this.lblContLojas.Size = new System.Drawing.Size(11, 13);
             this.lblContLojas.TabIndex = 26;
             this.lblContLojas.Text = ".";
-            // 
-            // lblContMapa
-            // 
-            this.lblContMapa.AutoSize = true;
-            this.lblContMapa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMapa.Location = new System.Drawing.Point(7, 310);
-            this.lblContMapa.Name = "lblContMapa";
-            this.lblContMapa.Size = new System.Drawing.Size(11, 13);
-            this.lblContMapa.TabIndex = 25;
-            this.lblContMapa.Text = ".";
             // 
             // lblContContaPagar
             // 
@@ -563,7 +528,7 @@
             // 
             this.lblContMovCaixa.AutoSize = true;
             this.lblContMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMovCaixa.Location = new System.Drawing.Point(7, 270);
+            this.lblContMovCaixa.Location = new System.Drawing.Point(8, 330);
             this.lblContMovCaixa.Name = "lblContMovCaixa";
             this.lblContMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblContMovCaixa.TabIndex = 24;
@@ -573,7 +538,7 @@
             // 
             this.lblContNFEntrada.AutoSize = true;
             this.lblContNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContNFEntrada.Location = new System.Drawing.Point(7, 249);
+            this.lblContNFEntrada.Location = new System.Drawing.Point(8, 309);
             this.lblContNFEntrada.Name = "lblContNFEntrada";
             this.lblContNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblContNFEntrada.TabIndex = 23;
@@ -603,7 +568,7 @@
             // 
             this.lblContProdutos.AutoSize = true;
             this.lblContProdutos.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContProdutos.Location = new System.Drawing.Point(7, 179);
+            this.lblContProdutos.Location = new System.Drawing.Point(8, 183);
             this.lblContProdutos.Name = "lblContProdutos";
             this.lblContProdutos.Size = new System.Drawing.Size(11, 13);
             this.lblContProdutos.TabIndex = 10;
@@ -623,7 +588,7 @@
             // 
             this.lblContFamilias.AutoSize = true;
             this.lblContFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContFamilias.Location = new System.Drawing.Point(7, 290);
+            this.lblContFamilias.Location = new System.Drawing.Point(8, 350);
             this.lblContFamilias.Name = "lblContFamilias";
             this.lblContFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblContFamilias.TabIndex = 9;
@@ -649,25 +614,89 @@
             this.lblContClientes.TabIndex = 6;
             this.lblContClientes.Text = ".";
             // 
-            // lblContSecoes
+            // lblContGrupos
             // 
-            this.lblContSecoes.AutoSize = true;
-            this.lblContSecoes.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContSecoes.Location = new System.Drawing.Point(7, 200);
-            this.lblContSecoes.Name = "lblContSecoes";
-            this.lblContSecoes.Size = new System.Drawing.Size(11, 13);
-            this.lblContSecoes.TabIndex = 8;
-            this.lblContSecoes.Text = ".";
+            this.lblContGrupos.AutoSize = true;
+            this.lblContGrupos.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContGrupos.Location = new System.Drawing.Point(8, 204);
+            this.lblContGrupos.Name = "lblContGrupos";
+            this.lblContGrupos.Size = new System.Drawing.Size(11, 13);
+            this.lblContGrupos.TabIndex = 8;
+            this.lblContGrupos.Text = ".";
             // 
             // lblContItensFornecedor
             // 
             this.lblContItensFornecedor.AutoSize = true;
             this.lblContItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContItensFornecedor.Location = new System.Drawing.Point(7, 228);
+            this.lblContItensFornecedor.Location = new System.Drawing.Point(8, 288);
             this.lblContItensFornecedor.Name = "lblContItensFornecedor";
             this.lblContItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblContItensFornecedor.TabIndex = 19;
             this.lblContItensFornecedor.Text = ".";
+            // 
+            // chkSubGrupo
+            // 
+            this.chkSubGrupo.AutoSize = true;
+            this.chkSubGrupo.Enabled = false;
+            this.chkSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSubGrupo.Location = new System.Drawing.Point(22, 225);
+            this.chkSubGrupo.Name = "chkSubGrupo";
+            this.chkSubGrupo.Size = new System.Drawing.Size(61, 17);
+            this.chkSubGrupo.TabIndex = 35;
+            this.chkSubGrupo.Text = "Grupo";
+            this.chkSubGrupo.UseVisualStyleBackColor = true;
+            // 
+            // chkSubGrupo1
+            // 
+            this.chkSubGrupo1.AutoSize = true;
+            this.chkSubGrupo1.Enabled = false;
+            this.chkSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSubGrupo1.Location = new System.Drawing.Point(23, 245);
+            this.chkSubGrupo1.Name = "chkSubGrupo1";
+            this.chkSubGrupo1.Size = new System.Drawing.Size(83, 17);
+            this.chkSubGrupo1.TabIndex = 36;
+            this.chkSubGrupo1.Text = "SubGrupo";
+            this.chkSubGrupo1.UseVisualStyleBackColor = true;
+            // 
+            // lblSubGrupo
+            // 
+            this.lblSubGrupo.AutoSize = true;
+            this.lblSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSubGrupo.Location = new System.Drawing.Point(7, 226);
+            this.lblSubGrupo.Name = "lblSubGrupo";
+            this.lblSubGrupo.Size = new System.Drawing.Size(11, 13);
+            this.lblSubGrupo.TabIndex = 26;
+            this.lblSubGrupo.Text = ".";
+            // 
+            // lblSubGrupo1
+            // 
+            this.lblSubGrupo1.AutoSize = true;
+            this.lblSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSubGrupo1.Location = new System.Drawing.Point(7, 245);
+            this.lblSubGrupo1.Name = "lblSubGrupo1";
+            this.lblSubGrupo1.Size = new System.Drawing.Size(11, 13);
+            this.lblSubGrupo1.TabIndex = 27;
+            this.lblSubGrupo1.Text = ".";
+            // 
+            // lblContSubGrupo
+            // 
+            this.lblContSubGrupo.AutoSize = true;
+            this.lblContSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContSubGrupo.Location = new System.Drawing.Point(8, 228);
+            this.lblContSubGrupo.Name = "lblContSubGrupo";
+            this.lblContSubGrupo.Size = new System.Drawing.Size(11, 13);
+            this.lblContSubGrupo.TabIndex = 27;
+            this.lblContSubGrupo.Text = ".";
+            // 
+            // lblContSubGrupo1
+            // 
+            this.lblContSubGrupo1.AutoSize = true;
+            this.lblContSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContSubGrupo1.Location = new System.Drawing.Point(8, 246);
+            this.lblContSubGrupo1.Name = "lblContSubGrupo1";
+            this.lblContSubGrupo1.Size = new System.Drawing.Size(11, 13);
+            this.lblContSubGrupo1.TabIndex = 28;
+            this.lblContSubGrupo1.Text = ".";
             // 
             // frmPrincipal
             // 
@@ -712,16 +741,14 @@
         private System.Windows.Forms.CheckBox chkNFEntrada;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.CheckBox chkContasReceber;
-        private System.Windows.Forms.CheckBox chkSecoes;
+        private System.Windows.Forms.CheckBox chkGrupo;
         private System.Windows.Forms.CheckBox chkItensFornecedor;
         private System.Windows.Forms.ProgressBar barraProgresso;
         private System.Windows.Forms.Button btnImportar;
         private System.Windows.Forms.Button btnCarregar;
         private System.Windows.Forms.Button btnFechar;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Label lblUsuarios;
         private System.Windows.Forms.Label lblLojas;
-        private System.Windows.Forms.Label lblMapa;
         private System.Windows.Forms.Label lblContaPagar;
         private System.Windows.Forms.Label lblMovCaixa;
         private System.Windows.Forms.Label label18;
@@ -732,12 +759,10 @@
         private System.Windows.Forms.Label lblFornecedores;
         private System.Windows.Forms.Label lblFamilias;
         private System.Windows.Forms.Label lblClientes;
-        private System.Windows.Forms.Label lblSecoes;
+        private System.Windows.Forms.Label lblGrupo;
         private System.Windows.Forms.Label lblItensFornecedor;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Label lblContUsuario;
         private System.Windows.Forms.Label lblContLojas;
-        private System.Windows.Forms.Label lblContMapa;
         private System.Windows.Forms.Label lblContContaPagar;
         private System.Windows.Forms.Label lblContMovCaixa;
         private System.Windows.Forms.Label lblContNFEntrada;
@@ -748,8 +773,14 @@
         private System.Windows.Forms.Label lblContFamilias;
         private System.Windows.Forms.Label lblContFornecedores;
         private System.Windows.Forms.Label lblContClientes;
-        private System.Windows.Forms.Label lblContSecoes;
+        private System.Windows.Forms.Label lblContGrupos;
         private System.Windows.Forms.Label lblContItensFornecedor;
+        private System.Windows.Forms.CheckBox chkSubGrupo1;
+        private System.Windows.Forms.CheckBox chkSubGrupo;
+        private System.Windows.Forms.Label lblSubGrupo1;
+        private System.Windows.Forms.Label lblSubGrupo;
+        private System.Windows.Forms.Label lblContSubGrupo1;
+        private System.Windows.Forms.Label lblContSubGrupo;
     }
 }
 

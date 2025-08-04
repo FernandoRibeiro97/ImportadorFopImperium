@@ -111,6 +111,7 @@ namespace ImportadorFopImperium
         {
             chkFamilias.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Familia.Rows.Count > 0;
             chkItensFornecedor.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0;
+            chkGrupo.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Grupo.Rows.Count > 0;
         }
         private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
         {
@@ -119,6 +120,10 @@ namespace ImportadorFopImperium
         private void chkClientes_CheckedChanged(object sender, EventArgs e)
         {
             chkContasReceber.Enabled = chkClientes.Checked;
+        }
+        private void chkGrupo_CheckedChanged(object sender, EventArgs e)
+        {
+            chkSubGrupo.Checked = chkSubGrupo1.Checked = chkGrupo.Checked;
         }
 
         #region CARREGAR
@@ -421,7 +426,7 @@ namespace ImportadorFopImperium
                     ImportarFamilia();
                 }
 
-                if (true) //TODO: ARVORE MERCADOLOGICO
+                if (chkGrupo.Checked)
                 {
                     ImportarGrupo();
                     ImportarSubGrupo();
@@ -1618,6 +1623,7 @@ namespace ImportadorFopImperium
                 {
                     strGrupo.AppendLine(RetornaLinhaInserirGrupo(g));
                     cont++;
+                    contadorImportacao.Cont_Grupo++;
 
                     if (cont == qtdeImportar)
                     {
@@ -1668,6 +1674,7 @@ namespace ImportadorFopImperium
                 foreach (SubGrupo g in subgrupos)
                 {
                     cont++;
+                    contadorImportacao.Cont_SubGrupo++;
                     strGrupo.AppendLine(RetornaLinhaInserirSubGrupo(g));
 
                     if (cont == qtdeImportar)
@@ -1725,6 +1732,7 @@ namespace ImportadorFopImperium
                 {
                     strSubGrupo.AppendLine(RetornaLinhaInserirSubGrupo1(s));
                     cont++;
+                    contadorImportacao.Cont_SubGrupo1++;
 
                     if (cont == qtdeImportar)
                     {
@@ -2829,6 +2837,9 @@ namespace ImportadorFopImperium
             lblFamilias.Text = ImportacaoImperium.Dt_Familia != null ? ImportacaoImperium.Dt_Familia.Rows.Count.ToString() : "0";
             lblItensFornecedor.Text = ImportacaoImperium.Dt_Itens_Fornecedor != null ? ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count.ToString() : "0";
             lblContaPagar.Text = ImportacaoImperium.Dt_Contas_Pagar != null ? ImportacaoImperium.Dt_Contas_Pagar.Rows.Count.ToString() : "0";
+            lblGrupo.Text = ImportacaoImperium.Dt_Grupo != null ? ImportacaoImperium.Dt_Grupo.Rows.Count.ToString() : "0";
+            lblSubGrupo.Text = ImportacaoImperium.Dt_SubGrupo != null ? ImportacaoImperium.Dt_SubGrupo.Rows.Count.ToString() : "0";
+            lblSubGrupo1.Text = ImportacaoImperium.Dt_SubGrupo1 != null ? ImportacaoImperium.Dt_SubGrupo1.Rows.Count.ToString() : "0";
         }
         private void InformaContadorRegistrosImportados()
         {
@@ -2839,6 +2850,9 @@ namespace ImportadorFopImperium
             lblContContaPagar.Text = contadorImportacao.Cont_Contas_Pagar.ToString();
             lblContFamilias.Text = contadorImportacao.Cont_Familias.ToString();
             lblContItensFornecedor.Text = contadorImportacao.Cont_ItensFornecedor.ToString();
+            lblContGrupos.Text = contadorImportacao.Cont_Grupo.ToString();
+            lblContSubGrupo.Text = contadorImportacao.Cont_SubGrupo.ToString();
+            lblContSubGrupo1.Text = contadorImportacao.Cont_SubGrupo1.ToString();
         }
         private void Logar(string mensagem)
         {

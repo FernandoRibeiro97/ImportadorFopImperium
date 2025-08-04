@@ -198,8 +198,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao carregar produtos");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao carregar produtos");
+                Logar(ex.Message);
                 return null;
             }
         }
@@ -208,7 +208,7 @@ namespace ImportadorFopImperium
             try
             {
                 string comando = @"SELECT e.id, e.razaoSocial, e.nomeFantasia, ISNULL(ce.logradouro, 'SEM ENDERECO') AS endereco, ce.numero, ce.bairro, UPPER(mun.nomeMunicipio) AS cidade, mun.cdMunicipio, uf.siglaUF AS uf, ce.cep,
-                    e.cnpj, e.inscricaoEstadual, '00' AS credito, 0 AS limite, ISNULL(e.dtNascimento, '1990-01-01') AS dt_nasc, 0 AS usado, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 1 AS tipo, 'TT' AS tipofidelidade, 2 as condicaoPagamento, '' AS fone, '' AS email, e.pessoaJuridica, e.bloqueado, e.isFuncionario, e.isContador, e.isMotorista, e.isCliente, e.isFornecedor, e.isTransportadora
+                    e.cnpj, e.inscricaoEstadual, '00' AS credito, 0 AS limite, ISNULL(e.dtNascimento, '1990-01-01') AS dt_nasc, 0 AS usado, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 'TT' AS tipo, 1 AS tipofidelidade, 2 as condicaoPagamento, '' AS fone, '' AS email, e.pessoaJuridica, e.bloqueado, e.isFuncionario, e.isContador, e.isMotorista, e.isCliente, e.isFornecedor, e.isTransportadora
                     FROM Cadastro.Entidade e
                     LEFT JOIN Cadastro.Endereco ce ON e.id = ce.fkEntidade
                     LEFT JOIN Cadastro.Municipio mun ON ce.fkMunicipio = mun.cdMunicipio
@@ -220,8 +220,8 @@ namespace ImportadorFopImperium
             catch (Exception ex)
             {
                 FecharConexaoSqlServer();
-                MessageBox.Show("Erro ao carregar entidades");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao carregar entidades");
+                Logar(ex.Message);
                 return null;
             }
         }
@@ -571,8 +571,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao abrir conexão SQL Server");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao abrir conexão SQL Server");
+                Logar(ex.Message);
             }
         }
         private void FecharConexaoSqlServer()
@@ -584,8 +584,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao fechar conexão SQL Server");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao fechar conexão SQL Server");
+                Logar(ex.Message);
             }
         }
 
@@ -605,8 +605,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao abrir conexão MySQL");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao abrir conexão MySQL");
+                Logar(ex.Message);
             }
         }
         private void FecharConexaoMysql()
@@ -618,8 +618,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao fechar conexão MySQL");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao fechar conexão MySQL");
+                Logar(ex.Message);
             }
         }
         private MySqlParameter CriaParametroMySQL(string parametro, MySqlDbType tipo, object valor)
@@ -895,8 +895,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao montar comando de inserção produto");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao montar comando de inserção produto");
+                Logar(ex.Message);
             }
             finally
             {
@@ -1690,8 +1690,8 @@ namespace ImportadorFopImperium
             builder.Append($"'{cliente.Obs}',");
             builder.Append($"{cliente.Empresa_Convenio},");
             builder.Append($"{cliente.Loja},");
-            builder.Append($"{cliente.Tipo},");
-            builder.Append($"'{cliente.Tipo_Fidelidade}',");
+            builder.Append($"'{cliente.Tipo}',");
+            builder.Append($"{cliente.Tipo_Fidelidade},");
             builder.Append($"{cliente.Condicao_Pagamento},");
             builder.Append($"'{cliente.Fone}',");
             builder.Append($"'{cliente.Celular}',");
@@ -1730,9 +1730,7 @@ namespace ImportadorFopImperium
                     {
                         try
                         {
-                            string strComando = $"{strBuilderComando.ToString().Remove(strBuilderComando.ToString().Length - 3, 1)};";
-                            command = new MySqlCommand(strComando, connecctionMysql);
-                            command.ExecuteNonQuery();
+                            InsertBanco(strBuilderComando, command);
 
                             cont = 0;
                             strBuilderComando.Clear();
@@ -1740,7 +1738,7 @@ namespace ImportadorFopImperium
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show("Erro ao inserir clientes");
+                            Logar("Erro ao inserir clientes");
                             throw;
                         }
                     }
@@ -1748,9 +1746,11 @@ namespace ImportadorFopImperium
 
                 if (cont > 0)
                 {
-                    string strComando = $"{strBuilderComando.ToString().Remove(strBuilderComando.ToString().Length - 3, 1)};";
-                    command = new MySqlCommand(strComando, connecctionMysql);
-                    command.ExecuteNonQuery();
+                    InsertBanco(strBuilderComando, command);
+
+                    cont = 0;
+                    strBuilderComando.Clear();
+                    strBuilderComando.Append(comando);
                 }
             }
             catch (Exception ex)
@@ -1784,8 +1784,8 @@ namespace ImportadorFopImperium
             cliente.Usado = ConverterDecimal(r["usado"].ToString());
             cliente.Obs = r["obs"].ToString();
             cliente.Empresa_Convenio = ConverterInt32(r["empresa_convenio"].ToString());
-            cliente.Tipo = ConverterInt32(r["tipo"].ToString());
-            cliente.Tipo_Fidelidade = r["tipofidelidade"].ToString();
+            cliente.Tipo = r["tipo"].ToString();
+            cliente.Tipo_Fidelidade = ConverterInt32(r["tipofidelidade"].ToString());
             cliente.Condicao_Pagamento = ConverterInt32(r["condicaoPagamento"].ToString());
 
             AdicionarFoneCliente(cliente);
@@ -2152,8 +2152,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao criar arquivo de log");
-                MessageBox.Show(ex.Message);
+                Logar("Erro ao criar arquivo de log");
+                Logar(ex.Message);
             }
         }
 

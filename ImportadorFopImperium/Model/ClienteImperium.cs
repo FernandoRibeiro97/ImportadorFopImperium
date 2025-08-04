@@ -24,8 +24,8 @@ namespace ImportadorFopImperium.Model
         public string Obs { get; set; }
         public int Empresa_Convenio { get; set; }
         public int Loja { get; set; }
-        public int Tipo { get; set; }
-        public string Tipo_Fidelidade { get; set; }
+        public string Tipo { get; set; }
+        public int Tipo_Fidelidade { get; set; }
         public int Condicao_Pagamento { get; set; }
         public string Fone { get; set; }
         public string Fone2 { get; set; }

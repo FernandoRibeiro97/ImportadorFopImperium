@@ -1902,9 +1902,7 @@ namespace ImportadorFopImperium
 
                     if (cont == qtdeImportar)
                     {
-                        string strComando = $"{strBuilderComando.ToString().Remove(strBuilderComando.ToString().Length - 3, 1)};";
-                        command = new MySqlCommand(strComando, connecctionMysql);
-                        command.ExecuteNonQuery();
+                        InsertBanco(strBuilderComando, command);
 
                         strBuilderComando.Clear();
                         strBuilderComando.Append(comando);
@@ -1914,9 +1912,11 @@ namespace ImportadorFopImperium
 
                 if (cont > 0)
                 {
-                    string strComando = $"{strBuilderComando.ToString().Remove(strBuilderComando.ToString().Length - 3, 1)};";
-                    command = new MySqlCommand(strComando, connecctionMysql);
-                    command.ExecuteNonQuery();
+                    InsertBanco(strBuilderComando, command);
+
+                    strBuilderComando.Clear();
+                    strBuilderComando.Append(comando);
+                    cont = 0;
                 }
             }
             catch (Exception ex)
@@ -1949,7 +1949,7 @@ namespace ImportadorFopImperium
             strBuilder.Append($"'{fornecedor.Telefone}',");
             strBuilder.Append($"'{fornecedor.Fax}',");
             strBuilder.Append($"'{fornecedor.Obs}',");
-            strBuilder.Append($"'{fornecedor.Data_Cadastro}',");
+            strBuilder.Append($"CURDATE(),");
             strBuilder.Append($"'{fornecedor.Email}',");
             strBuilder.Append($"'{fornecedor.Email_Pedido}'");
 

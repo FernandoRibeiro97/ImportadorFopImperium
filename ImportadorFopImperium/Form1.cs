@@ -133,6 +133,7 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Grupo = CarregarGrupo();
                 ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
+                ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
             }
             catch (Exception)
             {
@@ -286,6 +287,20 @@ namespace ImportadorFopImperium
         {
             string comando = @"SELECT * FROM CadProduto.SubCategoria;";
             return RecuperaDataTableSQLServer(comando);
+        }
+        private DataTable CarregarContasPagar()
+        {
+            try
+            {
+                string comando = @"SELECT * FROM Finaceiro.ContasPagar;";
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao carregar contas a pagar");
+                Logar(ex.Message);
+                return null;
+            }
         }
         private List<ClienteImperium> FiltraEntidadeCliente()
         {

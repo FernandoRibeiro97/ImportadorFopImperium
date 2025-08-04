@@ -32,7 +32,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkCheques = new System.Windows.Forms.CheckBox();
             this.chkLojas = new System.Windows.Forms.CheckBox();
             this.chkFamilias = new System.Windows.Forms.CheckBox();
             this.chkProdutos = new System.Windows.Forms.CheckBox();
@@ -44,14 +43,12 @@
             this.label15 = new System.Windows.Forms.Label();
             this.chkContasReceber = new System.Windows.Forms.CheckBox();
             this.chkSecoes = new System.Windows.Forms.CheckBox();
-            this.chkBarraRel = new System.Windows.Forms.CheckBox();
             this.chkItensFornecedor = new System.Windows.Forms.CheckBox();
             this.barraProgresso = new System.Windows.Forms.ProgressBar();
             this.btnImportar = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.lblCheques = new System.Windows.Forms.Label();
             this.lblUsuarios = new System.Windows.Forms.Label();
             this.lblLojas = new System.Windows.Forms.Label();
             this.lblMapa = new System.Windows.Forms.Label();
@@ -66,10 +63,8 @@
             this.lblFamilias = new System.Windows.Forms.Label();
             this.lblClientes = new System.Windows.Forms.Label();
             this.lblSecoes = new System.Windows.Forms.Label();
-            this.lblBarraRel = new System.Windows.Forms.Label();
             this.lblItensFornecedor = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.lblContCheques = new System.Windows.Forms.Label();
             this.lblContUsuario = new System.Windows.Forms.Label();
             this.lblContLojas = new System.Windows.Forms.Label();
             this.lblContMapa = new System.Windows.Forms.Label();
@@ -84,7 +79,6 @@
             this.lblContFornecedores = new System.Windows.Forms.Label();
             this.lblContClientes = new System.Windows.Forms.Label();
             this.lblContSecoes = new System.Windows.Forms.Label();
-            this.lblContBarraRel = new System.Windows.Forms.Label();
             this.lblContItensFornecedor = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -115,7 +109,6 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.chkCheques);
             this.groupBox2.Controls.Add(this.chkLojas);
             this.groupBox2.Controls.Add(this.chkFamilias);
             this.groupBox2.Controls.Add(this.chkProdutos);
@@ -127,25 +120,12 @@
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.chkContasReceber);
             this.groupBox2.Controls.Add(this.chkSecoes);
-            this.groupBox2.Controls.Add(this.chkBarraRel);
             this.groupBox2.Controls.Add(this.chkItensFornecedor);
             this.groupBox2.Location = new System.Drawing.Point(8, 52);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(183, 378);
             this.groupBox2.TabIndex = 47;
             this.groupBox2.TabStop = false;
-            // 
-            // chkCheques
-            // 
-            this.chkCheques.AutoSize = true;
-            this.chkCheques.Enabled = false;
-            this.chkCheques.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkCheques.Location = new System.Drawing.Point(18, 111);
-            this.chkCheques.Name = "chkCheques";
-            this.chkCheques.Size = new System.Drawing.Size(76, 17);
-            this.chkCheques.TabIndex = 36;
-            this.chkCheques.Text = "Cheques";
-            this.chkCheques.UseVisualStyleBackColor = true;
             // 
             // chkLojas
             // 
@@ -164,7 +144,7 @@
             this.chkFamilias.AutoSize = true;
             this.chkFamilias.Enabled = false;
             this.chkFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkFamilias.Location = new System.Drawing.Point(22, 307);
+            this.chkFamilias.Location = new System.Drawing.Point(22, 289);
             this.chkFamilias.Name = "chkFamilias";
             this.chkFamilias.Size = new System.Drawing.Size(71, 17);
             this.chkFamilias.TabIndex = 25;
@@ -201,7 +181,7 @@
             this.chkMovCaixa.AutoSize = true;
             this.chkMovCaixa.Enabled = false;
             this.chkMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkMovCaixa.Location = new System.Drawing.Point(22, 287);
+            this.chkMovCaixa.Location = new System.Drawing.Point(22, 269);
             this.chkMovCaixa.Name = "chkMovCaixa";
             this.chkMovCaixa.Size = new System.Drawing.Size(86, 17);
             this.chkMovCaixa.TabIndex = 32;
@@ -237,7 +217,7 @@
             this.chkNFEntrada.AutoSize = true;
             this.chkNFEntrada.Enabled = false;
             this.chkNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkNFEntrada.Location = new System.Drawing.Point(22, 267);
+            this.chkNFEntrada.Location = new System.Drawing.Point(22, 249);
             this.chkNFEntrada.Name = "chkNFEntrada";
             this.chkNFEntrada.Size = new System.Drawing.Size(88, 17);
             this.chkNFEntrada.TabIndex = 31;
@@ -278,24 +258,12 @@
             this.chkSecoes.Text = "Seções";
             this.chkSecoes.UseVisualStyleBackColor = true;
             // 
-            // chkBarraRel
-            // 
-            this.chkBarraRel.AutoSize = true;
-            this.chkBarraRel.Enabled = false;
-            this.chkBarraRel.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkBarraRel.Location = new System.Drawing.Point(22, 225);
-            this.chkBarraRel.Name = "chkBarraRel";
-            this.chkBarraRel.Size = new System.Drawing.Size(80, 17);
-            this.chkBarraRel.TabIndex = 27;
-            this.chkBarraRel.Text = "Barra Rel";
-            this.chkBarraRel.UseVisualStyleBackColor = true;
-            // 
             // chkItensFornecedor
             // 
             this.chkItensFornecedor.AutoSize = true;
             this.chkItensFornecedor.Enabled = false;
             this.chkItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkItensFornecedor.Location = new System.Drawing.Point(22, 246);
+            this.chkItensFornecedor.Location = new System.Drawing.Point(22, 228);
             this.chkItensFornecedor.Name = "chkItensFornecedor";
             this.chkItensFornecedor.Size = new System.Drawing.Size(123, 17);
             this.chkItensFornecedor.TabIndex = 28;
@@ -355,7 +323,6 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.lblCheques);
             this.groupBox3.Controls.Add(this.lblUsuarios);
             this.groupBox3.Controls.Add(this.lblLojas);
             this.groupBox3.Controls.Add(this.lblMapa);
@@ -370,7 +337,6 @@
             this.groupBox3.Controls.Add(this.lblFamilias);
             this.groupBox3.Controls.Add(this.lblClientes);
             this.groupBox3.Controls.Add(this.lblSecoes);
-            this.groupBox3.Controls.Add(this.lblBarraRel);
             this.groupBox3.Controls.Add(this.lblItensFornecedor);
             this.groupBox3.Location = new System.Drawing.Point(197, 52);
             this.groupBox3.Name = "groupBox3";
@@ -378,21 +344,11 @@
             this.groupBox3.TabIndex = 68;
             this.groupBox3.TabStop = false;
             // 
-            // lblCheques
-            // 
-            this.lblCheques.AutoSize = true;
-            this.lblCheques.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCheques.Location = new System.Drawing.Point(7, 111);
-            this.lblCheques.Name = "lblCheques";
-            this.lblCheques.Size = new System.Drawing.Size(11, 13);
-            this.lblCheques.TabIndex = 27;
-            this.lblCheques.Text = ".";
-            // 
             // lblUsuarios
             // 
             this.lblUsuarios.AutoSize = true;
             this.lblUsuarios.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUsuarios.Location = new System.Drawing.Point(7, 338);
+            this.lblUsuarios.Location = new System.Drawing.Point(6, 320);
             this.lblUsuarios.Name = "lblUsuarios";
             this.lblUsuarios.Size = new System.Drawing.Size(11, 13);
             this.lblUsuarios.TabIndex = 26;
@@ -412,7 +368,7 @@
             // 
             this.lblMapa.AutoSize = true;
             this.lblMapa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMapa.Location = new System.Drawing.Point(7, 328);
+            this.lblMapa.Location = new System.Drawing.Point(6, 310);
             this.lblMapa.Name = "lblMapa";
             this.lblMapa.Size = new System.Drawing.Size(11, 13);
             this.lblMapa.TabIndex = 24;
@@ -432,7 +388,7 @@
             // 
             this.lblMovCaixa.AutoSize = true;
             this.lblMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMovCaixa.Location = new System.Drawing.Point(7, 288);
+            this.lblMovCaixa.Location = new System.Drawing.Point(6, 270);
             this.lblMovCaixa.Name = "lblMovCaixa";
             this.lblMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblMovCaixa.TabIndex = 23;
@@ -452,7 +408,7 @@
             // 
             this.lblNFEntrada.AutoSize = true;
             this.lblNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNFEntrada.Location = new System.Drawing.Point(7, 267);
+            this.lblNFEntrada.Location = new System.Drawing.Point(6, 249);
             this.lblNFEntrada.Name = "lblNFEntrada";
             this.lblNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblNFEntrada.TabIndex = 22;
@@ -502,7 +458,7 @@
             // 
             this.lblFamilias.AutoSize = true;
             this.lblFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFamilias.Location = new System.Drawing.Point(7, 307);
+            this.lblFamilias.Location = new System.Drawing.Point(6, 289);
             this.lblFamilias.Name = "lblFamilias";
             this.lblFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblFamilias.TabIndex = 9;
@@ -528,21 +484,11 @@
             this.lblSecoes.TabIndex = 8;
             this.lblSecoes.Text = ".";
             // 
-            // lblBarraRel
-            // 
-            this.lblBarraRel.AutoSize = true;
-            this.lblBarraRel.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBarraRel.Location = new System.Drawing.Point(7, 225);
-            this.lblBarraRel.Name = "lblBarraRel";
-            this.lblBarraRel.Size = new System.Drawing.Size(11, 13);
-            this.lblBarraRel.TabIndex = 20;
-            this.lblBarraRel.Text = ".";
-            // 
             // lblItensFornecedor
             // 
             this.lblItensFornecedor.AutoSize = true;
             this.lblItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblItensFornecedor.Location = new System.Drawing.Point(7, 246);
+            this.lblItensFornecedor.Location = new System.Drawing.Point(6, 228);
             this.lblItensFornecedor.Name = "lblItensFornecedor";
             this.lblItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblItensFornecedor.TabIndex = 18;
@@ -550,7 +496,6 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.lblContCheques);
             this.groupBox4.Controls.Add(this.lblContUsuario);
             this.groupBox4.Controls.Add(this.lblContLojas);
             this.groupBox4.Controls.Add(this.lblContMapa);
@@ -565,7 +510,6 @@
             this.groupBox4.Controls.Add(this.lblContFornecedores);
             this.groupBox4.Controls.Add(this.lblContClientes);
             this.groupBox4.Controls.Add(this.lblContSecoes);
-            this.groupBox4.Controls.Add(this.lblContBarraRel);
             this.groupBox4.Controls.Add(this.lblContItensFornecedor);
             this.groupBox4.Location = new System.Drawing.Point(309, 52);
             this.groupBox4.Name = "groupBox4";
@@ -573,21 +517,11 @@
             this.groupBox4.TabIndex = 69;
             this.groupBox4.TabStop = false;
             // 
-            // lblContCheques
-            // 
-            this.lblContCheques.AutoSize = true;
-            this.lblContCheques.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContCheques.Location = new System.Drawing.Point(7, 112);
-            this.lblContCheques.Name = "lblContCheques";
-            this.lblContCheques.Size = new System.Drawing.Size(11, 13);
-            this.lblContCheques.TabIndex = 28;
-            this.lblContCheques.Text = ".";
-            // 
             // lblContUsuario
             // 
             this.lblContUsuario.AutoSize = true;
             this.lblContUsuario.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContUsuario.Location = new System.Drawing.Point(7, 345);
+            this.lblContUsuario.Location = new System.Drawing.Point(7, 331);
             this.lblContUsuario.Name = "lblContUsuario";
             this.lblContUsuario.Size = new System.Drawing.Size(11, 13);
             this.lblContUsuario.TabIndex = 27;
@@ -607,7 +541,7 @@
             // 
             this.lblContMapa.AutoSize = true;
             this.lblContMapa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMapa.Location = new System.Drawing.Point(7, 324);
+            this.lblContMapa.Location = new System.Drawing.Point(7, 310);
             this.lblContMapa.Name = "lblContMapa";
             this.lblContMapa.Size = new System.Drawing.Size(11, 13);
             this.lblContMapa.TabIndex = 25;
@@ -627,7 +561,7 @@
             // 
             this.lblContMovCaixa.AutoSize = true;
             this.lblContMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMovCaixa.Location = new System.Drawing.Point(7, 284);
+            this.lblContMovCaixa.Location = new System.Drawing.Point(7, 270);
             this.lblContMovCaixa.Name = "lblContMovCaixa";
             this.lblContMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblContMovCaixa.TabIndex = 24;
@@ -637,7 +571,7 @@
             // 
             this.lblContNFEntrada.AutoSize = true;
             this.lblContNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContNFEntrada.Location = new System.Drawing.Point(7, 263);
+            this.lblContNFEntrada.Location = new System.Drawing.Point(7, 249);
             this.lblContNFEntrada.Name = "lblContNFEntrada";
             this.lblContNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblContNFEntrada.TabIndex = 23;
@@ -687,7 +621,7 @@
             // 
             this.lblContFamilias.AutoSize = true;
             this.lblContFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContFamilias.Location = new System.Drawing.Point(7, 304);
+            this.lblContFamilias.Location = new System.Drawing.Point(7, 290);
             this.lblContFamilias.Name = "lblContFamilias";
             this.lblContFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblContFamilias.TabIndex = 9;
@@ -723,21 +657,11 @@
             this.lblContSecoes.TabIndex = 8;
             this.lblContSecoes.Text = ".";
             // 
-            // lblContBarraRel
-            // 
-            this.lblContBarraRel.AutoSize = true;
-            this.lblContBarraRel.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContBarraRel.Location = new System.Drawing.Point(7, 221);
-            this.lblContBarraRel.Name = "lblContBarraRel";
-            this.lblContBarraRel.Size = new System.Drawing.Size(11, 13);
-            this.lblContBarraRel.TabIndex = 21;
-            this.lblContBarraRel.Text = ".";
-            // 
             // lblContItensFornecedor
             // 
             this.lblContItensFornecedor.AutoSize = true;
             this.lblContItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContItensFornecedor.Location = new System.Drawing.Point(7, 242);
+            this.lblContItensFornecedor.Location = new System.Drawing.Point(7, 228);
             this.lblContItensFornecedor.Name = "lblContItensFornecedor";
             this.lblContItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblContItensFornecedor.TabIndex = 19;
@@ -776,7 +700,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckBox chkCheques;
         private System.Windows.Forms.CheckBox chkLojas;
         private System.Windows.Forms.CheckBox chkFamilias;
         private System.Windows.Forms.CheckBox chkProdutos;
@@ -788,14 +711,12 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.CheckBox chkContasReceber;
         private System.Windows.Forms.CheckBox chkSecoes;
-        private System.Windows.Forms.CheckBox chkBarraRel;
         private System.Windows.Forms.CheckBox chkItensFornecedor;
         private System.Windows.Forms.ProgressBar barraProgresso;
         private System.Windows.Forms.Button btnImportar;
         private System.Windows.Forms.Button btnCarregar;
         private System.Windows.Forms.Button btnFechar;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Label lblCheques;
         private System.Windows.Forms.Label lblUsuarios;
         private System.Windows.Forms.Label lblLojas;
         private System.Windows.Forms.Label lblMapa;
@@ -810,10 +731,8 @@
         private System.Windows.Forms.Label lblFamilias;
         private System.Windows.Forms.Label lblClientes;
         private System.Windows.Forms.Label lblSecoes;
-        private System.Windows.Forms.Label lblBarraRel;
         private System.Windows.Forms.Label lblItensFornecedor;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Label lblContCheques;
         private System.Windows.Forms.Label lblContUsuario;
         private System.Windows.Forms.Label lblContLojas;
         private System.Windows.Forms.Label lblContMapa;
@@ -828,7 +747,6 @@
         private System.Windows.Forms.Label lblContFornecedores;
         private System.Windows.Forms.Label lblContClientes;
         private System.Windows.Forms.Label lblContSecoes;
-        private System.Windows.Forms.Label lblContBarraRel;
         private System.Windows.Forms.Label lblContItensFornecedor;
     }
 }

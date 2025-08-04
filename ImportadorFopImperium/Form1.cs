@@ -978,6 +978,13 @@ namespace ImportadorFopImperium
 
                 foreach (ProdutoImperium p in lstProduto)
                 {
+                    if (string.IsNullOrEmpty(p.Descricao))
+                    {
+                        Logar($"Produto sem descrição - {p.Ean1}");
+                        Logar("Passando para o próximo produto");
+                        continue;
+                    }
+
                     cont++;
                     contadorImportacao.Cont_Produtos++;
                     p.Id = contadorImportacao.Cont_Produtos;
@@ -1063,8 +1070,9 @@ namespace ImportadorFopImperium
 
             ProdutoImperium produto = new ProdutoImperium();
             produto.Id = ConverterInt64(r["id"].ToString());
-            produto.Descricao = r["nomeProduto"].ToString();
+            produto.Descricao = r["nomeProduto"].ToString().Trim();
             produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao : descricaoReduzida;
+            produto.Descricao_Reduzida = produto.Descricao_Reduzida.Trim();
             produto.Unidade_Entrada = r["unidade"].ToString();
             produto.Unidade_Saida = r["unidade"].ToString();
             produto.Embalagem_Entrada = ConverterDecimal(r["tamCaixa"].ToString());

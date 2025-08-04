@@ -1068,9 +1068,9 @@ namespace ImportadorFopImperium
             produto.Embalagem_Saida = ConverterDecimal(r["tamEmbVenda"].ToString());
             produto.Obs = "IMPORTADO";
             produto.Validade = 0; //TODO: VERIFICAR CAMPO
-            produto.Id_Grupo = ConverterInt32(r["fkCategoria"].ToString());
-            produto.Id_SubGrupo = ConverterInt32(r["fkSubCategoria"].ToString());
-            produto.Id_SubGrupo1 = 0;
+            produto.Id_Grupo = RetornaIdDeptoPorCategoria(ConverterInt32(r["fkCategoria"].ToString()));
+            produto.Id_SubGrupo = ConverterInt32(r["fkCategoria"].ToString());
+            produto.Id_SubGrupo1 = ConverterInt32(r["fkSubCategoria"].ToString());
             produto.Id_Situacao = r["ativo"].ToString() == "0" ? 2 : 1;
             produto.Peso_Variavel = r["balanca"].ToString() == "1" ? 1 : 0;
             produto.Etiqueta = 1;
@@ -1765,6 +1765,13 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
             }
             finally { FecharConexaoMysql(); }
+        }
+        private int RetornaIdDeptoPorCategoria(long idCategoria)
+        {
+            foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo.Select($"id = {idCategoria}"))
+                return ConverterInt32(r["fkDepto"].ToString());
+
+            return 0;
         }
 
         #endregion

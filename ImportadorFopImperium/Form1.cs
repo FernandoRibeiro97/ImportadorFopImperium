@@ -426,6 +426,7 @@ namespace ImportadorFopImperium
                     ImportarGrupo();
                     ImportarSubGrupo();
                     ImportarSubGrupo1();
+                    AdicionarGrupoAClassificar();
                 }
 
                 if (chkNFEntrada.Checked)
@@ -750,7 +751,11 @@ namespace ImportadorFopImperium
             try
             {
                 if (connecctionMysql.State != ConnectionState.Closed)
+                {
                     connecctionMysql.Close();
+                    connecctionMysql.Dispose();
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -803,6 +808,7 @@ namespace ImportadorFopImperium
             {
                 var xx = ex.Message;
             }
+            finally { FecharConexaoMysql(); }
 
         }
         private void AdicionaColunaAuxiliarTributacao()
@@ -1584,6 +1590,7 @@ namespace ImportadorFopImperium
                 Logar("Erro ao executar comando de inserção de grupos");
                 Logar(ex.Message);
             }
+            finally { FecharConexaoMysql(); }
         }
         private string RetornaLinhaInserirGrupo(Grupo grupo)
         {
@@ -1690,6 +1697,7 @@ namespace ImportadorFopImperium
 
                 throw;
             }
+            finally { FecharConexaoMysql(); }
         }
         private string RetornaLinhaInserirSubGrupo1(SubGrupo1 subgrupo1)
         {
@@ -1702,6 +1710,63 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
+        private void AdicionarGrupoAClassificar()
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = @"INSERT INTO grupo (NOME) VALUES ('A CLASSIFICAR');";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                command.ExecuteNonQuery();
+                long idGrupo = command.LastInsertedId;
+
+                if (idGrupo > 0)
+                    AdicionarSubGrupoAClassificar(idGrupo);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao inserir grupo A CLASSIFICAR");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private void AdicionarSubGrupoAClassificar(long idGrupo)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = $@"INSERT INTO subgrupo (nome, idgrupo) VALUES ('A CLASSIFICAR', {idGrupo});";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                command.ExecuteNonQuery();
+                long idSubGrupo = command.LastInsertedId;
+
+                if (idSubGrupo > 0)
+                    AdicionarSubGrupo1AClassificar(idGrupo, idSubGrupo);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao inserir subgrupo A CLASSIFICAR");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private void AdicionarSubGrupo1AClassificar(long idGrupo, long idSubGrupo)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = $@"INSERT INTO subgrupo1 (nome, idgrupo, idsubgrupo) VALUES ('A CLASSIFICAR', {idGrupo}, {idSubGrupo});";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao inserir subgrupo1 A CLASSIFICAR");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
+        }
+
         #endregion
 
         #region ITENS FORNECEDOR
@@ -1749,6 +1814,7 @@ namespace ImportadorFopImperium
                 Logar("Erro ao executar comando de inserção de itens fornecedor");
                 Logar(ex.Message);
             }
+            finally { FecharConexaoMysql(); }
         }
         private string RetornaLinhaIserirProdutoFornecedor(ProdutoFornecedor produto)
         {
@@ -2251,6 +2317,7 @@ namespace ImportadorFopImperium
 
                 throw;
             }
+            finally { FecharConexaoMysql(); }
         }
         private string RetornaLinhaInserirContasPagar(ContaPagar pagar)
         {
@@ -2475,6 +2542,7 @@ namespace ImportadorFopImperium
 
                 throw;
             }
+            finally { FecharConexaoMysql(); }
         }
         private string RetornaLinhaInserirNotaEntrada(NotaEntrada nota)
         {

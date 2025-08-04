@@ -112,6 +112,14 @@ namespace ImportadorFopImperium
             chkFamilias.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Familia.Rows.Count > 0;
             chkItensFornecedor.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0;
         }
+        private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
+        {
+            chkContasPagar.Enabled = chkFornecedores.Checked;
+        }
+        private void chkClientes_CheckedChanged(object sender, EventArgs e)
+        {
+            chkContasReceber.Enabled = chkClientes.Checked;
+        }
 
         #region CARREGAR
 
@@ -315,6 +323,39 @@ namespace ImportadorFopImperium
                 Logar("Erro ao carregar informações de contas a receber");
                 Logar(ex.Message);
                 return null;
+            }
+        }
+        private DataTable CarregarNfEntrada()
+        {
+            try
+            {
+                string comando = @"SELECT nroNF, valorNF, baseCalculoICMS, valorICMS, valorOutros, valorIPI, baseCalculoST, valorST, fkEntidade, dEmi, dhSaiEnt, 'IMPORTADO', serie, 'NFe', '55', fkLoja,
+                    'E', chaveAcesso, protocolo, 'IMPORTACAO'
+                    FROM NF.NFe
+                    WHERE entrada = 1;";
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private DataTable CarregarNfEntradaItens()
+        {
+            try
+            {
+                string comando = @"SELECT i.* 
+                                    FROM nf.NFeItens i 
+                                    JOIN nf.NFe n ON i.nroNF = n.nroNF
+                                    WHERE n.entrada = 1;";
+
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
         private List<ClienteImperium> FiltraEntidadeCliente()
@@ -2338,6 +2379,11 @@ namespace ImportadorFopImperium
 
         #endregion
 
+        #region NF ENTRADA
+
+
+        #endregion
+
         #region MÉTODOS EM GERAL
         private void ExecutaAumentoPacoteMySQL()
         {
@@ -2561,14 +2607,7 @@ namespace ImportadorFopImperium
             return valor.Replace(",", ".");
         }
 
-        private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
-        {
-            chkContasPagar.Enabled = chkFornecedores.Checked;
-        }
-        private void chkClientes_CheckedChanged(object sender, EventArgs e)
-        {
-            chkContasReceber.Enabled = chkClientes.Checked;
-        }
+
         #endregion
     }
 }

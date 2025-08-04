@@ -1029,10 +1029,13 @@ namespace ImportadorFopImperium
         private ProdutoImperium RetornaProdutoImperiumPorDataRow(DataRow r)
         {
             int loja = ConverterInt32(r["fkCliente"].ToString());
+            string descricaoReduzida = r["nomeImpressao"].ToString().Length > 24 ? r["nomeImpressao"].ToString().Substring(0, 24) : r["nomeImpressao"].ToString();
+            string cest = r["cest"].ToString().Length > 7 ? r["cest"].ToString().Substring(0, 7) : r["cest"].ToString();
+
             ProdutoImperium produto = new ProdutoImperium();
             produto.Id = ConverterInt64(r["id"].ToString());
             produto.Descricao = r["nomeProduto"].ToString();
-            produto.Descricao_Reduzida = r["nomeImpressao"].ToString();
+            produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) :  produto.Descricao : descricaoReduzida;
             produto.Unidade_Entrada = r["unidade"].ToString();
             produto.Unidade_Saida = r["unidade"].ToString();
             produto.Embalagem_Entrada = ConverterDecimal(r["tamCaixa"].ToString());
@@ -1048,7 +1051,7 @@ namespace ImportadorFopImperium
             produto.Ean = ConverterInt64(r["id"].ToString()).ToString();
             produto.Ean1 = r["id"].ToString();
             produto.ClassFiscal = r["classFiscal"].ToString();
-            produto.Cest = r["cest"].ToString();
+            produto.Cest = cest;
             produto.Vasilhame = ConverterInt32(r["isvasilhame"].ToString());
             produto.Tipo = r["balanca"].ToString() == "1" ? "P" : "U";
             produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO

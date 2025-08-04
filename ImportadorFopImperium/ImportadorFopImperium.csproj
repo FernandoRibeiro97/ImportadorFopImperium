@@ -141,6 +141,8 @@
     <Compile Include="Model\ContaReceber.cs" />
     <Compile Include="Model\FornecedorImperium.cs" />
     <Compile Include="Model\Grupo.cs" />
+    <Compile Include="Model\ItemEntrada.cs" />
+    <Compile Include="Model\NotaEntrada.cs" />
     <Compile Include="Model\SubGrupo.cs" />
     <Compile Include="Model\Importacao.cs" />
     <Compile Include="Model\ProdutoEan.cs" />

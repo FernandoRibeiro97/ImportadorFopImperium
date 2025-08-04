@@ -143,6 +143,8 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
                 ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
                 ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
+                ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
+                ImportacaoImperium.Dt_Nota_Entrada_Itens = CarregarNotaEntradaItens();
             }
             catch (Exception)
             {
@@ -325,7 +327,7 @@ namespace ImportadorFopImperium
                 return null;
             }
         }
-        private DataTable CarregarNfEntrada()
+        private DataTable CarregarNotaEntrada()
         {
             try
             {
@@ -341,7 +343,7 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
-        private DataTable CarregarNfEntradaItens()
+        private DataTable CarregarNotaEntradaItens()
         {
             try
             {
@@ -424,6 +426,11 @@ namespace ImportadorFopImperium
                     ImportarGrupo();
                     ImportarSubGrupo();
                     ImportarSubGrupo1();
+                }
+
+                if (chkNFEntrada.Checked)
+                {
+                    ImportarNotaEntrada();
                 }
             }
 
@@ -664,6 +671,23 @@ namespace ImportadorFopImperium
             catch (Exception ex)
             {
                 Logar("Erro ao importar informações de contas a receber");
+                Logar(ex.Message);
+            }
+        }
+        private void ImportarNotaEntrada()
+        {
+            List<NotaEntrada> notas = new List<NotaEntrada>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Nota_Entrada.Rows)
+                    notas.Add(RetornaNotaEntradaPorDataRow(r));
+
+                if (notas.Count > 0)
+                    ExecutaComandoNotaEntrada(notas);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao importar notas de entrada");
                 Logar(ex.Message);
             }
         }
@@ -1678,7 +1702,6 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
-
         #endregion
 
         #region ITENS FORNECEDOR
@@ -2381,6 +2404,105 @@ namespace ImportadorFopImperium
 
         #region NF ENTRADA
 
+        private NotaEntrada RetornaNotaEntradaPorDataRow(DataRow r)
+        {
+            NotaEntrada nota = new NotaEntrada();
+            nota.Numero = r["nroNF"].ToString();
+            nota.Valor_Total = ConverterDecimal(r["valorNF"].ToString());
+            nota.Valor_Base_Icms = ConverterDecimal(r["baseCalculoICMS"].ToString());
+            nota.Valor_Icms = ConverterDecimal(r["valorICMS"].ToString());
+            nota.Valor_Outras = ConverterDecimal(r["valorOutros"].ToString());
+            nota.Valor_IPI = ConverterDecimal(r["valorIPI"].ToString());
+            nota.Valor_Base_Icms_ST = ConverterDecimal(r["baseCalculoST"].ToString());
+            nota.Valor_Icms_ST = ConverterDecimal(r["valorST"].ToString());
+            nota.Id_Fornecedor = ConverterInt64(r["fkEntidade"].ToString());
+            nota.Data_Emissao = ConverterDateTime(r["dEmi"].ToString());
+            nota.Data_Emissao = ConverterDateTime(r["dhSaiEnt"].ToString());
+            nota.Obs = "IMPORTADO";
+            nota.Serie = ConverterInt32(r["serie"].ToString());
+            nota.Especie = "NFe";
+            nota.Modelo = "55";
+            nota.Loja = ConverterInt32(r["fkLoja"].ToString());
+            nota.Situacao = "E";
+            nota.Chave_Eletronica = r["chaveAcesso"].ToString();
+            nota.Protocolo = r["protocolo"].ToString();
+            nota.Usuario = "IMPORTACAO";
+
+            return nota;
+        }
+        private void ExecutaComandoNotaEntrada(List<NotaEntrada> lstNota)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE nfentrada;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO nfentrada (NumeroNF, ValorTotalNF, ValorBaseIcms, ValorICMS, Outras, IPI, BaseIcmsST, ValorICMSSubst, idFornecedor, Dt_Emissao, Dt_Entrada, Obs, Serie, Especie, Modelo, loja, situacao, ChaveEletronica, ProtocoloNfe, usuario) VALUES ";
+
+                string comandoItens = @"";
+
+                StringBuilder strBuilderNotaEntrada = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (NotaEntrada nota in lstNota)
+                {
+                    strBuilderNotaEntrada.AppendLine(RetornaLinhaInserirNotaEntrada(nota));
+                    cont++;
+                    contadorImportacao.Cont_Nota_Entrada++;
+
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strBuilderNotaEntrada, command);
+                        strBuilderNotaEntrada.Clear();
+                        strBuilderNotaEntrada.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strBuilderNotaEntrada, command);
+                    strBuilderNotaEntrada.Clear();
+                    strBuilderNotaEntrada.Append(comando);
+                    cont = 0;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private string RetornaLinhaInserirNotaEntrada(NotaEntrada nota)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"'{nota.Numero}',");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Total.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Base_Icms.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Icms.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Outras.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_IPI.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Base_Icms_ST.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Icms_ST.ToString())},");
+            stringBuilder.Append($"{nota.Id_Fornecedor},");
+            stringBuilder.Append($"'{nota.Data_Emissao:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{nota.Data_Entrada:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{nota.Obs}',");
+            stringBuilder.Append($"{nota.Serie},");
+            stringBuilder.Append($"'{nota.Especie}',");
+            stringBuilder.Append($"'{nota.Modelo}',");
+            stringBuilder.Append($"{nota.Loja},");
+            stringBuilder.Append($"'{nota.Situacao}',");
+            stringBuilder.Append($"'{nota.Chave_Eletronica}',");
+            stringBuilder.Append($"'{nota.Protocolo}',");
+            stringBuilder.Append($"'{nota.Usuario}',");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
 
         #endregion
 

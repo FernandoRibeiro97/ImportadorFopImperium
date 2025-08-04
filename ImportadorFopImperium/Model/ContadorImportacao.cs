@@ -9,5 +9,6 @@
         public long Cont_ItensFornecedor { get; set; } = 0;
         public long Cont_Contas_Pagar { get; set; } = 0;
         public long Cont_Contas_Receber { get; set; } = 0;
+        public long Cont_Nota_Entrada { get; set; } = 0;
     }
 }

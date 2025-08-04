@@ -1036,6 +1036,8 @@ namespace ImportadorFopImperium
 
                     cont = 0;
                 }
+
+                CorrigirProdutoSemArvoreMercadologica();
             }
             catch (Exception ex)
             {
@@ -1495,6 +1497,46 @@ namespace ImportadorFopImperium
 
             if (preco.VENDA1_ANTERIOR > 99999.99M)
                 preco.VENDA1_ANTERIOR = 0;
+        }
+        private void CorrigirProdutoSemArvoreMercadologica()
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                int grupo = 0, subgrupo = 0, subgrupo1 = 0;
+                string comandoRecuperaArvoreMercadologica = @"SELECT idGrupo, idSubGrupo, idSubGrupo1 
+                                                                FROM subgrupo1 
+                                                                WHERE nome = 'A CLASSIFICAR' LIMIT 1;";
+                MySqlCommand command = new MySqlCommand(comandoRecuperaArvoreMercadologica, connecctionMysql);
+
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    if (rdr.Read())
+                    {
+                        grupo = ConverterInt32(rdr["idGrupo"].ToString());
+                        subgrupo = ConverterInt32(rdr["idSubGrupo"].ToString());
+                        subgrupo1 = ConverterInt32(rdr["idSubGrupo1"].ToString());
+                    }
+                }
+
+                if (grupo > 0 && subgrupo > 0 && subgrupo1 > 0)
+                {
+                    string comando = $@"UPDATE produto SET
+                                        idGrupo = {grupo},
+                                        idSubGrupo = {subgrupo},
+                                        idSubGrupo1 = {subgrupo1}
+                                       WHERE (idGrupo = 0 OR idSubGrupo = 0 OR idSubGrupo1 = 0);";
+
+                    command = new MySqlCommand(comando, connecctionMysql);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao corrigir árvore mercadológica produtos");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
         }
         #endregion
 

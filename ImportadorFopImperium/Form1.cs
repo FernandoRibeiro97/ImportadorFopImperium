@@ -8,6 +8,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net.Configuration;
+using System.Net.Security;
 using System.Text;
 using System.Windows.Forms;
 
@@ -132,6 +134,7 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
                 ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
+                ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
             }
             catch (Exception)
             {
@@ -300,6 +303,20 @@ namespace ImportadorFopImperium
                 return null;
             }
         }
+        private DataTable CarregarContasReceber()
+        {
+            try
+            {
+                string comando = @"SELECT * FROM Financeiro.ContasReceber;";
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao carregar informações de contas a receber");
+                Logar(ex.Message);
+                return null;
+            }
+        }
         private List<ClienteImperium> FiltraEntidadeCliente()
         {
             var lstCliente = new List<ClienteImperium>();
@@ -372,6 +389,7 @@ namespace ImportadorFopImperium
             if (chkClientes.Checked)
             {
                 ImportarClientes();
+                ImportarContasReceber();
             }
 
             if (chkFornecedores.Checked)
@@ -576,7 +594,7 @@ namespace ImportadorFopImperium
         }
         private void ImportarContasPagar()
         {
-            List<ContasPagar> pagar = new List<ContasPagar>();
+            List<ContaPagar> pagar = new List<ContaPagar>();
             try
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_Contas_Pagar.Rows)
@@ -588,6 +606,23 @@ namespace ImportadorFopImperium
             catch (Exception ex)
             {
                 Logar("Erro ao importar informações contas a pagar");
+                Logar(ex.Message);
+            }
+        }
+        private void ImportarContasReceber()
+        {
+            List<ContaReceber> receber = new List<ContaReceber>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Contas_Receber.Rows)
+                    receber.Add(RetornaContaReceberPorDataRow(r));
+
+                if (receber.Count > 0)
+                    ExecutaComandoContasReceber(receber);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao importar informações de contas a receber");
                 Logar(ex.Message);
             }
         }
@@ -2068,9 +2103,9 @@ namespace ImportadorFopImperium
 
         #region CONTAS PAGAR
 
-        private ContasPagar RetornaContasPagarPorDataRow(DataRow r)
+        private ContaPagar RetornaContasPagarPorDataRow(DataRow r)
         {
-            ContasPagar pagar = new ContasPagar();
+            ContaPagar pagar = new ContaPagar();
             pagar.Id_Fornecedor = ConverterInt64(r["fkEntidade"].ToString());
             pagar.Numero_Doc = r["id"].ToString();
             pagar.Data_Entrada = ConverterDateTime(r["dtEntrada"].ToString());
@@ -2107,7 +2142,7 @@ namespace ImportadorFopImperium
 
             return pagar;
         }
-        private void ExecutaComandoContasPagar(List<ContasPagar> lstPagar)
+        private void ExecutaComandoContasPagar(List<ContaPagar> lstPagar)
         {
             try
             {
@@ -2122,7 +2157,7 @@ namespace ImportadorFopImperium
                 StringBuilder strBuilderPagar = new StringBuilder(comando);
                 int cont = 0;
 
-                foreach (ContasPagar p in lstPagar)
+                foreach (ContaPagar p in lstPagar)
                 {
                     strBuilderPagar.AppendLine(RetornaLinhaInserirContasPagar(p));
                     contadorImportacao.Cont_Contas_Pagar++;
@@ -2153,7 +2188,7 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
-        private string RetornaLinhaInserirContasPagar(ContasPagar pagar)
+        private string RetornaLinhaInserirContasPagar(ContaPagar pagar)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{pagar.Id_Fornecedor},");
@@ -2214,6 +2249,93 @@ namespace ImportadorFopImperium
             }
             finally { FecharConexaoMysql(); }
         }
+        #endregion
+
+        #region CONTAS RECEBER
+
+        private ContaReceber RetornaContaReceberPorDataRow(DataRow r)
+        {
+            ContaReceber receber = new ContaReceber();
+            receber.Id_Cliente = ConverterInt64(r["fkEntidade"].ToString());
+            receber.Numero_Venda = r["id"].ToString();
+            receber.Valor_Vista = ConverterDecimal(r["valorAtual"].ToString());
+            receber.Data_Venda = ConverterDateTime(r["dtReferencia"].ToString());
+            receber.Situacao = r["pago"].ToString() == "1" ? "P" : "A";
+            receber.Data_Vencimento = ConverterDateTime(r["dtVencAtual"].ToString());
+            receber.Loja = ConverterInt32(r["fkLoja"].ToString());
+            receber.ECF = 999;
+            receber.Tipo_Cobranca = "BL";
+            receber.Obs = $"IMPORTADO - {r["referencia"]}";
+            receber.Id_Pc1 = 0;
+            receber.Id_Pc2 = 0;
+
+            return receber;
+        }
+        private void ExecutaComandoContasReceber(List<ContaReceber> lstReceber)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE debito;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO debito(
+                                    IDCLIENTE, NR_VENDA, VL_VISTA, DT_VENDA, SITUACAO, DT_VENC, loja, ECF, TipoCobranca, observacao, idpc1, idpc2
+                                    ) VALUES ";
+                StringBuilder strBuilderReceber = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (ContaReceber r in lstReceber)
+                {
+                    strBuilderReceber.AppendLine(RetornaLinhaInserirContaReceber(r));
+                    cont++;
+                    contadorImportacao.Cont_Contas_Receber++;
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strBuilderReceber, command);
+                        strBuilderReceber.Clear();
+                        strBuilderReceber.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strBuilderReceber, command);
+                    strBuilderReceber.Clear();
+                    strBuilderReceber.Append(comando);
+                    cont = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao executar comando de inserção de contas a receber");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private string RetornaLinhaInserirContaReceber(ContaReceber receber)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{receber.Id_Cliente},");
+            stringBuilder.Append($"'{receber.Numero_Venda}',");
+            stringBuilder.Append($"{AjustaStringDecimal(receber.Valor_Vista.ToString())},");
+            stringBuilder.Append($"'{receber.Data_Venda:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{receber.Situacao}',");
+            stringBuilder.Append($"'{receber.Data_Vencimento:yyyy-MM-dd}',");
+            stringBuilder.Append($"{receber.Loja},");
+            stringBuilder.Append($"{receber.ECF},");
+            stringBuilder.Append($"'{receber.Tipo_Cobranca}',");
+            stringBuilder.Append($"'{receber.Obs}',");
+            stringBuilder.Append($"{receber.Id_Pc1},");
+            stringBuilder.Append($"{receber.Id_Pc2}");
+            stringBuilder.Append("),");
+            
+            return stringBuilder.ToString();
+        }
+
         #endregion
 
         #region MÉTODOS EM GERAL
@@ -2333,6 +2455,7 @@ namespace ImportadorFopImperium
             {
                 chkProdutos.Enabled = ImportacaoImperium.Dt_Produto.Rows.Count > 0;
                 chkClientes.Enabled = ImportacaoImperium.Lista_Clientes.Count > 0;
+                chkContasReceber.Enabled = chkClientes.Enabled && ImportacaoImperium.Dt_Contas_Receber.Rows.Count > 0;
                 chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores.Count > 0;
                 chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
             }
@@ -2341,6 +2464,7 @@ namespace ImportadorFopImperium
         {
             lblProdutos.Text = ImportacaoImperium.Dt_Produto != null ? ImportacaoImperium.Dt_Produto.Rows.Count.ToString() : "0";
             lblClientes.Text = ImportacaoImperium.Lista_Clientes != null ? ImportacaoImperium.Lista_Clientes.Count.ToString() : "0";
+            lblContaReceber.Text = ImportacaoImperium.Dt_Contas_Receber != null ? ImportacaoImperium.Dt_Contas_Receber.Rows.Count.ToString() : "0";
             lblFornecedores.Text = ImportacaoImperium.Lista_Fornecedores != null ? ImportacaoImperium.Lista_Fornecedores.Count.ToString() : "0";
             lblFamilias.Text = ImportacaoImperium.Dt_Familia != null ? ImportacaoImperium.Dt_Familia.Rows.Count.ToString() : "0";
             lblItensFornecedor.Text = ImportacaoImperium.Dt_Itens_Fornecedor != null ? ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count.ToString() : "0";
@@ -2350,10 +2474,11 @@ namespace ImportadorFopImperium
         {
             lblContProdutos.Text = contadorImportacao.Cont_Produtos.ToString();
             lblContClientes.Text = contadorImportacao.Cont_Clientes.ToString();
+            lblContContaReceber.Text = contadorImportacao.Cont_Contas_Receber.ToString();
             lblContFornecedores.Text = contadorImportacao.Cont_Fornecedores.ToString();
+            lblContContaPagar.Text = contadorImportacao.Cont_Contas_Pagar.ToString();
             lblContFamilias.Text = contadorImportacao.Cont_Familias.ToString();
             lblContItensFornecedor.Text = contadorImportacao.Cont_ItensFornecedor.ToString();
-            lblContContaPagar.Text = contadorImportacao.Cont_Contas_Pagar.ToString();
         }
         private void Logar(string mensagem)
         {
@@ -2437,5 +2562,6 @@ namespace ImportadorFopImperium
         }
         #endregion
 
+        //TODO: VERIFICAR OS CHECKBOXS PRINCIPAIS PARA DESABILITAR OS DEPENDENTES 
     }
 }

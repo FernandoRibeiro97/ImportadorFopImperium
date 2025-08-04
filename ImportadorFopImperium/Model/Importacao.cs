@@ -18,6 +18,7 @@ namespace ImportadorFopImperium.Model
         public DataTable Dt_SubGrupo { get; set; }
         public DataTable Dt_SubGrupo1 { get; set; }
         public DataTable Dt_Contas_Pagar { get; set; }
+        public DataTable Dt_Contas_Receber { get; set; }
         public List<ClienteImperium> Lista_Clientes { get; set; }
         public List<FornecedorImperium> Lista_Fornecedores { get; set; }
         public List<Tributacao> Lista_Tributacoes { get; set; }

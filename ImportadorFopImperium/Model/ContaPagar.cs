@@ -2,7 +2,7 @@
 
 namespace ImportadorFopImperium.Model
 {
-    public class ContasPagar
+    public class ContaPagar
     {
         public long Id_Fornecedor { get; set; }
         public string Numero_Doc { get; set; }

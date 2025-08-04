@@ -427,6 +427,7 @@ namespace ImportadorFopImperium
                     ImportarSubGrupo();
                     ImportarSubGrupo1();
                     AdicionarGrupoAClassificar();
+                    CorrigirArvoreMercadologica();
                 }
 
                 if (chkNFEntrada.Checked)
@@ -1772,6 +1773,72 @@ namespace ImportadorFopImperium
                 return ConverterInt32(r["fkDepto"].ToString());
 
             return 0;
+        }
+        private void CorrigirArvoreMercadologica()
+        {
+            int idSubGrupo = CorrecaoSubGrupo();
+            CorrecaoSubGrupo1(idSubGrupo);
+        }
+        private int CorrecaoSubGrupo()
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoNovoId = "SELECT MAX(idsubgrupo) + 1 FROM subgrupo;";
+                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionMysql);
+                int novoId = 0;
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    if (rdr.Read())
+                        novoId = ConverterInt32(rdr[0].ToString());
+                }
+
+                if (novoId > 0)
+                {
+                    string comando = $@"UPDATE subgrupo SET idsubgrupo = {novoId} WHERE idsubgrupo IS NULL AND nome = 'A CLASSIFICAR';";
+                    command = new MySqlCommand(comando, connecctionMysql);
+                    command.ExecuteNonQuery();
+                    return novoId;
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao corrigir subgrupo");
+                Logar(ex.Message);
+                return 0;
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private void CorrecaoSubGrupo1(int idSubGrupo)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoNovoId = "SELECT MAX(idsubgrupo1) + 1 FROM subgrupo1;";
+                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionMysql);
+                int novoId = 0;
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    if (rdr.Read())
+                        novoId = ConverterInt32(rdr[0].ToString());
+                }
+
+                if (novoId > 0)
+                {
+                    string comando = $@"UPDATE subgrupo1 SET idsubgrupo1 = {novoId}, idsubgrupo = {idSubGrupo} WHERE idsubgrupo1 IS NULL AND nome = 'A CLASSIFICAR';";
+                    command = new MySqlCommand(comando, connecctionMysql);
+                    command.ExecuteNonQuery();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao corrigir subgrupo1");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
         }
 
         #endregion

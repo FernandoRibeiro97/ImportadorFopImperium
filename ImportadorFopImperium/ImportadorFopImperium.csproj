@@ -137,6 +137,7 @@
     </Compile>
     <Compile Include="Model\ClienteImperium.cs" />
     <Compile Include="Model\ContadorImportacao.cs" />
+    <Compile Include="Model\ContasPagar.cs" />
     <Compile Include="Model\FornecedorImperium.cs" />
     <Compile Include="Model\Grupo.cs" />
     <Compile Include="Model\SubGrupo.cs" />

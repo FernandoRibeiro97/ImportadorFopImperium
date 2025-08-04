@@ -86,7 +86,6 @@ namespace ImportadorFopImperium
         }
         private void MBackGroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-
         }
         private void MBackGroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -106,7 +105,6 @@ namespace ImportadorFopImperium
                 MessageBox.Show("Importação Concluída !");
             }
         }
-
         private void chkProdutos_CheckedChanged(object sender, EventArgs e)
         {
             chkFamilias.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Familia.Rows.Count > 0;
@@ -379,6 +377,11 @@ namespace ImportadorFopImperium
             if (chkFornecedores.Checked)
             {
                 ImportarFornecedores();
+
+                if (chkContasPagar.Checked)
+                {
+                    ImportarContasPagar();
+                }
             }
         }
         private void ImportarTributacoes()
@@ -571,7 +574,23 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
+        private void ImportarContasPagar()
+        {
+            List<ContasPagar> pagar = new List<ContasPagar>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Contas_Pagar.Rows)
+                    pagar.Add(RetornaContasPagarPorDataRow(r));
 
+                if (pagar.Count > 0)
+                    ExecutaComandoContasPagar(pagar);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao importar informações contas a pagar");
+                Logar(ex.Message);
+            }
+        }
         #endregion
 
         #region SQL SERVER
@@ -2047,6 +2066,156 @@ namespace ImportadorFopImperium
 
         #endregion
 
+        #region CONTAS PAGAR
+
+        private ContasPagar RetornaContasPagarPorDataRow(DataRow r)
+        {
+            ContasPagar pagar = new ContasPagar();
+            pagar.Id_Fornecedor = ConverterInt64(r["fkEntidade"].ToString());
+            pagar.Numero_Doc = r["id"].ToString();
+            pagar.Data_Entrada = ConverterDateTime(r["dtEntrada"].ToString());
+            pagar.Data_Emissao = pagar.Data_Entrada;
+            pagar.Data_Vencimento = ConverterDateTime(r["dtVencAtual"].ToString());
+            pagar.Valor_Doc = ConverterDecimal(r["valorAtual"].ToString());
+            pagar.Id_Pc1 = 0;
+            pagar.Obs = r["nroNF"].ToString();
+            pagar.Data_Pagto = ConverterDateTime(r["dtPago"].ToString());
+            pagar.Tipo = "C";
+            pagar.Numero_Cheque = "";
+            pagar.Id_Banco = 0;
+            pagar.Id_Pedido = 0;
+            pagar.Situacao = "A"; //TODO: MUDAR A SITUACAO DE ACORDO COM O VALOR PAGO
+            pagar.Id_Cheque = 0;
+            pagar.Id_NF_Entrada = 0;
+            pagar.Parcelado = "nao";
+            pagar.Loja = ConverterInt32(r["fkLoja"].ToString());
+            pagar.Previsao = "0"; //TODO: VERIFICAR A UTLIDADE DO CAMPO
+            pagar.Id_Pc2 = 0;
+            pagar.Id_Tipo_Cobranca = 0; //TODO: VERIFICAR A UTLIDADE DO CAMPO
+            pagar.Valor_Desconto = 0;
+            pagar.Historico = r["referencia"].ToString();
+            pagar.Valor_Cheque = 0;
+            pagar.Valor_Complemento = 0;
+            pagar.Duplicata = "";
+            pagar.Valor_Acrescimo = 0;
+            pagar.Valor_Custas_Cartorio = 0;
+            pagar.Valor_Total_Pagar = ConverterDecimal(r["valorAtual"].ToString());
+            pagar.Id_Sub_Categoria = 0;
+            pagar.Id_NF_Entrada_GNRE = 0;
+            pagar.Tipo_Documento = "NF";
+            pagar.Id_Tranferencia = 0;
+
+            return pagar;
+        }
+        private void ExecutaComandoContasPagar(List<ContasPagar> lstPagar)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE pagar;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO pagar(
+                                    idFornecedor, nr_docto, dt_entrada, dt_emissao, dt_vencto, vl_docto, idPc1, obs, dt_pagto, tipo, ncheque, idBanco, idPedido, situacao, idCheque, idNfEntrada, parcelado, loja, previsao, idPc2, idTipoCobranca, vlDesconto, historico, valorcheque, vl_complemento, duplicata, vlAcrescimo, vlCustasCartorio, vlTotalPagar, idsubcategoria, idNfEntrada_gnre, TipoDocumento, idTransferencia
+                                    ) VALUES ";
+                StringBuilder strBuilderPagar = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (ContasPagar p in lstPagar)
+                {
+                    strBuilderPagar.AppendLine(RetornaLinhaInserirContasPagar(p));
+                    contadorImportacao.Cont_Contas_Pagar++;
+                    cont++;
+
+                    if (cont == qtdeImportar)
+                    {
+                        InsertBanco(strBuilderPagar, command);
+                        strBuilderPagar.Clear();
+                        strBuilderPagar.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strBuilderPagar, command);
+                    strBuilderPagar.Clear();
+                    strBuilderPagar.Append(comando);
+                    cont = 0;
+                }
+
+                CorrigirCamposContasPagar();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private string RetornaLinhaInserirContasPagar(ContasPagar pagar)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{pagar.Id_Fornecedor},");
+            stringBuilder.Append($"'{pagar.Numero_Doc}',");
+            stringBuilder.Append($"'{pagar.Data_Entrada:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{pagar.Data_Emissao:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{pagar.Data_Vencimento:yyyy-MM-dd}',");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Doc.ToString())},");
+            stringBuilder.Append($"{pagar.Id_Pc1},");
+            stringBuilder.Append($"'{pagar.Obs}',");
+            stringBuilder.Append($"'{pagar.Data_Pagto:yyyy-MM-dd}',");
+            stringBuilder.Append($"'{pagar.Tipo}',");
+            stringBuilder.Append($"'{pagar.Numero_Cheque}',");
+            stringBuilder.Append($"{pagar.Id_Banco},");
+            stringBuilder.Append($"{pagar.Id_Pedido},");
+            stringBuilder.Append($"'{pagar.Situacao}',");
+            stringBuilder.Append($"{pagar.Id_Cheque},");
+            stringBuilder.Append($"{pagar.Id_NF_Entrada},");
+            stringBuilder.Append($"'{pagar.Parcelado}',");
+            stringBuilder.Append($"{pagar.Loja},");
+            stringBuilder.Append($"'{pagar.Previsao}',");
+            stringBuilder.Append($"{pagar.Id_Pc2},");
+            stringBuilder.Append($"{pagar.Id_Tipo_Cobranca},");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Desconto.ToString())},");
+            stringBuilder.Append($"'{pagar.Historico}',");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Cheque.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Complemento.ToString())},");
+            stringBuilder.Append($"'{pagar.Duplicata}',");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Acrescimo.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Custas_Cartorio.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(pagar.Valor_Total_Pagar.ToString())},");
+            stringBuilder.Append($"{pagar.Id_Sub_Categoria},");
+            stringBuilder.Append($"{pagar.Id_NF_Entrada_GNRE},");
+            stringBuilder.Append($"'{pagar.Tipo_Documento}',");
+            stringBuilder.Append($"{pagar.Id_Tranferencia}");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
+        private void CorrigirCamposContasPagar()
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = @"UPDATE pagar SET situacao = NULL, dt_pagto = NULL WHERE dt_pagto < dt_vencto;";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando2 = @"UPDATE pagar SET situacao = 'B' WHERE dt_pagto IS NOT NULL;";
+                command = new MySqlCommand(comando2, connecctionMysql);
+                command.ExecuteNonQuery();
+
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao corrigir campos pagar");
+                Logar(ex.Message);
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        #endregion
+
         #region MÉTODOS EM GERAL
         private void ExecutaAumentoPacoteMySQL()
         {
@@ -2165,6 +2334,7 @@ namespace ImportadorFopImperium
                 chkProdutos.Enabled = ImportacaoImperium.Dt_Produto.Rows.Count > 0;
                 chkClientes.Enabled = ImportacaoImperium.Lista_Clientes.Count > 0;
                 chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores.Count > 0;
+                chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
             }
         }
         private void InformaContadorRegistrosCarregados()
@@ -2174,6 +2344,7 @@ namespace ImportadorFopImperium
             lblFornecedores.Text = ImportacaoImperium.Lista_Fornecedores != null ? ImportacaoImperium.Lista_Fornecedores.Count.ToString() : "0";
             lblFamilias.Text = ImportacaoImperium.Dt_Familia != null ? ImportacaoImperium.Dt_Familia.Rows.Count.ToString() : "0";
             lblItensFornecedor.Text = ImportacaoImperium.Dt_Itens_Fornecedor != null ? ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count.ToString() : "0";
+            lblContaPagar.Text = ImportacaoImperium.Dt_Contas_Pagar != null ? ImportacaoImperium.Dt_Contas_Pagar.Rows.Count.ToString() : "0";
         }
         private void InformaContadorRegistrosImportados()
         {
@@ -2182,6 +2353,7 @@ namespace ImportadorFopImperium
             lblContFornecedores.Text = contadorImportacao.Cont_Fornecedores.ToString();
             lblContFamilias.Text = contadorImportacao.Cont_Familias.ToString();
             lblContItensFornecedor.Text = contadorImportacao.Cont_ItensFornecedor.ToString();
+            lblContContaPagar.Text = contadorImportacao.Cont_Contas_Pagar.ToString();
         }
         private void Logar(string mensagem)
         {

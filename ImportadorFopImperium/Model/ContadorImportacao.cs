@@ -7,5 +7,6 @@
         public long Cont_Fornecedores { get; set; } = 0;
         public long Cont_Familias { get; set; } = 0;
         public long Cont_ItensFornecedor { get; set; } = 0;
+        public long Cont_Contas_Pagar { get; set; } = 0;
     }
 }

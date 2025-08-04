@@ -336,6 +336,8 @@ namespace ImportadorFopImperium
 
         private void ImportarInformacoes()
         {
+            ExecutaAumentoPacoteMySQL();
+
             if (chkProdutos.Checked)
             {
                 ImportarTributacoes();
@@ -793,6 +795,7 @@ namespace ImportadorFopImperium
         {
             try
             {
+                ExecutaAumentoPacoteMySQL();
                 AbrirConexaoMysql();
 
                 #region TRUNCATE TABELAS PRODUTO
@@ -2015,6 +2018,24 @@ namespace ImportadorFopImperium
         #endregion
 
         #region MÉTODOS EM GERAL
+        private void ExecutaAumentoPacoteMySQL()
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(strConexaoMySql))
+                {
+                    conn.Open();
+                    string comando = @"SET GLOBAL max_allowed_packet = 1073741824;";
+                    MySqlCommand command = new MySqlCommand(comando, conn);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao aumentar pacote de dados");
+                Logar(ex.Message);
+            }
+        }
         private DataTable RecuperaDataTableSQLServer(string comando)
         {
             try

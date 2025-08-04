@@ -46,7 +46,7 @@
             this.chkSecoes = new System.Windows.Forms.CheckBox();
             this.chkBarraRel = new System.Windows.Forms.CheckBox();
             this.chkItensFornecedor = new System.Windows.Forms.CheckBox();
-            this.progressBar6 = new System.Windows.Forms.ProgressBar();
+            this.barraProgresso = new System.Windows.Forms.ProgressBar();
             this.btnImportar = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
@@ -302,12 +302,12 @@
             this.chkItensFornecedor.Text = "Itens Fornecedor";
             this.chkItensFornecedor.UseVisualStyleBackColor = true;
             // 
-            // progressBar6
+            // barraProgresso
             // 
-            this.progressBar6.Location = new System.Drawing.Point(8, 450);
-            this.progressBar6.Name = "progressBar6";
-            this.progressBar6.Size = new System.Drawing.Size(780, 23);
-            this.progressBar6.TabIndex = 50;
+            this.barraProgresso.Location = new System.Drawing.Point(8, 450);
+            this.barraProgresso.Name = "barraProgresso";
+            this.barraProgresso.Size = new System.Drawing.Size(780, 23);
+            this.barraProgresso.TabIndex = 50;
             // 
             // btnImportar
             // 
@@ -751,7 +751,7 @@
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnFechar);
-            this.Controls.Add(this.progressBar6);
+            this.Controls.Add(this.barraProgresso);
             this.Controls.Add(this.btnImportar);
             this.Controls.Add(this.btnCarregar);
             this.Controls.Add(this.groupBox2);
@@ -790,7 +790,7 @@
         private System.Windows.Forms.CheckBox chkSecoes;
         private System.Windows.Forms.CheckBox chkBarraRel;
         private System.Windows.Forms.CheckBox chkItensFornecedor;
-        private System.Windows.Forms.ProgressBar progressBar6;
+        private System.Windows.Forms.ProgressBar barraProgresso;
         private System.Windows.Forms.Button btnImportar;
         private System.Windows.Forms.Button btnCarregar;
         private System.Windows.Forms.Button btnFechar;

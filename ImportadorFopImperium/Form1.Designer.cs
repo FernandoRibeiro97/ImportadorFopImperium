@@ -148,7 +148,7 @@
             this.chkFamilias.AutoSize = true;
             this.chkFamilias.Enabled = false;
             this.chkFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkFamilias.Location = new System.Drawing.Point(23, 350);
+            this.chkFamilias.Location = new System.Drawing.Point(23, 285);
             this.chkFamilias.Name = "chkFamilias";
             this.chkFamilias.Size = new System.Drawing.Size(71, 17);
             this.chkFamilias.TabIndex = 25;
@@ -185,7 +185,7 @@
             this.chkMovCaixa.AutoSize = true;
             this.chkMovCaixa.Enabled = false;
             this.chkMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkMovCaixa.Location = new System.Drawing.Point(23, 330);
+            this.chkMovCaixa.Location = new System.Drawing.Point(22, 350);
             this.chkMovCaixa.Name = "chkMovCaixa";
             this.chkMovCaixa.Size = new System.Drawing.Size(86, 17);
             this.chkMovCaixa.TabIndex = 32;
@@ -223,7 +223,7 @@
             this.chkNFEntrada.AutoSize = true;
             this.chkNFEntrada.Enabled = false;
             this.chkNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkNFEntrada.Location = new System.Drawing.Point(23, 310);
+            this.chkNFEntrada.Location = new System.Drawing.Point(22, 330);
             this.chkNFEntrada.Name = "chkNFEntrada";
             this.chkNFEntrada.Size = new System.Drawing.Size(88, 17);
             this.chkNFEntrada.TabIndex = 31;
@@ -257,7 +257,7 @@
             this.chkGrupo.AutoSize = true;
             this.chkGrupo.Enabled = false;
             this.chkGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkGrupo.Location = new System.Drawing.Point(22, 205);
+            this.chkGrupo.Location = new System.Drawing.Point(23, 205);
             this.chkGrupo.Name = "chkGrupo";
             this.chkGrupo.Size = new System.Drawing.Size(67, 17);
             this.chkGrupo.TabIndex = 24;
@@ -270,7 +270,7 @@
             this.chkItensFornecedor.AutoSize = true;
             this.chkItensFornecedor.Enabled = false;
             this.chkItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkItensFornecedor.Location = new System.Drawing.Point(23, 289);
+            this.chkItensFornecedor.Location = new System.Drawing.Point(23, 265);
             this.chkItensFornecedor.Name = "chkItensFornecedor";
             this.chkItensFornecedor.Size = new System.Drawing.Size(123, 17);
             this.chkItensFornecedor.TabIndex = 28;
@@ -375,7 +375,7 @@
             // 
             this.lblMovCaixa.AutoSize = true;
             this.lblMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMovCaixa.Location = new System.Drawing.Point(6, 330);
+            this.lblMovCaixa.Location = new System.Drawing.Point(7, 355);
             this.lblMovCaixa.Name = "lblMovCaixa";
             this.lblMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblMovCaixa.TabIndex = 23;
@@ -395,7 +395,7 @@
             // 
             this.lblNFEntrada.AutoSize = true;
             this.lblNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNFEntrada.Location = new System.Drawing.Point(6, 309);
+            this.lblNFEntrada.Location = new System.Drawing.Point(7, 334);
             this.lblNFEntrada.Name = "lblNFEntrada";
             this.lblNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblNFEntrada.TabIndex = 22;
@@ -445,7 +445,7 @@
             // 
             this.lblFamilias.AutoSize = true;
             this.lblFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFamilias.Location = new System.Drawing.Point(6, 349);
+            this.lblFamilias.Location = new System.Drawing.Point(7, 285);
             this.lblFamilias.Name = "lblFamilias";
             this.lblFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblFamilias.TabIndex = 9;
@@ -475,7 +475,7 @@
             // 
             this.lblItensFornecedor.AutoSize = true;
             this.lblItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblItensFornecedor.Location = new System.Drawing.Point(6, 288);
+            this.lblItensFornecedor.Location = new System.Drawing.Point(7, 265);
             this.lblItensFornecedor.Name = "lblItensFornecedor";
             this.lblItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblItensFornecedor.TabIndex = 18;
@@ -528,7 +528,7 @@
             // 
             this.lblContMovCaixa.AutoSize = true;
             this.lblContMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMovCaixa.Location = new System.Drawing.Point(8, 330);
+            this.lblContMovCaixa.Location = new System.Drawing.Point(6, 355);
             this.lblContMovCaixa.Name = "lblContMovCaixa";
             this.lblContMovCaixa.Size = new System.Drawing.Size(11, 13);
             this.lblContMovCaixa.TabIndex = 24;
@@ -538,7 +538,7 @@
             // 
             this.lblContNFEntrada.AutoSize = true;
             this.lblContNFEntrada.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContNFEntrada.Location = new System.Drawing.Point(8, 309);
+            this.lblContNFEntrada.Location = new System.Drawing.Point(6, 334);
             this.lblContNFEntrada.Name = "lblContNFEntrada";
             this.lblContNFEntrada.Size = new System.Drawing.Size(11, 13);
             this.lblContNFEntrada.TabIndex = 23;
@@ -588,7 +588,7 @@
             // 
             this.lblContFamilias.AutoSize = true;
             this.lblContFamilias.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContFamilias.Location = new System.Drawing.Point(8, 350);
+            this.lblContFamilias.Location = new System.Drawing.Point(7, 285);
             this.lblContFamilias.Name = "lblContFamilias";
             this.lblContFamilias.Size = new System.Drawing.Size(11, 13);
             this.lblContFamilias.TabIndex = 9;
@@ -628,7 +628,7 @@
             // 
             this.lblContItensFornecedor.AutoSize = true;
             this.lblContItensFornecedor.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContItensFornecedor.Location = new System.Drawing.Point(8, 288);
+            this.lblContItensFornecedor.Location = new System.Drawing.Point(7, 266);
             this.lblContItensFornecedor.Name = "lblContItensFornecedor";
             this.lblContItensFornecedor.Size = new System.Drawing.Size(11, 13);
             this.lblContItensFornecedor.TabIndex = 19;
@@ -639,7 +639,7 @@
             this.chkSubGrupo.AutoSize = true;
             this.chkSubGrupo.Enabled = false;
             this.chkSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkSubGrupo.Location = new System.Drawing.Point(22, 225);
+            this.chkSubGrupo.Location = new System.Drawing.Point(23, 225);
             this.chkSubGrupo.Name = "chkSubGrupo";
             this.chkSubGrupo.Size = new System.Drawing.Size(61, 17);
             this.chkSubGrupo.TabIndex = 35;

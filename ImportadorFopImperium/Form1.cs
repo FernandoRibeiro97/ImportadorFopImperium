@@ -44,7 +44,7 @@ namespace ImportadorFopImperium
 
         private void frmPrincipal_Load(object sender, EventArgs e)
         {
-            Logar("Teste de log");
+            CriarDiretorioLogs();
             string strServer = "localhost";
             string strDataBase = "sc2010";
 
@@ -2854,12 +2854,21 @@ namespace ImportadorFopImperium
             lblContSubGrupo.Text = contadorImportacao.Cont_SubGrupo.ToString();
             lblContSubGrupo1.Text = contadorImportacao.Cont_SubGrupo1.ToString();
         }
+        private void CriarDiretorioLogs()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\LOGS\\";
+
+            if (!Directory.Exists(caminho))
+                Directory.CreateDirectory(caminho);
+        }
         private void Logar(string mensagem)
         {
             try
             {
+                CriarDiretorioLogs();
+
                 string nomeArquivo = $"LOG_{DateTime.Now:yyyyMMdd}.log";
-                string caminhoArquivo = $"{Directory.GetCurrentDirectory()}\\{nomeArquivo}";
+                string caminhoArquivo = $"{Directory.GetCurrentDirectory()}\\LOGS\\{nomeArquivo}";
 
                 if (!File.Exists(caminhoArquivo))
                     File.Create(caminhoArquivo);

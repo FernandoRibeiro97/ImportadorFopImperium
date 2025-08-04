@@ -292,7 +292,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM Finaceiro.ContasPagar;";
+                string comando = @"SELECT * FROM Financeiro.ContasPagar;";
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception ex)
@@ -1074,8 +1074,8 @@ namespace ImportadorFopImperium
 
             produto.Preco = new ProdutoPreco();
             int tamanhoCaixa = ConverterInt32(r["tamCaixa"].ToString()) == 0 ? 1 : ConverterInt32(r["tamCaixa"].ToString());
-            DateTime inicioPromo = string.IsNullOrEmpty(r["dtInicioPromo"].ToString()) ? ConverterDateTime("2021-01-01") : ConverterDateTime(r["dtInicioPromo"].ToString());
-            DateTime finalPromo = string.IsNullOrEmpty(r["dtFimPromo"].ToString()) ? ConverterDateTime("2021-01-01") : ConverterDateTime(r["dtFimPromo"].ToString());
+            DateTime inicioPromo = new DateTime(2021, 1, 1);
+            DateTime finalPromo = new DateTime(2021, 1, 1);
             produto.Preco.LOJA = loja;
             produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 4);
             produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["custoMedio"].ToString());

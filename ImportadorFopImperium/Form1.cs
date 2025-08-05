@@ -112,6 +112,7 @@ namespace ImportadorFopImperium
             chkFamilias.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Familia.Rows.Count > 0;
             chkItensFornecedor.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0;
             chkGrupo.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Grupo.Rows.Count > 0;
+            chkNFEntrada.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Nota_Entrada.Rows.Count > 0;
         }
         private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
         {
@@ -336,10 +337,10 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT nroNF, valorNF, baseCalculoICMS, valorICMS, valorOutros, valorIPI, baseCalculoST, valorST, fkEntidade, dEmi, dhSaiEnt, 'IMPORTADO', serie, 'NFe', '55', fkLoja,
-                    'E', chaveAcesso, protocolo, 'IMPORTACAO'
-                    FROM NF.NFe
-                    WHERE entrada = 1;";
+                string comando = @"SELECT *
+                    FROM NF.NFe n
+                    JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
+                    WHERE n.natOp = 'COMPRAS';";
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception)
@@ -354,8 +355,8 @@ namespace ImportadorFopImperium
             {
                 string comando = @"SELECT i.* 
                                     FROM nf.NFeItens i 
-                                    JOIN nf.NFe n ON i.nroNF = n.nroNF
-                                    WHERE n.entrada = 1;";
+                                    JOIN nf.NFe n ON i.nroNF = n.nroNF AND i.serie = n.serie AND i.emitCNPJ = n.emitCNPJ
+                                    WHERE n.natOp = 'COMPRAS';";
 
                 return RecuperaDataTableSQLServer(comando);
             }
@@ -690,7 +691,13 @@ namespace ImportadorFopImperium
                     notas.Add(RetornaNotaEntradaPorDataRow(r));
 
                 if (notas.Count > 0)
+                {
+                    foreach (NotaEntrada nota in notas)
+                        nota.Itens = RetornaItensNotaEntrada(nota.Numero_FOP, nota.Serie_Fop, nota.Cnpj_Emitente_Fop);
+
                     ExecutaComandoNotaEntrada(notas);
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -2606,6 +2613,10 @@ namespace ImportadorFopImperium
         private NotaEntrada RetornaNotaEntradaPorDataRow(DataRow r)
         {
             NotaEntrada nota = new NotaEntrada();
+            nota.CFOP = r["fkCFOP"].ToString();
+            nota.Numero_FOP = r["nroNF"].ToString();
+            nota.Serie_Fop = r["serie"].ToString();
+            nota.Cnpj_Emitente_Fop = r["emitCNPJ"].ToString();
             nota.Numero = r["nroNF"].ToString();
             nota.Valor_Total = ConverterDecimal(r["valorNF"].ToString());
             nota.Valor_Base_Icms = ConverterDecimal(r["baseCalculoICMS"].ToString());
@@ -2616,7 +2627,7 @@ namespace ImportadorFopImperium
             nota.Valor_Icms_ST = ConverterDecimal(r["valorST"].ToString());
             nota.Id_Fornecedor = ConverterInt64(r["fkEntidade"].ToString());
             nota.Data_Emissao = ConverterDateTime(r["dEmi"].ToString());
-            nota.Data_Emissao = ConverterDateTime(r["dhSaiEnt"].ToString());
+            nota.Data_Entrada = ConverterDateTime(r["dhSaiEnt"].ToString());
             nota.Obs = "IMPORTADO";
             nota.Serie = ConverterInt32(r["serie"].ToString());
             nota.Especie = "NFe";
@@ -2631,32 +2642,49 @@ namespace ImportadorFopImperium
         }
         private void ExecutaComandoNotaEntrada(List<NotaEntrada> lstNota)
         {
+            var codigosFiscais = CarregaCodigoFiscal();
+
             try
             {
                 AbrirConexaoMysql();
-                string comandoTruncar = @"TRUNCATE nfentrada;";
+                string comandoTruncar = @"TRUNCATE nfentrada; TRUNCATE itensnfentrada;";
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
                 command.ExecuteNonQuery();
 
-                string comando = @"INSERT INTO nfentrada (NumeroNF, ValorTotalNF, ValorBaseIcms, ValorICMS, Outras, IPI, BaseIcmsST, ValorICMSSubst, idFornecedor, Dt_Emissao, Dt_Entrada, Obs, Serie, Especie, Modelo, loja, situacao, ChaveEletronica, ProtocoloNfe, usuario) VALUES ";
+                string comando = @"INSERT INTO nfentrada (idNFEntrada, NumeroNF, ValorTotalNF, ValorBaseIcms, ValorICMS, Outras, IPI, BaseIcmsSubst, ValorICMSSubst, idFornecedor, Dt_Emissao, Dt_Entrada, Obs, Serie, Especie, Modelo, loja, situacao, ChaveEletronica, ProtocoloNfe, usuario, idCodigoFiscal) VALUES ";
 
-                string comandoItens = @"";
+                string comandoItens = @"INSERT INTO itensnfentrada (idProduto, valortotalcx, quantidade, margem, tributacao, valoripi, descvalor, descPorcento, acresValor, acresporcento, fretevalor, freteporcento, precovista, idNFEntrada, prsugestao, MargemIva,
+                  ReducaoIcms, ReducaoIcmsSt, cfop, percentual_fcp, vl_base_fcp, vl_fcp, percentual_fcp_st, vl_base_fcp_st, vl_fcp_st) VALUES ";
 
                 StringBuilder strBuilderNotaEntrada = new StringBuilder(comando);
+                StringBuilder strBuilderItens = new StringBuilder(comandoItens);
                 int cont = 0;
 
                 foreach (NotaEntrada nota in lstNota)
                 {
-                    strBuilderNotaEntrada.AppendLine(RetornaLinhaInserirNotaEntrada(nota));
                     cont++;
                     contadorImportacao.Cont_Nota_Entrada++;
 
+                    nota.Id = contadorImportacao.Cont_Nota_Entrada;
+                    nota.Id_Codigo_Fiscal = codigosFiscais.FirstOrDefault(c => c.Value.Replace(",", "") == nota.CFOP).Key;
+
+                    strBuilderNotaEntrada.AppendLine(RetornaLinhaInserirNotaEntrada(nota));
+
+                    foreach (ItemEntrada i in nota.Itens)
+                    {
+                        i.Id_NF = nota.Id;
+                        strBuilderItens.AppendLine(RetornaLinhaInserirItemEntrada(i));
+                    }
 
                     if (cont == qtdeImportar)
                     {
                         InsertBanco(strBuilderNotaEntrada, command);
+                        InsertBanco(strBuilderItens, command);
+
                         strBuilderNotaEntrada.Clear();
+                        strBuilderItens.Clear();
                         strBuilderNotaEntrada.Append(comando);
+                        strBuilderItens.Append(comandoItens);
                         cont = 0;
                     }
                 }
@@ -2664,8 +2692,12 @@ namespace ImportadorFopImperium
                 if (cont > 0)
                 {
                     InsertBanco(strBuilderNotaEntrada, command);
+                    InsertBanco(strBuilderItens, command);
+
                     strBuilderNotaEntrada.Clear();
+                    strBuilderItens.Clear();
                     strBuilderNotaEntrada.Append(comando);
+                    strBuilderItens.Append(comandoItens);
                     cont = 0;
                 }
             }
@@ -2679,6 +2711,7 @@ namespace ImportadorFopImperium
         private string RetornaLinhaInserirNotaEntrada(NotaEntrada nota)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{nota.Id},");
             stringBuilder.Append($"'{nota.Numero}',");
             stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Total.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(nota.Valor_Base_Icms.ToString())},");
@@ -2699,11 +2732,93 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"'{nota.Chave_Eletronica}',");
             stringBuilder.Append($"'{nota.Protocolo}',");
             stringBuilder.Append($"'{nota.Usuario}',");
+            stringBuilder.Append($"{nota.Id_Codigo_Fiscal}");
             stringBuilder.Append("),");
 
             return stringBuilder.ToString();
         }
+        private ItemEntrada RetornaItemEntradaPorDataRow(DataRow r)
+        {
+            ItemEntrada itemEntrada = new ItemEntrada();
+            itemEntrada.Id_Produto = RetornaIdProdutoPorEan1(r["cProd"].ToString());
+            itemEntrada.Cod_Produto = r["cProd"].ToString();
+            itemEntrada.Valor_Total = ConverterDecimal(r["vProd"].ToString());
+            itemEntrada.Qtde = ConverterDecimal(r["qCom"].ToString());
+            itemEntrada.Valor_Unitario = ConverterDecimal(r["vUnCom"].ToString());
+            itemEntrada.Margem = 0;
+            itemEntrada.Valor_Tributacao = ConverterDecimal(r["valorICMS"].ToString());
+            itemEntrada.Valor_Ipi = ConverterDecimal(r["valorIPI"].ToString());
+            itemEntrada.Valor_Desconto = ConverterDecimal(r["vDesc"].ToString());
+            itemEntrada.Perc_Desconto = itemEntrada.Valor_Desconto > 0 ? Math.Round((itemEntrada.Valor_Desconto / itemEntrada.Valor_Total), 2) : 0;
+            itemEntrada.Valor_Acrescimo = 0;
+            itemEntrada.Perc_Acrescimo = 0;
+            itemEntrada.Valor_Frete = ConverterDecimal(r["vFrete"].ToString());
+            itemEntrada.Perc_Frete = itemEntrada.Valor_Frete > 0 ? Math.Round(itemEntrada.Valor_Frete / itemEntrada.Valor_Total, 2) : 0;
+            itemEntrada.Preco_Vista = ConverterDecimal(r["vUnCom"].ToString());
+            itemEntrada.Id_NF = 0; //TODO: IMPLEMENTAR METODO PARA RECUPERAR ID NOTA
+            itemEntrada.Preco_Sugestao = 0;
+            itemEntrada.Margem_Iva = 0;
+            itemEntrada.Reducao_Icms = ConverterDecimal(r["icmsReduzBC"].ToString());
+            itemEntrada.Reducao_Icms_ST = ConverterDecimal(r["icmsReduzBCST"].ToString());
+            itemEntrada.CFOP = r["cfop"].ToString();
+            itemEntrada.Perc_FCP = ConverterDecimal(r["percFcp"].ToString());
+            itemEntrada.Valor_Base_FCP = ConverterDecimal(r["baseFcp"].ToString());
+            itemEntrada.Valor_FCP = ConverterDecimal(r["valorFcp"].ToString());
+            itemEntrada.Perc_FCP_ST = ConverterDecimal(r["percFcpSt"].ToString());
+            itemEntrada.Valor_Base_FCP = ConverterDecimal(r["baseFcpSt"].ToString());
+            itemEntrada.Valor_FCP_ST = ConverterDecimal(r["valorFcpSt"].ToString());
 
+            return itemEntrada;
+        }
+        private List<ItemEntrada> RetornaItensNotaEntrada(string numero, string serie, string cnpjEmitente)
+        {
+            List<ItemEntrada> lstItens = new List<ItemEntrada>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Nota_Entrada_Itens.Select($"nroNF = {numero} AND serie = {serie} AND emitCNPJ = {cnpjEmitente}"))
+                    lstItens.Add(RetornaItemEntradaPorDataRow(r));
+
+                return lstItens;
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao recuperar itens da nota de entrada");
+                Logar(ex.Message);
+                return new List<ItemEntrada>();
+            }
+        }
+        private string RetornaLinhaInserirItemEntrada(ItemEntrada item)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{item.Id_Produto},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Total.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Qtde.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Margem.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Tributacao.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Ipi.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Desconto.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_Desconto.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Acrescimo.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_Acrescimo.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Frete.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_Frete.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Preco_Vista.ToString())},");
+            stringBuilder.Append($"{item.Id_NF},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Preco_Sugestao.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Margem_Iva.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Reducao_Icms.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.CFOP.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_FCP.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Base_FCP.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_FCP.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_FCP_ST.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Base_FCP_ST.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_FCP_ST.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Perc_FCP_ST.ToString())}");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
         #endregion
 
         #region MÉTODOS EM GERAL
@@ -2886,6 +3001,55 @@ namespace ImportadorFopImperium
                 Logar("Erro ao criar arquivo de log");
                 Logar(ex.Message);
             }
+        }
+        private long RetornaIdProdutoPorEan1(string ean1)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = $@"SELECT idproduto FROM produto WHERE ean1 = {ean1} LIMIT 1";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    if (rdr.Read())
+                        return ConverterInt64(rdr["idproduto"].ToString());
+                    else
+                        return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao recuperar idproduto pelo ean1");
+                Logar(ex.Message);
+                return 0;
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private Dictionary<long, string> CarregaCodigoFiscal()
+        {
+            Dictionary<long, string> dicCodigoFiscal = new Dictionary<long, string>();
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = @"SELECT idCodigoFiscal, CodigoFiscal FROM codigoFiscal;";
+                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    while (rdr.Read())
+                        dicCodigoFiscal.Add(ConverterInt64(rdr["idCodigoFiscal"].ToString()), rdr["CodigoFiscal"].ToString());
+                }
+
+                return dicCodigoFiscal;
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao recuperar tabela codigofiscal");
+                Logar(ex.Message);
+                return dicCodigoFiscal;
+            }
+            finally { FecharConexaoMysql(); }
         }
 
         #endregion

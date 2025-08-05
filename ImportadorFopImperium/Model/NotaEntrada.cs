@@ -5,6 +5,11 @@ namespace ImportadorFopImperium.Model
 {
     public class NotaEntrada
     {
+        public long Id { get; set; }
+        public string CFOP { get; set; }
+        public string Numero_FOP { get; set; }
+        public string Serie_Fop { get; set; }
+        public string Cnpj_Emitente_Fop { get; set; }
         public string Numero { get; set; }
         public decimal Valor_Total { get; set; }
         public decimal Valor_Base_Icms { get; set; }
@@ -26,5 +31,6 @@ namespace ImportadorFopImperium.Model
         public string Protocolo { get; set; }
         public string Usuario { get; set; }
         public List<ItemEntrada> Itens { get; set; }
+        public long Id_Codigo_Fiscal { get; set; }
     }
 }

@@ -43,8 +43,6 @@ namespace ImportadorFopImperium
         TimeSpan tempoInicio = new TimeSpan();
         TimeSpan tempoFim = new TimeSpan();
 
-        int qtdeImportar = 100;
-
         Config mConfig = new Config();
 
         private void frmPrincipal_Load(object sender, EventArgs e)
@@ -112,7 +110,7 @@ namespace ImportadorFopImperium
             if (operacaoImportador == OperacaoImportador.Carregar)
             {
                 InformaContadorRegistrosCarregados();
-                HabiltaCheckBox();
+                HabilitaCheckBox();
 
                 btnImportar.Enabled = true; //TODO: FAZER UMA VERIFICACAO PARA HABILITAR O BOTAO
 
@@ -175,6 +173,7 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
                 ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
                 ImportacaoImperium.Dt_Nota_Entrada_Itens = CarregarNotaEntradaItens();
+                ImportacaoImperium.Dt_Vendas = CarregarVendas();
             }
             catch (Exception)
             {
@@ -390,6 +389,26 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
+        private DataTable CarregarVendas()
+        {
+            try
+            {
+                string de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
+                string ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
+
+                string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario
+                    FROM Comercial.Venda c 
+                    JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
+                    WHERE c.dtInicio BETWEEN {dataVendaDE.Text} AND {dataVendaATE.Text};";
+
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
         private List<ClienteImperium> FiltraEntidadeCliente()
         {
             var lstCliente = new List<ClienteImperium>();
@@ -477,6 +496,12 @@ namespace ImportadorFopImperium
                 {
                     Logar("IMPORTANDO NOTAS DE ENTRADA...");
                     ImportarNotaEntrada();
+                }
+
+                if (chkVenda.Checked)
+                {
+                    Logar("IMPORTANDO ITENS VENDA");
+                    ImportarItemVenda();
                 }
             }
 
@@ -746,6 +771,23 @@ namespace ImportadorFopImperium
             {
                 Logar("Erro ao importar notas de entrada");
                 Logar(ex.Message);
+            }
+        }
+        private void ImportarItemVenda() 
+        {
+            List<ItemVenda> lstItemVenda = new List<ItemVenda>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Vendas.Rows)
+                    lstItemVenda.Add(RetornaItemVendaPorDataRow(r));
+
+                if (lstItemVenda.Count > 0)
+                    ExecutaComandoItemVenda(lstItemVenda);
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
         #endregion
@@ -1060,7 +1102,7 @@ namespace ImportadorFopImperium
                     strBuilderEstoque.AppendLine(RetornaLinhaInserirEstoque(p));
                     strBuilderTributacao.AppendLine(RetornaLinhaInserirTributacao(p));
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         try
                         {
@@ -1626,7 +1668,7 @@ namespace ImportadorFopImperium
                     dicionarioFamilia.TryGetValue(id, out string nomeFamilia);
                     stringBuilder.Append($"({id}, '{nomeFamilia}'),");
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(stringBuilder, command, 1, 1);
                         stringBuilder.Clear();
@@ -1675,7 +1717,7 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Grupo++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strGrupo, command);
                         strGrupo.Clear();
@@ -1727,7 +1769,7 @@ namespace ImportadorFopImperium
                     contadorImportacao.Cont_SubGrupo++;
                     strGrupo.AppendLine(RetornaLinhaInserirSubGrupo(g));
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strGrupo, command);
                         strGrupo.Clear();
@@ -1784,7 +1826,7 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_SubGrupo1++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strSubGrupo, command);
                         strSubGrupo.Clear();
@@ -1975,7 +2017,7 @@ namespace ImportadorFopImperium
                     contadorImportacao.Cont_ItensFornecedor++;
                     cont++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderItensFornecedor, command);
                         strBuilderItensFornecedor.Clear();
@@ -2125,7 +2167,7 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Clientes++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         try
                         {
@@ -2299,7 +2341,7 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Fornecedores++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderComando, command);
 
@@ -2475,7 +2517,7 @@ namespace ImportadorFopImperium
                     contadorImportacao.Cont_Contas_Pagar++;
                     cont++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderPagar, command);
                         strBuilderPagar.Clear();
@@ -2605,7 +2647,7 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Contas_Receber++;
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderReceber, command);
                         strBuilderReceber.Clear();
@@ -2719,7 +2761,7 @@ namespace ImportadorFopImperium
                         strBuilderItens.AppendLine(RetornaLinhaInserirItemEntrada(i));
                     }
 
-                    if (cont == qtdeImportar)
+                    if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderNotaEntrada, command);
                         InsertBanco(strBuilderItens, command);
@@ -2862,6 +2904,100 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
+
+        #endregion
+
+        #region VENDA
+
+        private ItemVenda RetornaItemVendaPorDataRow(DataRow r)
+        {
+            ItemVenda itemVenda = new ItemVenda();
+            itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigo_fop"].ToString());
+            itemVenda.CodigoEan = ConverterInt64(r["codigo_fop"].ToString());
+            itemVenda.Valor = ConverterDecimal(r["valor"].ToString());
+            itemVenda.Qtde = ConverterDecimal(r["quantidade"].ToString());
+            itemVenda.ECF = ConverterInt32(r["ecf"].ToString());
+            itemVenda.Modelo = "2D";
+            itemVenda.Desconto = ConverterDecimal(r["descontoItem"].ToString());
+            itemVenda.Loja = ConverterInt32(r["loja"].ToString());
+            itemVenda.Datamov = ConverterDateTime(r["datamov"].ToString()).ToString("yyyy-MM-ss");
+            itemVenda.Hora_Cupom = ConverterDateTime(r["datamov"].ToString()).ToString("HH:mm");
+            itemVenda.Custo_Produto = ConverterDecimal(r["custoProduto"].ToString());
+            itemVenda.Situacao = r["situacao"].ToString();
+            itemVenda.Valor_Unitario = ConverterDecimal(r["valor_unitario"].ToString());
+
+            return itemVenda;
+        }
+        private void ExecutaComandoItemVenda(List<ItemVenda> lstItemVenda)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE itensvenda;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO itensvenda (cupom, idProduto, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario) VALUES ";
+
+                StringBuilder strBuilderItemVenda = new StringBuilder(comando);
+                int cont = 0;
+
+                foreach (ItemVenda item in lstItemVenda)
+                {
+                    cont++;
+                    contadorImportacao.Cont_Venda++;
+
+                    item.Cupom = contadorImportacao.Cont_Venda;
+
+                    strBuilderItemVenda.AppendLine(RetornaLinhaInserirItemVenda(item));
+
+                    if (cont == mConfig.Qtde_Importar)
+                    {
+                        InsertBanco(strBuilderItemVenda, command);
+                        strBuilderItemVenda.Clear();
+                        strBuilderItemVenda.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strBuilderItemVenda, command);
+                    strBuilderItemVenda.Clear();
+                    strBuilderItemVenda.Append(comando);
+                    cont = 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        private string RetornaLinhaInserirItemVenda(ItemVenda item)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{item.Cupom},");
+            stringBuilder.Append($"{item.Id_Produto},");
+            stringBuilder.Append($"'{item.CodigoEan}',");
+            stringBuilder.Append($"{item.Valor},");
+            stringBuilder.Append($"{item.Qtde},");
+            stringBuilder.Append($"{item.ECF},");
+            stringBuilder.Append($"'{item.Modelo}',");
+            stringBuilder.Append($"{item.Desconto},");
+            stringBuilder.Append($"{item.Loja},");
+            stringBuilder.Append($"'{item.Datamov}',");
+            stringBuilder.Append($"{item.Custo_Produto},");
+            stringBuilder.Append($"'{item.Hora_Cupom}',");
+            stringBuilder.Append($"{item.Id_Vendedor},");
+            stringBuilder.Append($"'{item.Situacao}',");
+            stringBuilder.Append($"{item.Valor_Unitario}");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
+
         #endregion
 
         #region MÉTODOS EM GERAL
@@ -2975,7 +3111,7 @@ namespace ImportadorFopImperium
 
             return 0;
         }
-        private void HabiltaCheckBox()
+        private void HabilitaCheckBox()
         {
             if (ImportacaoImperium != null)
             {
@@ -2984,6 +3120,7 @@ namespace ImportadorFopImperium
                 chkContasReceber.Enabled = chkClientes.Enabled && ImportacaoImperium.Dt_Contas_Receber.Rows.Count > 0;
                 chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores.Count > 0;
                 chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
+                chkVenda.Enabled = chkProdutos.Enabled && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
             }
         }
         private void InformaContadorRegistrosCarregados()
@@ -2998,6 +3135,8 @@ namespace ImportadorFopImperium
             lblGrupo.Text = ImportacaoImperium.Dt_Grupo != null ? ImportacaoImperium.Dt_Grupo.Rows.Count.ToString() : "0";
             lblSubGrupo.Text = ImportacaoImperium.Dt_SubGrupo != null ? ImportacaoImperium.Dt_SubGrupo.Rows.Count.ToString() : "0";
             lblSubGrupo1.Text = ImportacaoImperium.Dt_SubGrupo1 != null ? ImportacaoImperium.Dt_SubGrupo1.Rows.Count.ToString() : "0";
+            lblNFEntrada.Text = ImportacaoImperium.Dt_Nota_Entrada != null ? ImportacaoImperium.Dt_Nota_Entrada.Rows.Count.ToString() : "0";
+            lblItemVenda.Text = ImportacaoImperium.Dt_Vendas != null ? ImportacaoImperium.Dt_Vendas.Rows.Count.ToString() : "0";
         }
         private void InformaContadorRegistrosImportados()
         {
@@ -3011,6 +3150,8 @@ namespace ImportadorFopImperium
             lblContGrupos.Text = contadorImportacao.Cont_Grupo.ToString();
             lblContSubGrupo.Text = contadorImportacao.Cont_SubGrupo.ToString();
             lblContSubGrupo1.Text = contadorImportacao.Cont_SubGrupo1.ToString();
+            lblContNFEntrada.Text = contadorImportacao.Cont_Nota_Entrada.ToString();
+            lblContItemVenda.Text = contadorImportacao.Cont_Venda.ToString();
         }
         private void CriarDiretorioLogs()
         {
@@ -3128,6 +3269,9 @@ namespace ImportadorFopImperium
                 sw.WriteLine("usuarioSQLServer=");
                 sw.WriteLine("senhaSQLServer=");
                 sw.WriteLine("bancoSQLServer=sc2010");
+                sw.WriteLine();
+                sw.WriteLine("[PARAMETROS]");
+                sw.WriteLine("mConfig.Qtde_Importar=1000");
 
                 sw.Flush();
                 sw.Close();
@@ -3169,6 +3313,9 @@ namespace ImportadorFopImperium
                         break;
                     case "BANCOSQLSERVER":
                         mConfig.Banco_SQLServer = valores[1];
+                        break;
+                    case "mConfig.Qtde_Importar":
+                        mConfig.Qtde_Importar = ConverterInt64(valores[1]);
                         break;
                     default:
                         break;

@@ -21,6 +21,7 @@ namespace ImportadorFopImperium.Model
         public DataTable Dt_Contas_Receber { get; set; }
         public DataTable Dt_Nota_Entrada { get; set; }
         public DataTable Dt_Nota_Entrada_Itens { get; set; }
+        public DataTable Dt_Vendas { get; set; }
         public List<ClienteImperium> Lista_Clientes { get; set; }
         public List<FornecedorImperium> Lista_Fornecedores { get; set; }
         public List<Tributacao> Lista_Tributacoes { get; set; }

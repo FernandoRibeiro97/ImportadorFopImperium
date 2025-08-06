@@ -11,5 +11,6 @@
         public string Usuario_SQLServer { get; set; }
         public string Senha_SQLServer { get; set; }
         public string Banco_SQLServer { get; set; }
+        public long Qtde_Importar { get; set; }
     }
 }

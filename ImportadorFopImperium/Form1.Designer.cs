@@ -38,7 +38,7 @@
             this.chkFamilias = new System.Windows.Forms.CheckBox();
             this.chkProdutos = new System.Windows.Forms.CheckBox();
             this.chkContasPagar = new System.Windows.Forms.CheckBox();
-            this.chkMovCaixa = new System.Windows.Forms.CheckBox();
+            this.chkVenda = new System.Windows.Forms.CheckBox();
             this.chkFornecedores = new System.Windows.Forms.CheckBox();
             this.chkClientes = new System.Windows.Forms.CheckBox();
             this.chkNFEntrada = new System.Windows.Forms.CheckBox();
@@ -54,7 +54,7 @@
             this.lblSubGrupo = new System.Windows.Forms.Label();
             this.lblLojas = new System.Windows.Forms.Label();
             this.lblContaPagar = new System.Windows.Forms.Label();
-            this.lblMovCaixa = new System.Windows.Forms.Label();
+            this.lblItemVenda = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.lblNFEntrada = new System.Windows.Forms.Label();
             this.lblProdutos = new System.Windows.Forms.Label();
@@ -70,7 +70,7 @@
             this.lblContSubGrupo = new System.Windows.Forms.Label();
             this.lblContLojas = new System.Windows.Forms.Label();
             this.lblContContaPagar = new System.Windows.Forms.Label();
-            this.lblContMovCaixa = new System.Windows.Forms.Label();
+            this.lblContItemVenda = new System.Windows.Forms.Label();
             this.lblContNFEntrada = new System.Windows.Forms.Label();
             this.lblContContaReceber = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
@@ -83,10 +83,22 @@
             this.lblContItensFornecedor = new System.Windows.Forms.Label();
             this.lblTempoValorImportacao = new System.Windows.Forms.Label();
             this.lblTempoImportacao = new System.Windows.Forms.Label();
+            this.grpVenda = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.dataVendaATE = new System.Windows.Forms.DateTimePicker();
+            this.dataVendaDE = new System.Windows.Forms.DateTimePicker();
+            this.label1 = new System.Windows.Forms.Label();
+            this.grpDataNotaEntrada = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
+            this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
+            this.label4 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.grpTabelas.SuspendLayout();
             this.grpDadosCarregados.SuspendLayout();
             this.grpDadosImportados.SuspendLayout();
+            this.grpVenda.SuspendLayout();
+            this.grpDataNotaEntrada.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -118,7 +130,7 @@
             this.grpTabelas.Controls.Add(this.chkFamilias);
             this.grpTabelas.Controls.Add(this.chkProdutos);
             this.grpTabelas.Controls.Add(this.chkContasPagar);
-            this.grpTabelas.Controls.Add(this.chkMovCaixa);
+            this.grpTabelas.Controls.Add(this.chkVenda);
             this.grpTabelas.Controls.Add(this.chkFornecedores);
             this.grpTabelas.Controls.Add(this.chkClientes);
             this.grpTabelas.Controls.Add(this.chkNFEntrada);
@@ -205,17 +217,17 @@
             this.chkContasPagar.Text = "Contas a Pagar";
             this.chkContasPagar.UseVisualStyleBackColor = true;
             // 
-            // chkMovCaixa
+            // chkVenda
             // 
-            this.chkMovCaixa.AutoSize = true;
-            this.chkMovCaixa.Enabled = false;
-            this.chkMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkMovCaixa.Location = new System.Drawing.Point(22, 350);
-            this.chkMovCaixa.Name = "chkMovCaixa";
-            this.chkMovCaixa.Size = new System.Drawing.Size(86, 17);
-            this.chkMovCaixa.TabIndex = 32;
-            this.chkMovCaixa.Text = "Mov Caixa";
-            this.chkMovCaixa.UseVisualStyleBackColor = true;
+            this.chkVenda.AutoSize = true;
+            this.chkVenda.Enabled = false;
+            this.chkVenda.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkVenda.Location = new System.Drawing.Point(22, 350);
+            this.chkVenda.Name = "chkVenda";
+            this.chkVenda.Size = new System.Drawing.Size(94, 17);
+            this.chkVenda.TabIndex = 32;
+            this.chkVenda.Text = "Itens Venda";
+            this.chkVenda.UseVisualStyleBackColor = true;
             // 
             // chkFornecedores
             // 
@@ -352,7 +364,7 @@
             this.grpDadosCarregados.Controls.Add(this.lblSubGrupo);
             this.grpDadosCarregados.Controls.Add(this.lblLojas);
             this.grpDadosCarregados.Controls.Add(this.lblContaPagar);
-            this.grpDadosCarregados.Controls.Add(this.lblMovCaixa);
+            this.grpDadosCarregados.Controls.Add(this.lblItemVenda);
             this.grpDadosCarregados.Controls.Add(this.label18);
             this.grpDadosCarregados.Controls.Add(this.lblNFEntrada);
             this.grpDadosCarregados.Controls.Add(this.lblProdutos);
@@ -409,15 +421,15 @@
             this.lblContaPagar.TabIndex = 21;
             this.lblContaPagar.Text = ".";
             // 
-            // lblMovCaixa
+            // lblItemVenda
             // 
-            this.lblMovCaixa.AutoSize = true;
-            this.lblMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMovCaixa.Location = new System.Drawing.Point(7, 355);
-            this.lblMovCaixa.Name = "lblMovCaixa";
-            this.lblMovCaixa.Size = new System.Drawing.Size(11, 13);
-            this.lblMovCaixa.TabIndex = 23;
-            this.lblMovCaixa.Text = ".";
+            this.lblItemVenda.AutoSize = true;
+            this.lblItemVenda.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblItemVenda.Location = new System.Drawing.Point(7, 355);
+            this.lblItemVenda.Name = "lblItemVenda";
+            this.lblItemVenda.Size = new System.Drawing.Size(11, 13);
+            this.lblItemVenda.TabIndex = 23;
+            this.lblItemVenda.Text = ".";
             // 
             // label18
             // 
@@ -525,7 +537,7 @@
             this.grpDadosImportados.Controls.Add(this.lblContSubGrupo);
             this.grpDadosImportados.Controls.Add(this.lblContLojas);
             this.grpDadosImportados.Controls.Add(this.lblContContaPagar);
-            this.grpDadosImportados.Controls.Add(this.lblContMovCaixa);
+            this.grpDadosImportados.Controls.Add(this.lblContItemVenda);
             this.grpDadosImportados.Controls.Add(this.lblContNFEntrada);
             this.grpDadosImportados.Controls.Add(this.lblContContaReceber);
             this.grpDadosImportados.Controls.Add(this.label19);
@@ -582,15 +594,15 @@
             this.lblContContaPagar.TabIndex = 22;
             this.lblContContaPagar.Text = ".";
             // 
-            // lblContMovCaixa
+            // lblContItemVenda
             // 
-            this.lblContMovCaixa.AutoSize = true;
-            this.lblContMovCaixa.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContMovCaixa.Location = new System.Drawing.Point(6, 355);
-            this.lblContMovCaixa.Name = "lblContMovCaixa";
-            this.lblContMovCaixa.Size = new System.Drawing.Size(11, 13);
-            this.lblContMovCaixa.TabIndex = 24;
-            this.lblContMovCaixa.Text = ".";
+            this.lblContItemVenda.AutoSize = true;
+            this.lblContItemVenda.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContItemVenda.Location = new System.Drawing.Point(6, 355);
+            this.lblContItemVenda.Name = "lblContItemVenda";
+            this.lblContItemVenda.Size = new System.Drawing.Size(11, 13);
+            this.lblContItemVenda.TabIndex = 24;
+            this.lblContItemVenda.Text = ".";
             // 
             // lblContNFEntrada
             // 
@@ -710,11 +722,107 @@
             this.lblTempoImportacao.TabIndex = 71;
             this.lblTempoImportacao.Text = "Importação";
             // 
+            // grpVenda
+            // 
+            this.grpVenda.Controls.Add(this.label2);
+            this.grpVenda.Controls.Add(this.dataVendaATE);
+            this.grpVenda.Controls.Add(this.dataVendaDE);
+            this.grpVenda.Controls.Add(this.label1);
+            this.grpVenda.Location = new System.Drawing.Point(645, 143);
+            this.grpVenda.Name = "grpVenda";
+            this.grpVenda.Size = new System.Drawing.Size(143, 77);
+            this.grpVenda.TabIndex = 72;
+            this.grpVenda.TabStop = false;
+            this.grpVenda.Text = "Data Vendas";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(7, 48);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(31, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "ATÉ:";
+            // 
+            // dataVendaATE
+            // 
+            this.dataVendaATE.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dataVendaATE.Location = new System.Drawing.Point(43, 45);
+            this.dataVendaATE.Name = "dataVendaATE";
+            this.dataVendaATE.Size = new System.Drawing.Size(90, 20);
+            this.dataVendaATE.TabIndex = 2;
+            // 
+            // dataVendaDE
+            // 
+            this.dataVendaDE.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dataVendaDE.Location = new System.Drawing.Point(43, 19);
+            this.dataVendaDE.Name = "dataVendaDE";
+            this.dataVendaDE.Size = new System.Drawing.Size(90, 20);
+            this.dataVendaDE.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(14, 24);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(25, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "DE:";
+            // 
+            // grpDataNotaEntrada
+            // 
+            this.grpDataNotaEntrada.Controls.Add(this.label3);
+            this.grpDataNotaEntrada.Controls.Add(this.dateTimePicker1);
+            this.grpDataNotaEntrada.Controls.Add(this.dateTimePicker2);
+            this.grpDataNotaEntrada.Controls.Add(this.label4);
+            this.grpDataNotaEntrada.Location = new System.Drawing.Point(645, 226);
+            this.grpDataNotaEntrada.Name = "grpDataNotaEntrada";
+            this.grpDataNotaEntrada.Size = new System.Drawing.Size(143, 77);
+            this.grpDataNotaEntrada.TabIndex = 73;
+            this.grpDataNotaEntrada.TabStop = false;
+            this.grpDataNotaEntrada.Text = "Data Notas";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 48);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(31, 13);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "ATÉ:";
+            // 
+            // dateTimePicker1
+            // 
+            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimePicker1.Location = new System.Drawing.Point(43, 45);
+            this.dateTimePicker1.Name = "dateTimePicker1";
+            this.dateTimePicker1.Size = new System.Drawing.Size(90, 20);
+            this.dateTimePicker1.TabIndex = 2;
+            // 
+            // dateTimePicker2
+            // 
+            this.dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimePicker2.Location = new System.Drawing.Point(43, 19);
+            this.dateTimePicker2.Name = "dateTimePicker2";
+            this.dateTimePicker2.Size = new System.Drawing.Size(90, 20);
+            this.dateTimePicker2.TabIndex = 1;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(14, 24);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(25, 13);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "DE:";
+            // 
             // frmPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 436);
+            this.Controls.Add(this.grpDataNotaEntrada);
+            this.Controls.Add(this.grpVenda);
             this.Controls.Add(this.lblTempoImportacao);
             this.Controls.Add(this.lblTempoValorImportacao);
             this.Controls.Add(this.grpDadosImportados);
@@ -735,6 +843,10 @@
             this.grpDadosCarregados.PerformLayout();
             this.grpDadosImportados.ResumeLayout(false);
             this.grpDadosImportados.PerformLayout();
+            this.grpVenda.ResumeLayout(false);
+            this.grpVenda.PerformLayout();
+            this.grpDataNotaEntrada.ResumeLayout(false);
+            this.grpDataNotaEntrada.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -749,7 +861,7 @@
         private System.Windows.Forms.CheckBox chkFamilias;
         private System.Windows.Forms.CheckBox chkProdutos;
         private System.Windows.Forms.CheckBox chkContasPagar;
-        private System.Windows.Forms.CheckBox chkMovCaixa;
+        private System.Windows.Forms.CheckBox chkVenda;
         private System.Windows.Forms.CheckBox chkFornecedores;
         private System.Windows.Forms.CheckBox chkClientes;
         private System.Windows.Forms.CheckBox chkNFEntrada;
@@ -763,7 +875,7 @@
         private System.Windows.Forms.GroupBox grpDadosCarregados;
         private System.Windows.Forms.Label lblLojas;
         private System.Windows.Forms.Label lblContaPagar;
-        private System.Windows.Forms.Label lblMovCaixa;
+        private System.Windows.Forms.Label lblItemVenda;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label lblNFEntrada;
         private System.Windows.Forms.Label lblProdutos;
@@ -777,7 +889,7 @@
         private System.Windows.Forms.GroupBox grpDadosImportados;
         private System.Windows.Forms.Label lblContLojas;
         private System.Windows.Forms.Label lblContContaPagar;
-        private System.Windows.Forms.Label lblContMovCaixa;
+        private System.Windows.Forms.Label lblContItemVenda;
         private System.Windows.Forms.Label lblContNFEntrada;
         private System.Windows.Forms.Label lblContContaReceber;
         private System.Windows.Forms.Label label19;
@@ -796,6 +908,16 @@
         private System.Windows.Forms.Label lblContSubGrupo;
         private System.Windows.Forms.Label lblTempoValorImportacao;
         private System.Windows.Forms.Label lblTempoImportacao;
+        private System.Windows.Forms.GroupBox grpVenda;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.DateTimePicker dataVendaATE;
+        private System.Windows.Forms.DateTimePicker dataVendaDE;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.GroupBox grpDataNotaEntrada;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.DateTimePicker dateTimePicker1;
+        private System.Windows.Forms.DateTimePicker dateTimePicker2;
+        private System.Windows.Forms.Label label4;
     }
 }
 

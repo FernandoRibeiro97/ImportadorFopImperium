@@ -57,7 +57,7 @@ namespace ImportadorFopImperium
             CriarDiretorioLogs();
 
             if (mConfig.Tipo_Conexao == "2")
-                strConexaoSqlServer = "";
+                strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};Database={mConfig.Banco_SQLServer};User Id={mConfig.Usuario_SQLServer};Password={mConfig.Senha_SQLServer}; ";
             else
                 strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};DataBase={mConfig.Banco_SQLServer};Trusted_Connection=True;";
 

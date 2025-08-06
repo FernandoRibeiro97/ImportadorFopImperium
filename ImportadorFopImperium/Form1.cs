@@ -40,6 +40,9 @@ namespace ImportadorFopImperium
         string strConexaoSqlServer = string.Empty;
         string strConexaoMySql = string.Empty;
 
+        TimeSpan tempoInicio = new TimeSpan();
+        TimeSpan tempoFim = new TimeSpan();
+
         int qtdeImportar = 100;
 
         private void frmPrincipal_Load(object sender, EventArgs e)
@@ -103,6 +106,9 @@ namespace ImportadorFopImperium
             else if (operacaoImportador == OperacaoImportador.Importar)
             {
                 InformaContadorRegistrosImportados();
+
+                tempoFim =  new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+                lblTempoValorImportacao.Text = (tempoFim - tempoInicio).ToString();
 
                 MessageBox.Show("Importação Concluída !");
             }
@@ -415,6 +421,8 @@ namespace ImportadorFopImperium
 
         private void ImportarInformacoes()
         {
+            tempoInicio = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+
             ExecutaAumentoPacoteMySQL();
 
             if (chkProdutos.Checked)
@@ -3051,7 +3059,7 @@ namespace ImportadorFopImperium
             }
             finally { FecharConexaoMysql(); }
         }
-
+        
         #endregion
 
         #region MÉTODOS DE TRATAMENTO/CONVERSÃO DE DADOS

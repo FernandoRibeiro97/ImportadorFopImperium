@@ -32,6 +32,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.chkSubGrupo1 = new System.Windows.Forms.CheckBox();
+            this.chkSubGrupo = new System.Windows.Forms.CheckBox();
             this.chkLojas = new System.Windows.Forms.CheckBox();
             this.chkFamilias = new System.Windows.Forms.CheckBox();
             this.chkProdutos = new System.Windows.Forms.CheckBox();
@@ -49,6 +51,8 @@
             this.btnCarregar = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lblSubGrupo1 = new System.Windows.Forms.Label();
+            this.lblSubGrupo = new System.Windows.Forms.Label();
             this.lblLojas = new System.Windows.Forms.Label();
             this.lblContaPagar = new System.Windows.Forms.Label();
             this.lblMovCaixa = new System.Windows.Forms.Label();
@@ -63,6 +67,8 @@
             this.lblGrupo = new System.Windows.Forms.Label();
             this.lblItensFornecedor = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.lblContSubGrupo1 = new System.Windows.Forms.Label();
+            this.lblContSubGrupo = new System.Windows.Forms.Label();
             this.lblContLojas = new System.Windows.Forms.Label();
             this.lblContContaPagar = new System.Windows.Forms.Label();
             this.lblContMovCaixa = new System.Windows.Forms.Label();
@@ -76,12 +82,8 @@
             this.lblContClientes = new System.Windows.Forms.Label();
             this.lblContGrupos = new System.Windows.Forms.Label();
             this.lblContItensFornecedor = new System.Windows.Forms.Label();
-            this.chkSubGrupo = new System.Windows.Forms.CheckBox();
-            this.chkSubGrupo1 = new System.Windows.Forms.CheckBox();
-            this.lblSubGrupo = new System.Windows.Forms.Label();
-            this.lblSubGrupo1 = new System.Windows.Forms.Label();
-            this.lblContSubGrupo = new System.Windows.Forms.Label();
-            this.lblContSubGrupo1 = new System.Windows.Forms.Label();
+            this.lblTempoValorImportacao = new System.Windows.Forms.Label();
+            this.lblTempoImportacao = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -130,6 +132,30 @@
             this.groupBox2.Size = new System.Drawing.Size(183, 378);
             this.groupBox2.TabIndex = 47;
             this.groupBox2.TabStop = false;
+            // 
+            // chkSubGrupo1
+            // 
+            this.chkSubGrupo1.AutoSize = true;
+            this.chkSubGrupo1.Enabled = false;
+            this.chkSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSubGrupo1.Location = new System.Drawing.Point(23, 245);
+            this.chkSubGrupo1.Name = "chkSubGrupo1";
+            this.chkSubGrupo1.Size = new System.Drawing.Size(83, 17);
+            this.chkSubGrupo1.TabIndex = 36;
+            this.chkSubGrupo1.Text = "SubGrupo";
+            this.chkSubGrupo1.UseVisualStyleBackColor = true;
+            // 
+            // chkSubGrupo
+            // 
+            this.chkSubGrupo.AutoSize = true;
+            this.chkSubGrupo.Enabled = false;
+            this.chkSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSubGrupo.Location = new System.Drawing.Point(23, 225);
+            this.chkSubGrupo.Name = "chkSubGrupo";
+            this.chkSubGrupo.Size = new System.Drawing.Size(61, 17);
+            this.chkSubGrupo.TabIndex = 35;
+            this.chkSubGrupo.Text = "Grupo";
+            this.chkSubGrupo.UseVisualStyleBackColor = true;
             // 
             // chkLojas
             // 
@@ -351,6 +377,26 @@
             this.groupBox3.TabIndex = 68;
             this.groupBox3.TabStop = false;
             // 
+            // lblSubGrupo1
+            // 
+            this.lblSubGrupo1.AutoSize = true;
+            this.lblSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSubGrupo1.Location = new System.Drawing.Point(7, 245);
+            this.lblSubGrupo1.Name = "lblSubGrupo1";
+            this.lblSubGrupo1.Size = new System.Drawing.Size(11, 13);
+            this.lblSubGrupo1.TabIndex = 27;
+            this.lblSubGrupo1.Text = ".";
+            // 
+            // lblSubGrupo
+            // 
+            this.lblSubGrupo.AutoSize = true;
+            this.lblSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSubGrupo.Location = new System.Drawing.Point(7, 226);
+            this.lblSubGrupo.Name = "lblSubGrupo";
+            this.lblSubGrupo.Size = new System.Drawing.Size(11, 13);
+            this.lblSubGrupo.TabIndex = 26;
+            this.lblSubGrupo.Text = ".";
+            // 
             // lblLojas
             // 
             this.lblLojas.AutoSize = true;
@@ -504,6 +550,26 @@
             this.groupBox4.TabIndex = 69;
             this.groupBox4.TabStop = false;
             // 
+            // lblContSubGrupo1
+            // 
+            this.lblContSubGrupo1.AutoSize = true;
+            this.lblContSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContSubGrupo1.Location = new System.Drawing.Point(8, 246);
+            this.lblContSubGrupo1.Name = "lblContSubGrupo1";
+            this.lblContSubGrupo1.Size = new System.Drawing.Size(11, 13);
+            this.lblContSubGrupo1.TabIndex = 28;
+            this.lblContSubGrupo1.Text = ".";
+            // 
+            // lblContSubGrupo
+            // 
+            this.lblContSubGrupo.AutoSize = true;
+            this.lblContSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContSubGrupo.Location = new System.Drawing.Point(8, 228);
+            this.lblContSubGrupo.Name = "lblContSubGrupo";
+            this.lblContSubGrupo.Size = new System.Drawing.Size(11, 13);
+            this.lblContSubGrupo.TabIndex = 27;
+            this.lblContSubGrupo.Text = ".";
+            // 
             // lblContLojas
             // 
             this.lblContLojas.AutoSize = true;
@@ -634,75 +700,31 @@
             this.lblContItensFornecedor.TabIndex = 19;
             this.lblContItensFornecedor.Text = ".";
             // 
-            // chkSubGrupo
+            // lblTempoValorImportacao
             // 
-            this.chkSubGrupo.AutoSize = true;
-            this.chkSubGrupo.Enabled = false;
-            this.chkSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkSubGrupo.Location = new System.Drawing.Point(23, 225);
-            this.chkSubGrupo.Name = "chkSubGrupo";
-            this.chkSubGrupo.Size = new System.Drawing.Size(61, 17);
-            this.chkSubGrupo.TabIndex = 35;
-            this.chkSubGrupo.Text = "Grupo";
-            this.chkSubGrupo.UseVisualStyleBackColor = true;
+            this.lblTempoValorImportacao.AutoSize = true;
+            this.lblTempoValorImportacao.Location = new System.Drawing.Point(728, 102);
+            this.lblTempoValorImportacao.Name = "lblTempoValorImportacao";
+            this.lblTempoValorImportacao.Size = new System.Drawing.Size(16, 13);
+            this.lblTempoValorImportacao.TabIndex = 70;
+            this.lblTempoValorImportacao.Text = "---";
             // 
-            // chkSubGrupo1
+            // lblTempoImportacao
             // 
-            this.chkSubGrupo1.AutoSize = true;
-            this.chkSubGrupo1.Enabled = false;
-            this.chkSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkSubGrupo1.Location = new System.Drawing.Point(23, 245);
-            this.chkSubGrupo1.Name = "chkSubGrupo1";
-            this.chkSubGrupo1.Size = new System.Drawing.Size(83, 17);
-            this.chkSubGrupo1.TabIndex = 36;
-            this.chkSubGrupo1.Text = "SubGrupo";
-            this.chkSubGrupo1.UseVisualStyleBackColor = true;
-            // 
-            // lblSubGrupo
-            // 
-            this.lblSubGrupo.AutoSize = true;
-            this.lblSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSubGrupo.Location = new System.Drawing.Point(7, 226);
-            this.lblSubGrupo.Name = "lblSubGrupo";
-            this.lblSubGrupo.Size = new System.Drawing.Size(11, 13);
-            this.lblSubGrupo.TabIndex = 26;
-            this.lblSubGrupo.Text = ".";
-            // 
-            // lblSubGrupo1
-            // 
-            this.lblSubGrupo1.AutoSize = true;
-            this.lblSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSubGrupo1.Location = new System.Drawing.Point(7, 245);
-            this.lblSubGrupo1.Name = "lblSubGrupo1";
-            this.lblSubGrupo1.Size = new System.Drawing.Size(11, 13);
-            this.lblSubGrupo1.TabIndex = 27;
-            this.lblSubGrupo1.Text = ".";
-            // 
-            // lblContSubGrupo
-            // 
-            this.lblContSubGrupo.AutoSize = true;
-            this.lblContSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContSubGrupo.Location = new System.Drawing.Point(8, 228);
-            this.lblContSubGrupo.Name = "lblContSubGrupo";
-            this.lblContSubGrupo.Size = new System.Drawing.Size(11, 13);
-            this.lblContSubGrupo.TabIndex = 27;
-            this.lblContSubGrupo.Text = ".";
-            // 
-            // lblContSubGrupo1
-            // 
-            this.lblContSubGrupo1.AutoSize = true;
-            this.lblContSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblContSubGrupo1.Location = new System.Drawing.Point(8, 246);
-            this.lblContSubGrupo1.Name = "lblContSubGrupo1";
-            this.lblContSubGrupo1.Size = new System.Drawing.Size(11, 13);
-            this.lblContSubGrupo1.TabIndex = 28;
-            this.lblContSubGrupo1.Text = ".";
+            this.lblTempoImportacao.AutoSize = true;
+            this.lblTempoImportacao.Location = new System.Drawing.Point(664, 102);
+            this.lblTempoImportacao.Name = "lblTempoImportacao";
+            this.lblTempoImportacao.Size = new System.Drawing.Size(60, 13);
+            this.lblTempoImportacao.TabIndex = 71;
+            this.lblTempoImportacao.Text = "Importação";
             // 
             // frmPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 485);
+            this.Controls.Add(this.lblTempoImportacao);
+            this.Controls.Add(this.lblTempoValorImportacao);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnFechar);
@@ -723,6 +745,7 @@
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -781,6 +804,8 @@
         private System.Windows.Forms.Label lblSubGrupo;
         private System.Windows.Forms.Label lblContSubGrupo1;
         private System.Windows.Forms.Label lblContSubGrupo;
+        private System.Windows.Forms.Label lblTempoValorImportacao;
+        private System.Windows.Forms.Label lblTempoImportacao;
     }
 }
 

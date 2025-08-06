@@ -45,19 +45,23 @@ namespace ImportadorFopImperium
 
         int qtdeImportar = 100;
 
+        Config mConfig = new Config();
+
         private void frmPrincipal_Load(object sender, EventArgs e)
         {
+            if (!VerificaArquivoINI())
+                CriaArquivoIni();
+            else
+                CarregarConfiguracoes();
+
             CriarDiretorioLogs();
-            string strServer = "localhost";
-            string strDataBase = "sc2010";
 
-            string strServerMysql = "localhost";
-            string strUserMysql = "root";
-            string strPasswordMysql = "root";
-            string strDataBaseMysql = "db_imperium";
+            if (mConfig.Tipo_Conexao == "2")
+                strConexaoSqlServer = "";
+            else
+                strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};DataBase={mConfig.Banco_SQLServer};Trusted_Connection=True;";
 
-            strConexaoSqlServer = $"Server={strServer};DataBase={strDataBase};Trusted_Connection=True;";
-            strConexaoMySql = $"server={strServerMysql};user id={strUserMysql};password={strPasswordMysql};database={strDataBaseMysql};";
+            strConexaoMySql = $"server={mConfig.Servidor_MySQL};user id={mConfig.Usuario_MySQL};password={mConfig.Senha_MySQL};database={mConfig.Banco_MySQL};";
 
             mBackGroundWorker = new BackgroundWorker();
             mBackGroundWorker.WorkerSupportsCancellation = true;
@@ -3097,6 +3101,79 @@ namespace ImportadorFopImperium
             grpDadosImportados.Enabled = ativa;
             btnCarregar.Enabled = ativa;
             btnImportar.Enabled = ativa;
+        }
+        private bool VerificaArquivoINI()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+            return File.Exists(caminho);
+        }
+        private void CriaArquivoIni()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+
+            File.Create(caminho).Close();
+
+            using (StreamWriter sw = new StreamWriter(caminho))
+            {
+                sw.WriteLine("[IMPERIUM]");
+                sw.WriteLine("servidorMySQL=localhost");
+                sw.WriteLine("usuarioMySQL=root");
+                sw.WriteLine("senhaMySQL=root");
+                sw.WriteLine("bancoMySQL=db_imperium");
+                sw.WriteLine("");
+                sw.WriteLine("[FOP]");
+                sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
+                sw.WriteLine("tipoConexao=1");
+                sw.WriteLine("servidorSQLServer=localhost");
+                sw.WriteLine("usuarioSQLServer=");
+                sw.WriteLine("senhaSQLServer=");
+                sw.WriteLine("bancoSQLServer=sc2010");
+
+                sw.Flush();
+                sw.Close();
+            }
+        }
+        private void CarregarConfiguracoes()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+
+            foreach (string linha in File.ReadAllLines(caminho))
+            {
+                var valores = linha.Split('=');
+
+                switch (valores[0].ToUpper())
+                {
+                    case "SERVIDORMYSQL":
+                        mConfig.Servidor_MySQL = valores[1];
+                        break;
+                    case "USUARIOMYSQL":
+                        mConfig.Usuario_MySQL = valores[1];
+                        break;
+                    case "SENHAMYSQL":
+                        mConfig.Senha_MySQL = valores[1];
+                        break;
+                    case "BANCOMYSQL":
+                        mConfig.Banco_MySQL = valores[1];
+                        break;
+                    case "TIPOCONEXAO":
+                        mConfig.Tipo_Conexao = valores[1];
+                        break;
+                    case "SERVIDORSQLSERVER":
+                        mConfig.Servidor_SQLServer = valores[1];
+                        break;
+                    case "USUARIOSQLSERVER":
+                        mConfig.Usuario_SQLServer = valores[1];
+                        break;
+                    case "SENHASQLSERVER":
+                        mConfig.Senha_SQLServer = valores[1];
+                        break;
+                    case "BANCOSQLSERVER":
+                        mConfig.Banco_SQLServer = valores[1];
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         #endregion
 

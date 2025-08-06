@@ -136,6 +136,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\ClienteImperium.cs" />
+    <Compile Include="Model\Config.cs" />
     <Compile Include="Model\ContadorImportacao.cs" />
     <Compile Include="Model\ContaPagar.cs" />
     <Compile Include="Model\ContaReceber.cs" />

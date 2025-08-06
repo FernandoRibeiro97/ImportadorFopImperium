@@ -70,6 +70,7 @@ namespace ImportadorFopImperium
         {
             if (mBackGroundWorker.IsBusy)
             {
+                Logar("OPERACAO CANCELADA PELO USUARIO...");
                 mBackGroundWorker.CancelAsync();
             }
 

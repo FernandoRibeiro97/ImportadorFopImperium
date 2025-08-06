@@ -60,6 +60,7 @@ namespace ImportadorFopImperium
             strConexaoMySql = $"server={strServerMysql};user id={strUserMysql};password={strPasswordMysql};database={strDataBaseMysql};";
 
             mBackGroundWorker = new BackgroundWorker();
+            mBackGroundWorker.WorkerSupportsCancellation = true;
             mBackGroundWorker.DoWork += mBackGroundWorker_DoWork;
             mBackGroundWorker.ProgressChanged += MBackGroundWorker_ProgressChanged;
             mBackGroundWorker.RunWorkerCompleted += MBackGroundWorker_RunWorkerCompleted;
@@ -119,6 +120,8 @@ namespace ImportadorFopImperium
                 tempoFim =  new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
                 lblTempoValorImportacao.Text = (tempoFim - tempoInicio).ToString();
 
+                Logar($"IMPORTACAO CONCLUIDA...");
+                Logar($"TEMPO DECORRIDO - {lblTempoValorImportacao.Text}");
                 MessageBox.Show("Importação Concluída !");
                 ControleTela(true);
             }
@@ -437,41 +440,58 @@ namespace ImportadorFopImperium
 
             if (chkProdutos.Checked)
             {
+                Logar("IMPORTANDO TRIBUTACOES...");
                 ImportarTributacoes();
+
+                Logar("IMPORTANDO PRODUTOS...");
                 ImportarProdutos();
 
                 if (chkFamilias.Checked)
                 {
+                    Logar("IMPORTANDO FAMILIAS...");
                     ImportarFamilia();
                 }
 
                 if (chkGrupo.Checked)
                 {
+                    Logar("IMPORTANDO GRUPOS...");
                     ImportarGrupo();
+
+                    Logar("IMPORTANDO SUBGRUPOS...");
                     ImportarSubGrupo();
+
+                    Logar("IMPORTANDO SUBGRUPOS1...");
                     ImportarSubGrupo1();
+
+                    Logar("IMPORTANDO CORRIGINDO ARVORE MERCADOLOGICA...");
                     AdicionarGrupoAClassificar();
                     CorrigirArvoreMercadologica();
                 }
 
                 if (chkNFEntrada.Checked)
                 {
+                    Logar("IMPORTANDO NOTAS DE ENTRADA...");
                     ImportarNotaEntrada();
                 }
             }
 
             if (chkClientes.Checked)
             {
+                Logar("IMPORTANDO CLIENTES...");
                 ImportarClientes();
+
+                Logar("IMPORTANDO CONTAS RECEBER...");
                 ImportarContasReceber();
             }
 
             if (chkFornecedores.Checked)
             {
+                Logar("IMPORTANDO FORNECEDORES...");
                 ImportarFornecedores();
 
                 if (chkContasPagar.Checked)
                 {
+                    Logar("IMPORTANDO CONTAS PAGAR...");
                     ImportarContasPagar();
                 }
             }

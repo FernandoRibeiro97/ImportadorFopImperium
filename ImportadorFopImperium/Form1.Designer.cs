@@ -90,8 +90,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.grpDataNotaEntrada = new System.Windows.Forms.GroupBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
+            this.dataNotaATE = new System.Windows.Forms.DateTimePicker();
+            this.dataNotaDE = new System.Windows.Forms.DateTimePicker();
             this.label4 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.grpTabelas.SuspendLayout();
@@ -772,8 +772,8 @@
             // grpDataNotaEntrada
             // 
             this.grpDataNotaEntrada.Controls.Add(this.label3);
-            this.grpDataNotaEntrada.Controls.Add(this.dateTimePicker1);
-            this.grpDataNotaEntrada.Controls.Add(this.dateTimePicker2);
+            this.grpDataNotaEntrada.Controls.Add(this.dataNotaATE);
+            this.grpDataNotaEntrada.Controls.Add(this.dataNotaDE);
             this.grpDataNotaEntrada.Controls.Add(this.label4);
             this.grpDataNotaEntrada.Location = new System.Drawing.Point(645, 226);
             this.grpDataNotaEntrada.Name = "grpDataNotaEntrada";
@@ -791,21 +791,21 @@
             this.label3.TabIndex = 3;
             this.label3.Text = "ATÉ:";
             // 
-            // dateTimePicker1
+            // dataNotaATE
             // 
-            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dateTimePicker1.Location = new System.Drawing.Point(43, 45);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(90, 20);
-            this.dateTimePicker1.TabIndex = 2;
+            this.dataNotaATE.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dataNotaATE.Location = new System.Drawing.Point(43, 45);
+            this.dataNotaATE.Name = "dataNotaATE";
+            this.dataNotaATE.Size = new System.Drawing.Size(90, 20);
+            this.dataNotaATE.TabIndex = 2;
             // 
-            // dateTimePicker2
+            // dataNotaDE
             // 
-            this.dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dateTimePicker2.Location = new System.Drawing.Point(43, 19);
-            this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(90, 20);
-            this.dateTimePicker2.TabIndex = 1;
+            this.dataNotaDE.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dataNotaDE.Location = new System.Drawing.Point(43, 19);
+            this.dataNotaDE.Name = "dataNotaDE";
+            this.dataNotaDE.Size = new System.Drawing.Size(90, 20);
+            this.dataNotaDE.TabIndex = 1;
             // 
             // label4
             // 
@@ -915,8 +915,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox grpDataNotaEntrada;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.DateTimePicker dateTimePicker2;
+        private System.Windows.Forms.DateTimePicker dataNotaATE;
+        private System.Windows.Forms.DateTimePicker dataNotaDE;
         private System.Windows.Forms.Label label4;
     }
 }

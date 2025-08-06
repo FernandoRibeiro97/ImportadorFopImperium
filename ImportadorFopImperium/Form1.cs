@@ -83,6 +83,7 @@ namespace ImportadorFopImperium
             if (!mBackGroundWorker.IsBusy)
             {
                 operacaoImportador = OperacaoImportador.Carregar;
+                ControleTela(false);
                 mBackGroundWorker.RunWorkerAsync();
             }
         }
@@ -115,6 +116,7 @@ namespace ImportadorFopImperium
                 btnImportar.Enabled = true; //TODO: FAZER UMA VERIFICACAO PARA HABILITAR O BOTAO
 
                 MessageBox.Show("Carregamento Concluído !");
+                ControleTela(true);
             }
             else if (operacaoImportador == OperacaoImportador.Importar)
             {
@@ -360,10 +362,14 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT *
+                string de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                string ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+
+                string comando = $@"SELECT *
                     FROM NF.NFe n
                     JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
-                    WHERE n.natOp = 'COMPRAS';";
+                    WHERE n.natOp = 'COMPRAS'
+                    AND n.dhSaiEnt BETWEEN {de} AND {ate};";
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception)
@@ -376,10 +382,14 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT i.* 
+                string de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                string ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+
+                string comando = $@"SELECT i.* 
                                     FROM nf.NFeItens i 
                                     JOIN nf.NFe n ON i.nroNF = n.nroNF AND i.serie = n.serie AND i.emitCNPJ = n.emitCNPJ
-                                    WHERE n.natOp = 'COMPRAS';";
+                                    WHERE n.natOp = 'COMPRAS'
+                                    AND n.dhSaiEnt BETWEEN {de} AND {ate};";
 
                 return RecuperaDataTableSQLServer(comando);
             }

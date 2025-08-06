@@ -67,6 +67,11 @@ namespace ImportadorFopImperium
         }
         private void btnFechar_Click(object sender, EventArgs e)
         {
+            if (mBackGroundWorker.IsBusy)
+            {
+                mBackGroundWorker.CancelAsync();
+            }
+
             Close();
         }
         private void btnCarregar_Click(object sender, EventArgs e)
@@ -79,8 +84,12 @@ namespace ImportadorFopImperium
         }
         private void btnImportar_Click(object sender, EventArgs e)
         {
-            operacaoImportador = OperacaoImportador.Importar;
-            mBackGroundWorker.RunWorkerAsync();
+            if (!mBackGroundWorker.IsBusy)
+            {
+                operacaoImportador = OperacaoImportador.Importar;
+                ControleTela(false);
+                mBackGroundWorker.RunWorkerAsync();
+            }
         }
         private void mBackGroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -111,6 +120,7 @@ namespace ImportadorFopImperium
                 lblTempoValorImportacao.Text = (tempoFim - tempoInicio).ToString();
 
                 MessageBox.Show("Importação Concluída !");
+                ControleTela(true);
             }
         }
         private void chkProdutos_CheckedChanged(object sender, EventArgs e)
@@ -3059,7 +3069,14 @@ namespace ImportadorFopImperium
             }
             finally { FecharConexaoMysql(); }
         }
-        
+        private void ControleTela(bool ativa)
+        {
+            grpTabelas.Enabled = ativa;
+            grpDadosCarregados.Enabled = ativa;
+            grpDadosImportados.Enabled = ativa;
+            btnCarregar.Enabled = ativa;
+            btnImportar.Enabled = ativa;
+        }
         #endregion
 
         #region MÉTODOS DE TRATAMENTO/CONVERSÃO DE DADOS

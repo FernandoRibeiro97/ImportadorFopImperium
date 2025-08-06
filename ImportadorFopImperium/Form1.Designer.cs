@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
             this.panel1 = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.grpTabelas = new System.Windows.Forms.GroupBox();
             this.chkSubGrupo1 = new System.Windows.Forms.CheckBox();
             this.chkSubGrupo = new System.Windows.Forms.CheckBox();
             this.chkLojas = new System.Windows.Forms.CheckBox();
@@ -46,11 +46,10 @@
             this.chkContasReceber = new System.Windows.Forms.CheckBox();
             this.chkGrupo = new System.Windows.Forms.CheckBox();
             this.chkItensFornecedor = new System.Windows.Forms.CheckBox();
-            this.barraProgresso = new System.Windows.Forms.ProgressBar();
             this.btnImportar = new System.Windows.Forms.Button();
             this.btnCarregar = new System.Windows.Forms.Button();
             this.btnFechar = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.grpDadosCarregados = new System.Windows.Forms.GroupBox();
             this.lblSubGrupo1 = new System.Windows.Forms.Label();
             this.lblSubGrupo = new System.Windows.Forms.Label();
             this.lblLojas = new System.Windows.Forms.Label();
@@ -66,7 +65,7 @@
             this.lblClientes = new System.Windows.Forms.Label();
             this.lblGrupo = new System.Windows.Forms.Label();
             this.lblItensFornecedor = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.grpDadosImportados = new System.Windows.Forms.GroupBox();
             this.lblContSubGrupo1 = new System.Windows.Forms.Label();
             this.lblContSubGrupo = new System.Windows.Forms.Label();
             this.lblContLojas = new System.Windows.Forms.Label();
@@ -85,9 +84,9 @@
             this.lblTempoValorImportacao = new System.Windows.Forms.Label();
             this.lblTempoImportacao = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            this.groupBox4.SuspendLayout();
+            this.grpTabelas.SuspendLayout();
+            this.grpDadosCarregados.SuspendLayout();
+            this.grpDadosImportados.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -111,27 +110,27 @@
             this.label7.TabIndex = 0;
             this.label7.Text = "Importador FOP para Imperium";
             // 
-            // groupBox2
+            // grpTabelas
             // 
-            this.groupBox2.Controls.Add(this.chkSubGrupo1);
-            this.groupBox2.Controls.Add(this.chkSubGrupo);
-            this.groupBox2.Controls.Add(this.chkLojas);
-            this.groupBox2.Controls.Add(this.chkFamilias);
-            this.groupBox2.Controls.Add(this.chkProdutos);
-            this.groupBox2.Controls.Add(this.chkContasPagar);
-            this.groupBox2.Controls.Add(this.chkMovCaixa);
-            this.groupBox2.Controls.Add(this.chkFornecedores);
-            this.groupBox2.Controls.Add(this.chkClientes);
-            this.groupBox2.Controls.Add(this.chkNFEntrada);
-            this.groupBox2.Controls.Add(this.label15);
-            this.groupBox2.Controls.Add(this.chkContasReceber);
-            this.groupBox2.Controls.Add(this.chkGrupo);
-            this.groupBox2.Controls.Add(this.chkItensFornecedor);
-            this.groupBox2.Location = new System.Drawing.Point(8, 52);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(183, 378);
-            this.groupBox2.TabIndex = 47;
-            this.groupBox2.TabStop = false;
+            this.grpTabelas.Controls.Add(this.chkSubGrupo1);
+            this.grpTabelas.Controls.Add(this.chkSubGrupo);
+            this.grpTabelas.Controls.Add(this.chkLojas);
+            this.grpTabelas.Controls.Add(this.chkFamilias);
+            this.grpTabelas.Controls.Add(this.chkProdutos);
+            this.grpTabelas.Controls.Add(this.chkContasPagar);
+            this.grpTabelas.Controls.Add(this.chkMovCaixa);
+            this.grpTabelas.Controls.Add(this.chkFornecedores);
+            this.grpTabelas.Controls.Add(this.chkClientes);
+            this.grpTabelas.Controls.Add(this.chkNFEntrada);
+            this.grpTabelas.Controls.Add(this.label15);
+            this.grpTabelas.Controls.Add(this.chkContasReceber);
+            this.grpTabelas.Controls.Add(this.chkGrupo);
+            this.grpTabelas.Controls.Add(this.chkItensFornecedor);
+            this.grpTabelas.Location = new System.Drawing.Point(8, 52);
+            this.grpTabelas.Name = "grpTabelas";
+            this.grpTabelas.Size = new System.Drawing.Size(183, 378);
+            this.grpTabelas.TabIndex = 47;
+            this.grpTabelas.TabStop = false;
             // 
             // chkSubGrupo1
             // 
@@ -303,13 +302,6 @@
             this.chkItensFornecedor.Text = "Itens Fornecedor";
             this.chkItensFornecedor.UseVisualStyleBackColor = true;
             // 
-            // barraProgresso
-            // 
-            this.barraProgresso.Location = new System.Drawing.Point(8, 450);
-            this.barraProgresso.Name = "barraProgresso";
-            this.barraProgresso.Size = new System.Drawing.Size(780, 23);
-            this.barraProgresso.TabIndex = 50;
-            // 
             // btnImportar
             // 
             this.btnImportar.Enabled = false;
@@ -354,28 +346,28 @@
             this.btnFechar.UseVisualStyleBackColor = true;
             this.btnFechar.Click += new System.EventHandler(this.btnFechar_Click);
             // 
-            // groupBox3
+            // grpDadosCarregados
             // 
-            this.groupBox3.Controls.Add(this.lblSubGrupo1);
-            this.groupBox3.Controls.Add(this.lblSubGrupo);
-            this.groupBox3.Controls.Add(this.lblLojas);
-            this.groupBox3.Controls.Add(this.lblContaPagar);
-            this.groupBox3.Controls.Add(this.lblMovCaixa);
-            this.groupBox3.Controls.Add(this.label18);
-            this.groupBox3.Controls.Add(this.lblNFEntrada);
-            this.groupBox3.Controls.Add(this.lblProdutos);
-            this.groupBox3.Controls.Add(this.lblContaReceber);
-            this.groupBox3.Controls.Add(this.label16);
-            this.groupBox3.Controls.Add(this.lblFornecedores);
-            this.groupBox3.Controls.Add(this.lblFamilias);
-            this.groupBox3.Controls.Add(this.lblClientes);
-            this.groupBox3.Controls.Add(this.lblGrupo);
-            this.groupBox3.Controls.Add(this.lblItensFornecedor);
-            this.groupBox3.Location = new System.Drawing.Point(197, 52);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(106, 378);
-            this.groupBox3.TabIndex = 68;
-            this.groupBox3.TabStop = false;
+            this.grpDadosCarregados.Controls.Add(this.lblSubGrupo1);
+            this.grpDadosCarregados.Controls.Add(this.lblSubGrupo);
+            this.grpDadosCarregados.Controls.Add(this.lblLojas);
+            this.grpDadosCarregados.Controls.Add(this.lblContaPagar);
+            this.grpDadosCarregados.Controls.Add(this.lblMovCaixa);
+            this.grpDadosCarregados.Controls.Add(this.label18);
+            this.grpDadosCarregados.Controls.Add(this.lblNFEntrada);
+            this.grpDadosCarregados.Controls.Add(this.lblProdutos);
+            this.grpDadosCarregados.Controls.Add(this.lblContaReceber);
+            this.grpDadosCarregados.Controls.Add(this.label16);
+            this.grpDadosCarregados.Controls.Add(this.lblFornecedores);
+            this.grpDadosCarregados.Controls.Add(this.lblFamilias);
+            this.grpDadosCarregados.Controls.Add(this.lblClientes);
+            this.grpDadosCarregados.Controls.Add(this.lblGrupo);
+            this.grpDadosCarregados.Controls.Add(this.lblItensFornecedor);
+            this.grpDadosCarregados.Location = new System.Drawing.Point(197, 52);
+            this.grpDadosCarregados.Name = "grpDadosCarregados";
+            this.grpDadosCarregados.Size = new System.Drawing.Size(106, 378);
+            this.grpDadosCarregados.TabIndex = 68;
+            this.grpDadosCarregados.TabStop = false;
             // 
             // lblSubGrupo1
             // 
@@ -527,28 +519,28 @@
             this.lblItensFornecedor.TabIndex = 18;
             this.lblItensFornecedor.Text = ".";
             // 
-            // groupBox4
+            // grpDadosImportados
             // 
-            this.groupBox4.Controls.Add(this.lblContSubGrupo1);
-            this.groupBox4.Controls.Add(this.lblContSubGrupo);
-            this.groupBox4.Controls.Add(this.lblContLojas);
-            this.groupBox4.Controls.Add(this.lblContContaPagar);
-            this.groupBox4.Controls.Add(this.lblContMovCaixa);
-            this.groupBox4.Controls.Add(this.lblContNFEntrada);
-            this.groupBox4.Controls.Add(this.lblContContaReceber);
-            this.groupBox4.Controls.Add(this.label19);
-            this.groupBox4.Controls.Add(this.lblContProdutos);
-            this.groupBox4.Controls.Add(this.label17);
-            this.groupBox4.Controls.Add(this.lblContFamilias);
-            this.groupBox4.Controls.Add(this.lblContFornecedores);
-            this.groupBox4.Controls.Add(this.lblContClientes);
-            this.groupBox4.Controls.Add(this.lblContGrupos);
-            this.groupBox4.Controls.Add(this.lblContItensFornecedor);
-            this.groupBox4.Location = new System.Drawing.Point(309, 52);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(106, 378);
-            this.groupBox4.TabIndex = 69;
-            this.groupBox4.TabStop = false;
+            this.grpDadosImportados.Controls.Add(this.lblContSubGrupo1);
+            this.grpDadosImportados.Controls.Add(this.lblContSubGrupo);
+            this.grpDadosImportados.Controls.Add(this.lblContLojas);
+            this.grpDadosImportados.Controls.Add(this.lblContContaPagar);
+            this.grpDadosImportados.Controls.Add(this.lblContMovCaixa);
+            this.grpDadosImportados.Controls.Add(this.lblContNFEntrada);
+            this.grpDadosImportados.Controls.Add(this.lblContContaReceber);
+            this.grpDadosImportados.Controls.Add(this.label19);
+            this.grpDadosImportados.Controls.Add(this.lblContProdutos);
+            this.grpDadosImportados.Controls.Add(this.label17);
+            this.grpDadosImportados.Controls.Add(this.lblContFamilias);
+            this.grpDadosImportados.Controls.Add(this.lblContFornecedores);
+            this.grpDadosImportados.Controls.Add(this.lblContClientes);
+            this.grpDadosImportados.Controls.Add(this.lblContGrupos);
+            this.grpDadosImportados.Controls.Add(this.lblContItensFornecedor);
+            this.grpDadosImportados.Location = new System.Drawing.Point(309, 52);
+            this.grpDadosImportados.Name = "grpDadosImportados";
+            this.grpDadosImportados.Size = new System.Drawing.Size(106, 378);
+            this.grpDadosImportados.TabIndex = 69;
+            this.grpDadosImportados.TabStop = false;
             // 
             // lblContSubGrupo1
             // 
@@ -722,28 +714,27 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 485);
+            this.ClientSize = new System.Drawing.Size(800, 436);
             this.Controls.Add(this.lblTempoImportacao);
             this.Controls.Add(this.lblTempoValorImportacao);
-            this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.grpDadosImportados);
+            this.Controls.Add(this.grpDadosCarregados);
             this.Controls.Add(this.btnFechar);
-            this.Controls.Add(this.barraProgresso);
             this.Controls.Add(this.btnImportar);
             this.Controls.Add(this.btnCarregar);
-            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.grpTabelas);
             this.Controls.Add(this.panel1);
             this.Name = "frmPrincipal";
             this.Text = "Importador";
             this.Load += new System.EventHandler(this.frmPrincipal_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
+            this.grpTabelas.ResumeLayout(false);
+            this.grpTabelas.PerformLayout();
+            this.grpDadosCarregados.ResumeLayout(false);
+            this.grpDadosCarregados.PerformLayout();
+            this.grpDadosImportados.ResumeLayout(false);
+            this.grpDadosImportados.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -753,7 +744,7 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox grpTabelas;
         private System.Windows.Forms.CheckBox chkLojas;
         private System.Windows.Forms.CheckBox chkFamilias;
         private System.Windows.Forms.CheckBox chkProdutos;
@@ -766,11 +757,10 @@
         private System.Windows.Forms.CheckBox chkContasReceber;
         private System.Windows.Forms.CheckBox chkGrupo;
         private System.Windows.Forms.CheckBox chkItensFornecedor;
-        private System.Windows.Forms.ProgressBar barraProgresso;
         private System.Windows.Forms.Button btnImportar;
         private System.Windows.Forms.Button btnCarregar;
         private System.Windows.Forms.Button btnFechar;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox grpDadosCarregados;
         private System.Windows.Forms.Label lblLojas;
         private System.Windows.Forms.Label lblContaPagar;
         private System.Windows.Forms.Label lblMovCaixa;
@@ -784,7 +774,7 @@
         private System.Windows.Forms.Label lblClientes;
         private System.Windows.Forms.Label lblGrupo;
         private System.Windows.Forms.Label lblItensFornecedor;
-        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.GroupBox grpDadosImportados;
         private System.Windows.Forms.Label lblContLojas;
         private System.Windows.Forms.Label lblContContaPagar;
         private System.Windows.Forms.Label lblContMovCaixa;

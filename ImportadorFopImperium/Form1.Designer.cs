@@ -151,9 +151,9 @@
             this.chkSubGrupo1.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkSubGrupo1.Location = new System.Drawing.Point(23, 245);
             this.chkSubGrupo1.Name = "chkSubGrupo1";
-            this.chkSubGrupo1.Size = new System.Drawing.Size(83, 17);
+            this.chkSubGrupo1.Size = new System.Drawing.Size(89, 17);
             this.chkSubGrupo1.TabIndex = 36;
-            this.chkSubGrupo1.Text = "SubGrupo";
+            this.chkSubGrupo1.Text = "SubGrupos";
             this.chkSubGrupo1.UseVisualStyleBackColor = true;
             // 
             // chkSubGrupo
@@ -163,9 +163,9 @@
             this.chkSubGrupo.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkSubGrupo.Location = new System.Drawing.Point(23, 225);
             this.chkSubGrupo.Name = "chkSubGrupo";
-            this.chkSubGrupo.Size = new System.Drawing.Size(61, 17);
+            this.chkSubGrupo.Size = new System.Drawing.Size(67, 17);
             this.chkSubGrupo.TabIndex = 35;
-            this.chkSubGrupo.Text = "Grupo";
+            this.chkSubGrupo.Text = "Grupos";
             this.chkSubGrupo.UseVisualStyleBackColor = true;
             // 
             // chkLojas

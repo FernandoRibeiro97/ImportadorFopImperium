@@ -50,7 +50,7 @@ namespace ImportadorFopImperium
             if (!VerificaArquivoINI())
                 CriaArquivoIni();
             else
-                CarregarConfiguracoes();
+                CarregarConfiguracoesConfigIni();
 
             CriarDiretorioLogs();
 
@@ -60,6 +60,8 @@ namespace ImportadorFopImperium
                 strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};DataBase={mConfig.Banco_SQLServer};Trusted_Connection=True;";
 
             strConexaoMySql = $"server={mConfig.Servidor_MySQL};user id={mConfig.Usuario_MySQL};password={mConfig.Senha_MySQL};database={mConfig.Banco_MySQL};";
+
+            mConfig.Linguagem_SQL_Server = RecuperaLinguagemSQLServer();
 
             mBackGroundWorker = new BackgroundWorker();
             mBackGroundWorker.WorkerSupportsCancellation = true;
@@ -137,6 +139,7 @@ namespace ImportadorFopImperium
             chkItensFornecedor.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0;
             chkGrupo.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Grupo.Rows.Count > 0;
             chkNFEntrada.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Nota_Entrada.Rows.Count > 0;
+            chkVenda.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
         }
         private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
         {
@@ -362,14 +365,26 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
-                string ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                string de = "";
+                string ate = "";
+
+                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                }
+                else
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                }
 
                 string comando = $@"SELECT *
-                    FROM NF.NFe n
-                    JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
-                    WHERE n.natOp = 'COMPRAS'
-                    AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
+                FROM NF.NFe n
+                JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
+                WHERE n.natOp = 'COMPRAS'
+                AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
+
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception)
@@ -382,8 +397,19 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
-                string ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                string de = "";
+                string ate = "";
+
+                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                }
+                else
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                }
 
                 string comando = $@"SELECT i.* 
                                     FROM nf.NFeItens i 
@@ -403,8 +429,19 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
-                string ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
+                string de = "";
+                string ate = "";
+
+                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                }
+                else
+                {
+                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                }
 
                 string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario
                     FROM Comercial.Venda c 
@@ -2866,6 +2903,7 @@ namespace ImportadorFopImperium
             return itemEntrada;
         }
         private List<ItemEntrada> RetornaItensNotaEntrada(string numero, string serie, string cnpjEmitente)
+        
         {
             List<ItemEntrada> lstItens = new List<ItemEntrada>();
             try
@@ -3287,7 +3325,7 @@ namespace ImportadorFopImperium
                 sw.Close();
             }
         }
-        private void CarregarConfiguracoes()
+        private void CarregarConfiguracoesConfigIni()
         {
             string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
 
@@ -3330,6 +3368,32 @@ namespace ImportadorFopImperium
                     default:
                         break;
                 }
+            }
+        }
+        private string RecuperaLinguagemSQLServer()
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(strConexaoSqlServer))
+                {
+                    conn.Open();
+                    string comando = "SELECT @@LANGUAGE AS LinguagemAtual;";
+                    SqlCommand command = new SqlCommand(comando, conn);
+
+                    using (SqlDataReader rdr = command.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                            return rdr["LinguagemAtual"].ToString();
+                        else
+                            return "";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao recuperar linguagem do SQL Server");
+                Logar(ex.Message);
+                return "";
             }
         }
         #endregion

@@ -2,6 +2,7 @@
 {
     public class Config
     {
+        #region CONFIG INI
         public string Servidor_MySQL { get; set; }
         public string Usuario_MySQL { get; set; }
         public string Senha_MySQL { get; set; }
@@ -12,5 +13,8 @@
         public string Senha_SQLServer { get; set; }
         public string Banco_SQLServer { get; set; }
         public long Qtde_Importar { get; set; }
+        #endregion
+
+        public string Linguagem_SQL_Server { get; set; }
     }
 }

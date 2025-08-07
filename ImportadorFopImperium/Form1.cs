@@ -3031,18 +3031,18 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"{item.Cupom},");
             stringBuilder.Append($"{item.Id_Produto},");
             stringBuilder.Append($"'{item.CodigoEan}',");
-            stringBuilder.Append($"{item.Valor},");
-            stringBuilder.Append($"{item.Qtde},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Qtde.ToString())},");
             stringBuilder.Append($"{item.ECF},");
             stringBuilder.Append($"'{item.Modelo}',");
-            stringBuilder.Append($"{item.Desconto},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Desconto.ToString())},");
             stringBuilder.Append($"{item.Loja},");
             stringBuilder.Append($"'{item.Datamov}',");
-            stringBuilder.Append($"{item.Custo_Produto},");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Custo_Produto.ToString())},");
             stringBuilder.Append($"'{item.Hora_Cupom}',");
             stringBuilder.Append($"{item.Id_Vendedor},");
             stringBuilder.Append($"'{item.Situacao}',");
-            stringBuilder.Append($"{item.Valor_Unitario}");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Unitario.ToString())}");
             stringBuilder.Append("),");
 
             return stringBuilder.ToString();

@@ -369,7 +369,7 @@ namespace ImportadorFopImperium
                     FROM NF.NFe n
                     JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
                     WHERE n.natOp = 'COMPRAS'
-                    AND n.dhSaiEnt BETWEEN {de} AND {ate};";
+                    AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception)
@@ -389,7 +389,7 @@ namespace ImportadorFopImperium
                                     FROM nf.NFeItens i 
                                     JOIN nf.NFe n ON i.nroNF = n.nroNF AND i.serie = n.serie AND i.emitCNPJ = n.emitCNPJ
                                     WHERE n.natOp = 'COMPRAS'
-                                    AND n.dhSaiEnt BETWEEN {de} AND {ate};";
+                                    AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
 
                 return RecuperaDataTableSQLServer(comando);
             }
@@ -409,7 +409,7 @@ namespace ImportadorFopImperium
                 string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario
                     FROM Comercial.Venda c 
                     JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
-                    WHERE c.dtInicio BETWEEN {dataVendaDE.Text} AND {dataVendaATE.Text};";
+                    WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
 
                 return RecuperaDataTableSQLServer(comando);
             }

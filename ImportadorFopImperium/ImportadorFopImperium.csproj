@@ -144,6 +144,7 @@
     <Compile Include="Model\Grupo.cs" />
     <Compile Include="Model\ItemEntrada.cs" />
     <Compile Include="Model\ItemVenda.cs" />
+    <Compile Include="Model\Loja.cs" />
     <Compile Include="Model\NotaEntrada.cs" />
     <Compile Include="Model\SubGrupo.cs" />
     <Compile Include="Model\Importacao.cs" />

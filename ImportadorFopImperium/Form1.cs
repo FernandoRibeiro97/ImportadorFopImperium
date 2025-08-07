@@ -160,6 +160,7 @@ namespace ImportadorFopImperium
         {
             try
             {
+                ImportacaoImperium.Dt_Lojas = CarregarLojas();
                 ImportacaoImperium.Dt_Tributacao = CarregarTributacao();
                 ImportacaoImperium.Dt_Pis = CarregarPis();
                 ImportacaoImperium.Dt_Cofins = CarregarCofins();
@@ -184,6 +185,20 @@ namespace ImportadorFopImperium
             {
 
                 throw;
+            }
+        }
+        private DataTable CarregarLojas()
+        {
+            try
+            {
+                string comando = @"SELECT * FROM MultiLoja.Loja;";
+                return RecuperaDataTableSQLServer(comando);
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao carregar lojas");
+                Logar(ex.Message);
+                return null;
             }
         }
         private DataTable CarregarTributacao()
@@ -505,6 +520,14 @@ namespace ImportadorFopImperium
 
         private void ImportarInformacoes()
         {
+            ImportacaoImperium.Lojas = ImportarLojas();
+
+            if (ImportacaoImperium.Lojas == null)
+            {
+                MessageBox.Show("Erro ao recuperar as Lojas");
+                return;
+            }
+
             tempoInicio = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
 
             ExecutaAumentoPacoteMySQL();
@@ -571,6 +594,43 @@ namespace ImportadorFopImperium
                     Logar("IMPORTANDO CONTAS PAGAR...");
                     ImportarContasPagar();
                 }
+            }
+        }
+        private List<Loja> ImportarLojas()
+        {
+            List<Loja> lojas = new List<Loja>();
+            try
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_Lojas.Rows)
+                    lojas.Add(RetornaLojaPorDataRow(r));
+
+                lojas.Add(new Loja()
+                {
+                    Id = 2,
+                    CNPJ = "",
+                    Id_Entidade_FOP = 2,
+                    Situacao = true
+                });
+
+                if (lojas.Count > 0)
+                    return lojas;
+                else
+                    return new List<Loja>()
+                    {
+                        new Loja()
+                        {
+                            Id = 1,
+                            CNPJ = "",
+                            Id_Entidade_FOP = 1,
+                            Situacao = true
+                        }
+                    };
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao importar lojas");
+                Logar(ex.Message);
+                return null;
             }
         }
         private void ImportarTributacoes()
@@ -837,6 +897,7 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
+
         #endregion
 
         #region SQL SERVER
@@ -916,6 +977,20 @@ namespace ImportadorFopImperium
             mySqlParameter.Value = valor;
 
             return mySqlParameter;
+        }
+
+        #endregion
+
+        #region LOJAS
+
+        private Loja RetornaLojaPorDataRow(DataRow r)
+        {
+            Loja loja = new Loja();
+            loja.Id = ConverterInt64(r["id"].ToString());
+            loja.Id_Entidade_FOP = ConverterInt64(r["entidadeLoja"].ToString());
+            loja.CNPJ = r["cnpjLoja"].ToString();
+            loja.Situacao = r["ativo"].ToString() == "1";
+            return loja;
         }
 
         #endregion
@@ -1147,9 +1222,13 @@ namespace ImportadorFopImperium
                     }
 
                     strBuilderProduto.AppendLine(RetornaLinhaInserirProduto(p));
-                    strBuilderPreco.AppendLine(RetornaLinhaInserirPreco(p));
-                    strBuilderEstoque.AppendLine(RetornaLinhaInserirEstoque(p));
-                    strBuilderTributacao.AppendLine(RetornaLinhaInserirTributacao(p));
+
+                    foreach (Loja loja in ImportacaoImperium.Lojas)
+                    {
+                        strBuilderPreco.AppendLine(RetornaLinhaInserirPreco(p, loja.Id));
+                        strBuilderEstoque.AppendLine(RetornaLinhaInserirEstoque(p, loja.Id));
+                        strBuilderTributacao.AppendLine(RetornaLinhaInserirTributacao(p, loja.Id));
+                    }
 
                     if (cont == mConfig.Qtde_Importar)
                     {
@@ -1305,13 +1384,13 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
-        private string RetornaLinhaInserirPreco(ProdutoImperium produto)
+        private string RetornaLinhaInserirPreco(ProdutoImperium produto, long loja)
         {
             CorrigirCamposProdutoPreco(produto.Preco);
 
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
-            stringBuilder.Append($"{produto.Preco.LOJA},");
+            stringBuilder.Append($"{loja},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO_MEDIO.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1.ToString())},");
@@ -1325,11 +1404,11 @@ namespace ImportadorFopImperium
 
             return stringBuilder.ToString();
         }
-        private string RetornaLinhaInserirEstoque(ProdutoImperium produto)
+        private string RetornaLinhaInserirEstoque(ProdutoImperium produto, long loja)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
-            stringBuilder.Append($"{produto.Estoque.Loja},");
+            stringBuilder.Append($"{loja},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Estoque.Estoque_Atual.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Estoque.Estoque_Minimo.ToString())},");
             stringBuilder.Append($"{produto.Estoque.Cobertura_Estoque}");
@@ -1337,11 +1416,11 @@ namespace ImportadorFopImperium
             
             return stringBuilder.ToString();
         }
-        private string RetornaLinhaInserirTributacao(ProdutoImperium produto)
+        private string RetornaLinhaInserirTributacao(ProdutoImperium produto, long loja)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
-            stringBuilder.Append($"{produto.Tributacao.Loja},");
+            stringBuilder.Append($"{loja},");
             stringBuilder.Append($"'{produto.Tributacao.Origem}',");
             stringBuilder.Append($"'{produto.Tributacao.Tipo_Produto}',");
             stringBuilder.Append($"{produto.Tributacao.Sit_Trib_Entrada},");

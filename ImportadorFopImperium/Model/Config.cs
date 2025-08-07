@@ -1,4 +1,6 @@
-﻿namespace ImportadorFopImperium.Model
+﻿using System.Collections.Generic;
+
+namespace ImportadorFopImperium.Model
 {
     public class Config
     {

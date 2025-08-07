@@ -434,13 +434,13 @@ namespace ImportadorFopImperium
 
                 if (mConfig.Linguagem_SQL_Server.Contains("Português"))
                 {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                    de = ConverterDateTime(dataVendaDE.Text).ToString("dd-MM-yyyy");
+                    ate = ConverterDateTime(dataVendaATE.Text).ToString("dd-MM-yyyy");
                 }
                 else
                 {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                    de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
+                    ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
                 }
 
                 string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario
@@ -547,7 +547,7 @@ namespace ImportadorFopImperium
 
                 if (chkVenda.Checked)
                 {
-                    Logar("IMPORTANDO ITENS VENDA");
+                    Logar("IMPORTANDO ITENS VENDA...");
                     ImportarItemVenda();
                 }
             }
@@ -1119,14 +1119,16 @@ namespace ImportadorFopImperium
                 StringBuilder strBuilderProdutoEan = new StringBuilder(comandoProdutoEan);
 
                 int cont = 0;
+                int contSemDescricao = 0;
 
                 foreach (ProdutoImperium p in lstProduto)
                 {
                     if (string.IsNullOrEmpty(p.Descricao))
                     {
+                        contSemDescricao++;
                         Logar($"Produto sem descrição - {p.Ean1}");
-                        Logar("Passando para o próximo produto");
-                        continue;
+                        p.Descricao = $"SEM DESCRICAO {contSemDescricao}";
+                        p.Descricao_Reduzida = $"SEM DESCRICAO {contSemDescricao}";
                     }
 
                     cont++;

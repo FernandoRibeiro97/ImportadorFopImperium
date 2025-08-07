@@ -411,7 +411,7 @@ namespace ImportadorFopImperium
                     ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
                 }
 
-                string comando = $@"SELECT i.* 
+                string comando = $@"SELECT i.*, n.fkLoja
                                     FROM nf.NFeItens i 
                                     JOIN nf.NFe n ON i.nroNF = n.nroNF AND i.serie = n.serie AND i.emitCNPJ = n.emitCNPJ
                                     WHERE n.natOp = 'COMPRAS'
@@ -810,7 +810,7 @@ namespace ImportadorFopImperium
                     foreach (NotaEntrada nota in notas)
                         nota.Itens = RetornaItensNotaEntrada(nota.Numero_FOP, nota.Serie_Fop, nota.Cnpj_Emitente_Fop);
 
-                    ExecutaComandoNotaEntrada(notas);
+                    ExecutaComandoNotaEntrada(notas.FindAll(n => n.Itens.Count > 0));
                 }
                     
             }
@@ -2774,7 +2774,7 @@ namespace ImportadorFopImperium
 
             return nota;
         }
-        private void ExecutaComandoNotaEntrada(List<NotaEntrada> lstNota)
+        private void ExecutaComandoNotaEntrada(IEnumerable<NotaEntrada> lstNota)
         {
             var codigosFiscais = CarregaCodigoFiscal();
 
@@ -2787,7 +2787,7 @@ namespace ImportadorFopImperium
 
                 string comando = @"INSERT INTO nfentrada (idNFEntrada, NumeroNF, ValorTotalNF, ValorBaseIcms, ValorICMS, Outras, IPI, BaseIcmsSubst, ValorICMSSubst, idFornecedor, Dt_Emissao, Dt_Entrada, Obs, Serie, Especie, Modelo, loja, situacao, ChaveEletronica, ProtocoloNfe, usuario, idCodigoFiscal) VALUES ";
 
-                string comandoItens = @"INSERT INTO itensnfentrada (idProduto, valortotalcx, quantidade, margem, tributacao, valoripi, descvalor, descPorcento, acresValor, acresporcento, fretevalor, freteporcento, precovista, idNFEntrada, prsugestao, MargemIva,
+                string comandoItens = @"INSERT INTO itensnfentrada (loja, idProduto, valortotalcx, quantidade, margem, tributacao, valoripi, descvalor, descPorcento, acresValor, acresporcento, fretevalor, freteporcento, precovista, idNFEntrada, prsugestao, MargemIva,
                   ReducaoIcms, ReducaoIcmsSt, cfop, percentual_fcp, vl_base_fcp, vl_fcp, percentual_fcp_st, vl_base_fcp_st, vl_fcp_st) VALUES ";
 
                 StringBuilder strBuilderNotaEntrada = new StringBuilder(comando);
@@ -2874,6 +2874,7 @@ namespace ImportadorFopImperium
         private ItemEntrada RetornaItemEntradaPorDataRow(DataRow r)
         {
             ItemEntrada itemEntrada = new ItemEntrada();
+            itemEntrada.Loja = ConverterInt32(r["fkLoja"].ToString());
             itemEntrada.Id_Produto = RetornaIdProdutoPorEan1(r["cProd"].ToString());
             itemEntrada.Cod_Produto = r["cProd"].ToString();
             itemEntrada.Valor_Total = ConverterDecimal(r["vProd"].ToString());
@@ -2893,7 +2894,7 @@ namespace ImportadorFopImperium
             itemEntrada.Preco_Sugestao = 0;
             itemEntrada.Margem_Iva = 0;
             itemEntrada.Reducao_Icms = ConverterDecimal(r["icmsReduzBC"].ToString());
-            itemEntrada.Reducao_Icms_ST = ConverterDecimal(r["icmsReduzBCST"].ToString());
+            itemEntrada.Reducao_Icms_ST = 0; //ConverterDecimal(r["icmsReduzBCST"].ToString());
             itemEntrada.CFOP = r["cfop"].ToString();
             itemEntrada.Perc_FCP = ConverterDecimal(r["percFcp"].ToString());
             itemEntrada.Valor_Base_FCP = ConverterDecimal(r["baseFcp"].ToString());
@@ -2925,6 +2926,7 @@ namespace ImportadorFopImperium
         private string RetornaLinhaInserirItemEntrada(ItemEntrada item)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{item.Loja},");
             stringBuilder.Append($"{item.Id_Produto},");
             stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Total.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(item.Qtde.ToString())},");
@@ -3453,7 +3455,6 @@ namespace ImportadorFopImperium
         {
             return valor.Replace(",", ".");
         }
-
 
         #endregion
     }

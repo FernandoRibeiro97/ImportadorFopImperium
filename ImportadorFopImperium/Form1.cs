@@ -2962,15 +2962,15 @@ namespace ImportadorFopImperium
         private ItemVenda RetornaItemVendaPorDataRow(DataRow r)
         {
             ItemVenda itemVenda = new ItemVenda();
-            itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigo_fop"].ToString());
-            itemVenda.CodigoEan = ConverterInt64(r["codigo_fop"].ToString());
+            itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigoEan"].ToString());
+            itemVenda.CodigoEan = ConverterInt64(r["codigoEan"].ToString());
             itemVenda.Valor = ConverterDecimal(r["valor"].ToString());
             itemVenda.Qtde = ConverterDecimal(r["quantidade"].ToString());
             itemVenda.ECF = ConverterInt32(r["ecf"].ToString());
             itemVenda.Modelo = "2D";
             itemVenda.Desconto = ConverterDecimal(r["descontoItem"].ToString());
             itemVenda.Loja = ConverterInt32(r["loja"].ToString());
-            itemVenda.Datamov = ConverterDateTime(r["datamov"].ToString()).ToString("yyyy-MM-ss");
+            itemVenda.Datamov = ConverterDateTime(r["datamov"].ToString()).ToString("yyyy-MM-dd");
             itemVenda.Hora_Cupom = ConverterDateTime(r["datamov"].ToString()).ToString("HH:mm");
             itemVenda.Custo_Produto = ConverterDecimal(r["custoProduto"].ToString());
             itemVenda.Situacao = r["situacao"].ToString();

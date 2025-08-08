@@ -3375,6 +3375,8 @@ namespace ImportadorFopImperium
             grpDadosImportados.Enabled = ativa;
             btnCarregar.Enabled = ativa;
             btnImportar.Enabled = ativa;
+            grpDataVenda.Enabled = ativa;
+            grpDataNotaEntrada.Enabled = ativa;
         }
         private bool VerificaArquivoINI()
         {

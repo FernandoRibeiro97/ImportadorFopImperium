@@ -83,7 +83,7 @@
             this.lblContItensFornecedor = new System.Windows.Forms.Label();
             this.lblTempoValorImportacao = new System.Windows.Forms.Label();
             this.lblTempoImportacao = new System.Windows.Forms.Label();
-            this.grpVenda = new System.Windows.Forms.GroupBox();
+            this.grpDataVenda = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dataVendaATE = new System.Windows.Forms.DateTimePicker();
             this.dataVendaDE = new System.Windows.Forms.DateTimePicker();
@@ -97,7 +97,7 @@
             this.grpTabelas.SuspendLayout();
             this.grpDadosCarregados.SuspendLayout();
             this.grpDadosImportados.SuspendLayout();
-            this.grpVenda.SuspendLayout();
+            this.grpDataVenda.SuspendLayout();
             this.grpDataNotaEntrada.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -722,18 +722,18 @@
             this.lblTempoImportacao.TabIndex = 71;
             this.lblTempoImportacao.Text = "Importação";
             // 
-            // grpVenda
+            // grpDataVenda
             // 
-            this.grpVenda.Controls.Add(this.label2);
-            this.grpVenda.Controls.Add(this.dataVendaATE);
-            this.grpVenda.Controls.Add(this.dataVendaDE);
-            this.grpVenda.Controls.Add(this.label1);
-            this.grpVenda.Location = new System.Drawing.Point(645, 143);
-            this.grpVenda.Name = "grpVenda";
-            this.grpVenda.Size = new System.Drawing.Size(143, 77);
-            this.grpVenda.TabIndex = 72;
-            this.grpVenda.TabStop = false;
-            this.grpVenda.Text = "Data Vendas";
+            this.grpDataVenda.Controls.Add(this.label2);
+            this.grpDataVenda.Controls.Add(this.dataVendaATE);
+            this.grpDataVenda.Controls.Add(this.dataVendaDE);
+            this.grpDataVenda.Controls.Add(this.label1);
+            this.grpDataVenda.Location = new System.Drawing.Point(645, 143);
+            this.grpDataVenda.Name = "grpDataVenda";
+            this.grpDataVenda.Size = new System.Drawing.Size(143, 77);
+            this.grpDataVenda.TabIndex = 72;
+            this.grpDataVenda.TabStop = false;
+            this.grpDataVenda.Text = "Data Vendas";
             // 
             // label2
             // 
@@ -822,7 +822,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 436);
             this.Controls.Add(this.grpDataNotaEntrada);
-            this.Controls.Add(this.grpVenda);
+            this.Controls.Add(this.grpDataVenda);
             this.Controls.Add(this.lblTempoImportacao);
             this.Controls.Add(this.lblTempoValorImportacao);
             this.Controls.Add(this.grpDadosImportados);
@@ -843,8 +843,8 @@
             this.grpDadosCarregados.PerformLayout();
             this.grpDadosImportados.ResumeLayout(false);
             this.grpDadosImportados.PerformLayout();
-            this.grpVenda.ResumeLayout(false);
-            this.grpVenda.PerformLayout();
+            this.grpDataVenda.ResumeLayout(false);
+            this.grpDataVenda.PerformLayout();
             this.grpDataNotaEntrada.ResumeLayout(false);
             this.grpDataNotaEntrada.PerformLayout();
             this.ResumeLayout(false);
@@ -908,7 +908,7 @@
         private System.Windows.Forms.Label lblContSubGrupo;
         private System.Windows.Forms.Label lblTempoValorImportacao;
         private System.Windows.Forms.Label lblTempoImportacao;
-        private System.Windows.Forms.GroupBox grpVenda;
+        private System.Windows.Forms.GroupBox grpDataVenda;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DateTimePicker dataVendaATE;
         private System.Windows.Forms.DateTimePicker dataVendaDE;

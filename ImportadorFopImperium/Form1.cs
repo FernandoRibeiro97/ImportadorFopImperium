@@ -8,8 +8,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Net.Configuration;
-using System.Net.Security;
 using System.Text;
 using System.Windows.Forms;
 
@@ -48,7 +46,14 @@ namespace ImportadorFopImperium
         private void frmPrincipal_Load(object sender, EventArgs e)
         {
             if (!VerificaArquivoINI())
-                CriaArquivoIni();
+            {
+                if (CriaArquivoIni())
+                {
+                    string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+                    System.Diagnostics.Process.Start("notepad.exe", caminho);
+                    CarregarConfiguracoesConfigIni();
+                }
+            }
             else
                 CarregarConfiguracoesConfigIni();
 
@@ -3383,34 +3388,44 @@ namespace ImportadorFopImperium
             string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
             return File.Exists(caminho);
         }
-        private void CriaArquivoIni()
+        private bool CriaArquivoIni()
         {
-            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-
-            File.Create(caminho).Close();
-
-            using (StreamWriter sw = new StreamWriter(caminho))
+            try
             {
-                sw.WriteLine("[IMPERIUM]");
-                sw.WriteLine("servidorMySQL=localhost");
-                sw.WriteLine("usuarioMySQL=root");
-                sw.WriteLine("senhaMySQL=root");
-                sw.WriteLine("bancoMySQL=db_imperium");
-                sw.WriteLine("");
-                sw.WriteLine("[FOP]");
-                sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
-                sw.WriteLine("tipoConexao=1");
-                sw.WriteLine("servidorSQLServer=localhost");
-                sw.WriteLine("usuarioSQLServer=");
-                sw.WriteLine("senhaSQLServer=");
-                sw.WriteLine("bancoSQLServer=sc2010");
-                sw.WriteLine();
-                sw.WriteLine("[PARAMETROS]");
-                sw.WriteLine("mConfig.Qtde_Importar=1000");
+                string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
 
-                sw.Flush();
-                sw.Close();
+                File.Create(caminho).Close();
+
+                using (StreamWriter sw = new StreamWriter(caminho))
+                {
+                    sw.WriteLine("[IMPERIUM]");
+                    sw.WriteLine("servidorMySQL=localhost");
+                    sw.WriteLine("usuarioMySQL=root");
+                    sw.WriteLine("senhaMySQL=root");
+                    sw.WriteLine("bancoMySQL=db_imperium");
+                    sw.WriteLine("");
+                    sw.WriteLine("[FOP]");
+                    sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
+                    sw.WriteLine("tipoConexao=1");
+                    sw.WriteLine("servidorSQLServer=localhost");
+                    sw.WriteLine("usuarioSQLServer=");
+                    sw.WriteLine("senhaSQLServer=");
+                    sw.WriteLine("bancoSQLServer=sc2010");
+                    sw.WriteLine();
+                    sw.WriteLine("[PARAMETROS]");
+                    sw.WriteLine("qtdeImportar=1000");
+
+                    sw.Flush();
+                    sw.Close();
+                }
+
+                return true;
             }
+            catch (Exception ex)
+            {
+                Logar("Erro ao criar arquivo config");
+                return false;
+            } 
         }
         private void CarregarConfiguracoesConfigIni()
         {
@@ -3449,7 +3464,7 @@ namespace ImportadorFopImperium
                     case "BANCOSQLSERVER":
                         mConfig.Banco_SQLServer = valores[1];
                         break;
-                    case "mConfig.Qtde_Importar":
+                    case "QTDEIMPORTAR":
                         mConfig.Qtde_Importar = ConverterInt64(valores[1]);
                         break;
                     default:
@@ -3482,6 +3497,11 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
                 return "";
             }
+        }
+        private void AbreConfigNaTela()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+            System.Diagnostics.Process.Start("notepad.exe", caminho);
         }
         #endregion
 

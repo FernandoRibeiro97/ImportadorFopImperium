@@ -3256,6 +3256,7 @@ namespace ImportadorFopImperium
         }
         private void InformaContadorRegistrosCarregados()
         {
+            lblLojas.Text = ImportacaoImperium.Dt_Lojas != null ? ImportacaoImperium.Dt_Lojas.Rows.Count.ToString() : "0";
             lblProdutos.Text = ImportacaoImperium.Dt_Produto != null ? ImportacaoImperium.Dt_Produto.Rows.Count.ToString() : "0";
             lblClientes.Text = ImportacaoImperium.Lista_Clientes != null ? ImportacaoImperium.Lista_Clientes.Count.ToString() : "0";
             lblContaReceber.Text = ImportacaoImperium.Dt_Contas_Receber != null ? ImportacaoImperium.Dt_Contas_Receber.Rows.Count.ToString() : "0";
@@ -3271,6 +3272,7 @@ namespace ImportadorFopImperium
         }
         private void InformaContadorRegistrosImportados()
         {
+            lblContLojas.Text = ImportacaoImperium.Lojas.Count.ToString();
             lblContProdutos.Text = contadorImportacao.Cont_Produtos.ToString();
             lblContClientes.Text = contadorImportacao.Cont_Clientes.ToString();
             lblContContaReceber.Text = contadorImportacao.Cont_Contas_Receber.ToString();

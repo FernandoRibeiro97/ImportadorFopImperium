@@ -1320,7 +1320,7 @@ namespace ImportadorFopImperium
             produto.ClassFiscal = r["classFiscal"].ToString();
             produto.Cest = cest;
             produto.Vasilhame = ConverterInt32(r["isvasilhame"].ToString());
-            produto.Tipo = r["balanca"].ToString() == "1" ? "P" : "U";
+            produto.Tipo = r["unidade"].ToString() == "KG" ? "P" : "U";
             produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
             produto.Id_Familia = ConverterInt64(r["fkFamilia"].ToString());
 

@@ -463,7 +463,7 @@ namespace ImportadorFopImperium
                     ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
                 }
 
-                string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario
+                string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
                     FROM Comercial.Venda c 
                     JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
                     WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
@@ -2757,6 +2757,18 @@ namespace ImportadorFopImperium
             receber.Id_Pc1 = 0;
             receber.Id_Pc2 = 0;
 
+            receber.Recebido = new ContaReceber_Recebido();
+            receber.Recebido.Dt_Pagto = ConverterDateTime(r["dtPago"].ToString());
+            receber.Recebido.Valor_Recebido = ConverterDecimal(r["valorPago"].ToString());
+            receber.Recebido.Baixa_Manual = "N";
+            receber.Recebido.Id_Operador = 999;
+            receber.Recebido.Loja_Recebimento = 1;
+            receber.Recebido.Valor_Desconto = 0;
+            receber.Recebido.Valor_Juros = 0;
+            receber.Recebido.Usuario = "IMPORTACAO";
+            receber.Recebido.Id_Pc1 = 0;//ConverterInt64(r["fkGrupoConta"].ToString());
+            receber.Recebido.Id_Pc2 = 0;//ConverterInt64(r["fkTipoConta"].ToString());
+
             return receber;
         }
         private void ExecutaComandoContasReceber(List<ContaReceber> lstReceber)
@@ -2764,15 +2776,20 @@ namespace ImportadorFopImperium
             try
             {
                 AbrirConexaoMysql();
-                string comandoTruncar = @"TRUNCATE debito;";
+                string comandoTruncar = @"TRUNCATE debito; TRUNCATE debito_recebido;";
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO debito(
-                                    IDCLIENTE, NR_VENDA, VL_VISTA, DT_VENDA, SITUACAO, DT_VENC, loja, ECF, TipoCobranca, observacao, idpc1, idpc2
+                                    IDDEBITO, IDCLIENTE, NR_VENDA, VL_VISTA, DT_VENDA, SITUACAO, DT_VENC, loja, ECF, TipoCobranca, observacao, idpc1, idpc2
                                     ) VALUES ";
+
+                string comandoRecebido = @"INSERT INTO debito_recebido (iddebito, dt_pagto, vl_recebido, BaixaManual, idOperador, loja_recebimento, vl_desconto, vl_juros, usuario, idpc1, idpc2) VALUES ";
+
                 StringBuilder strBuilderReceber = new StringBuilder(comando);
+                StringBuilder strBuilderRecebido = new StringBuilder(comandoRecebido);
                 int cont = 0;
+                bool recebido = false;
 
                 foreach (ContaReceber r in lstReceber)
                 {
@@ -2780,21 +2797,47 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Contas_Receber++;
 
+                    r.Id = contadorImportacao.Cont_Contas_Receber;
+
+                    if (r.Recebido.Valor_Recebido > 0)
+                    {
+                        r.Recebido.Id_Debito = r.Id;
+                        strBuilderRecebido.AppendLine(RetornaLinhaInserirContaReceberRecebido(r.Recebido));
+                        recebido = true;
+                    }
+                        
+
                     if (cont == mConfig.Qtde_Importar)
                     {
                         InsertBanco(strBuilderReceber, command);
+
+                        if (recebido)
+                            InsertBanco(strBuilderRecebido, command);
+
                         strBuilderReceber.Clear();
+                        strBuilderRecebido.Clear();
                         strBuilderReceber.Append(comando);
+                        strBuilderRecebido.Append(comandoRecebido);
+
                         cont = 0;
+                        recebido = false;
                     }
                 }
 
                 if (cont > 0)
                 {
                     InsertBanco(strBuilderReceber, command);
+
+                    if (recebido)
+                        InsertBanco(strBuilderRecebido, command);
+
                     strBuilderReceber.Clear();
+                    strBuilderRecebido.Clear();
                     strBuilderReceber.Append(comando);
+                    strBuilderRecebido.Append(comandoRecebido);
+
                     cont = 0;
+                    recebido = false;
                 }
             }
             catch (Exception ex)
@@ -2807,6 +2850,7 @@ namespace ImportadorFopImperium
         private string RetornaLinhaInserirContaReceber(ContaReceber receber)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{receber.Id},");
             stringBuilder.Append($"{receber.Id_Cliente},");
             stringBuilder.Append($"'{receber.Numero_Venda}',");
             stringBuilder.Append($"{AjustaStringDecimal(receber.Valor_Vista.ToString())},");
@@ -2821,6 +2865,24 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"{receber.Id_Pc2}");
             stringBuilder.Append("),");
             
+            return stringBuilder.ToString();
+        }
+        private string RetornaLinhaInserirContaReceberRecebido(ContaReceber_Recebido recebido)
+        {
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{recebido.Id_Debito},");
+            stringBuilder.Append($"'{recebido.Dt_Pagto:yyyy-MM-dd}',");
+            stringBuilder.Append($"{AjustaStringDecimal(recebido.Valor_Recebido.ToString())},");
+            stringBuilder.Append($"'{recebido.Baixa_Manual}',");
+            stringBuilder.Append($"{recebido.Id_Operador},");
+            stringBuilder.Append($"{recebido.Loja_Recebimento},");
+            stringBuilder.Append($"{AjustaStringDecimal(recebido.Valor_Desconto.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(recebido.Valor_Juros.ToString())},");
+            stringBuilder.Append($"'{recebido.Usuario}',");
+            stringBuilder.Append($"{recebido.Id_Pc1},");
+            stringBuilder.Append($"{recebido.Id_Pc2}");
+            stringBuilder.Append("),");
+
             return stringBuilder.ToString();
         }
 
@@ -3049,6 +3111,7 @@ namespace ImportadorFopImperium
         {
             ItemVenda itemVenda = new ItemVenda();
             itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigoEan"].ToString());
+            itemVenda.NSU = ConverterInt32(r["nsu"].ToString());
             itemVenda.CodigoEan = ConverterInt64(r["codigoEan"].ToString());
             itemVenda.Valor = ConverterDecimal(r["valor"].ToString());
             itemVenda.Qtde = ConverterDecimal(r["quantidade"].ToString());
@@ -3073,7 +3136,7 @@ namespace ImportadorFopImperium
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
                 command.ExecuteNonQuery();
 
-                string comando = @"INSERT INTO itensvenda (cupom, idProduto, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario) VALUES ";
+                string comando = @"INSERT INTO itensvenda (cupom, idProduto, nsu, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario) VALUES ";
 
                 StringBuilder strBuilderItemVenda = new StringBuilder(comando);
                 int cont = 0;
@@ -3116,6 +3179,7 @@ namespace ImportadorFopImperium
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{item.Cupom},");
             stringBuilder.Append($"{item.Id_Produto},");
+            stringBuilder.Append($"{item.NSU},");
             stringBuilder.Append($"'{item.CodigoEan}',");
             stringBuilder.Append($"{AjustaStringDecimal(item.Valor.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(item.Qtde.ToString())},");

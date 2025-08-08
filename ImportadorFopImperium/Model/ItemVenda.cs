@@ -6,6 +6,7 @@ namespace ImportadorFopImperium.Model
     {
         public long Cupom { get; set; }
         public long Id_Produto { get; set; }
+        public int NSU { get; set; }
         public long CodigoEan { get; set; }
         public decimal Valor { get; set; }
         public decimal Qtde { get; set; }

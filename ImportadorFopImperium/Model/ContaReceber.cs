@@ -4,6 +4,7 @@ namespace ImportadorFopImperium.Model
 {
     public class ContaReceber
     {
+        public long Id { get; set; }
         public long Id_Cliente { get; set; }
         public string Numero_Venda { get; set; }
         public decimal Valor_Vista { get; set; }
@@ -16,5 +17,6 @@ namespace ImportadorFopImperium.Model
         public string Obs { get; set; }
         public long Id_Pc1 { get; set; }
         public long Id_Pc2 { get; set; }
+        public ContaReceber_Recebido Recebido { get; set; }
     }
 }

@@ -274,11 +274,12 @@ namespace ImportadorFopImperium
             try
             {
                 string comando = @"SELECT e.id, e.razaoSocial, e.nomeFantasia, ISNULL(ce.logradouro, 'SEM ENDERECO') AS endereco, ce.numero, ce.bairro, UPPER(mun.nomeMunicipio) AS cidade, mun.cdMunicipio, uf.siglaUF AS uf, ce.cep,
-                    e.cnpj, e.inscricaoEstadual, '00' AS credito, 0 AS limite, ISNULL(e.dtNascimento, '1990-01-01') AS dt_nasc, 0 AS usado, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 'TT' AS tipo, 1 AS tipofidelidade, 2 as condicaoPagamento, '' AS fone, '' AS email, e.pessoaJuridica, e.bloqueado, e.isFuncionario, e.isContador, e.isMotorista, e.isCliente, e.isFornecedor, e.isTransportadora
+                    e.cnpj, e.inscricaoEstadual, cc.vlRotativoUsado AS usado, cc.vlRotativoTotal AS limite, ISNULL(e.dtNascimento, '1990-01-01') AS dt_nasc, 0 AS usado, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 'TT' AS tipo, 1 AS tipofidelidade, 2 as condicaoPagamento, '' AS fone, '' AS email, e.pessoaJuridica, e.bloqueado, e.isFuncionario, e.isContador, e.isMotorista, e.isCliente, e.isFornecedor, e.isTransportadora, '00' as credito
                     FROM Cadastro.Entidade e
                     LEFT JOIN Cadastro.Endereco ce ON e.id = ce.fkEntidade
                     LEFT JOIN Cadastro.Municipio mun ON ce.fkMunicipio = mun.cdMunicipio
                     LEFT JOIN Cadastro.UF uf ON mun.fkUF = uf.cdUF
+                    LEFT JOIN CRM.Cadastro cc ON cc.fkEntidade = e.id
                     ORDER BY e.id;";
 
                 return RecuperaDataTableSQLServer(comando);
@@ -371,7 +372,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM Financeiro.ContasReceber;";
+                string comando = @"SELECT * FROM Comercial.VendaPrazo;";
                 return RecuperaDataTableSQLServer(comando);
             }
             catch (Exception ex)
@@ -1313,14 +1314,28 @@ namespace ImportadorFopImperium
             produto.Id_SubGrupo = ConverterInt32(r["fkCategoria"].ToString());
             produto.Id_SubGrupo1 = ConverterInt32(r["fkSubCategoria"].ToString());
             produto.Id_Situacao = r["ativo"].ToString() == "0" ? 2 : 1;
-            produto.Peso_Variavel = r["balanca"].ToString() == "1" ? 1 : 0;
+            produto.Peso_Variavel = Convert.ToBoolean(r["balanca"]) == true ? 1 : 0;
+
+            if (produto.Peso_Variavel == 1)
+                produto.Tipo = Convert.ToBoolean(r["balancaunit"]) == false ? "P" : "U";
+            else
+                produto.Tipo = "U";
+
+
             produto.Etiqueta = 1;
             produto.Ean = ConverterInt64(r["id"].ToString()).ToString();
+
+            if(Convert.ToInt64(produto.Ean) > 200000)
+            {
+                if (produto.Ean.Substring(0, 1) == "2")
+                    produto.Ean = produto.Ean.ToLower().Substring(1, 5);
+            }
+
+
             produto.Ean1 = r["id"].ToString();
             produto.ClassFiscal = r["classFiscal"].ToString();
             produto.Cest = cest;
             produto.Vasilhame = ConverterInt32(r["isvasilhame"].ToString());
-            produto.Tipo = r["unidade"].ToString() == "KG" ? "P" : "U";
             produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
             produto.Id_Familia = ConverterInt64(r["fkFamilia"].ToString());
 
@@ -2745,20 +2760,26 @@ namespace ImportadorFopImperium
         {
             ContaReceber receber = new ContaReceber();
             receber.Id_Cliente = ConverterInt64(r["fkEntidade"].ToString());
-            receber.Numero_Venda = r["id"].ToString();
-            receber.Valor_Vista = ConverterDecimal(r["valorAtual"].ToString());
-            receber.Data_Venda = ConverterDateTime(r["dtReferencia"].ToString());
-            receber.Situacao = r["pago"].ToString() == "1" ? "P" : "A";
-            receber.Data_Vencimento = ConverterDateTime(r["dtVencAtual"].ToString());
+            receber.Numero_Venda = r["fkvenda"].ToString().Substring(13, 6);
+            receber.Valor_Vista = ConverterDecimal(r["valorvenda"].ToString());
+            receber.Valor_Pago = ConverterDecimal(r["valorpago"].ToString());
+            receber.Data_Venda = ConverterDateTime(r["dtvenda"].ToString());
+
+            if (receber.Valor_Vista > receber.Valor_Pago)
+                receber.Situacao = "A";
+            else
+                receber.Situacao = "P";
+
+            receber.Data_Vencimento = receber.Data_Venda.AddDays(30);
             receber.Loja = ConverterInt32(r["fkLoja"].ToString());
             receber.ECF = 999;
             receber.Tipo_Cobranca = "BL";
-            receber.Obs = $"IMPORTADO - {r["referencia"]}";
+            receber.Obs = "IMPORTADO";
             receber.Id_Pc1 = 0;
             receber.Id_Pc2 = 0;
 
             receber.Recebido = new ContaReceber_Recebido();
-            receber.Recebido.Dt_Pagto = ConverterDateTime(r["dtPago"].ToString());
+            receber.Recebido.Dt_Pagto = receber.Data_Venda.AddDays(30);
             receber.Recebido.Valor_Recebido = ConverterDecimal(r["valorPago"].ToString());
             receber.Recebido.Baixa_Manual = "N";
             receber.Recebido.Id_Operador = 999;

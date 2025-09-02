@@ -17,6 +17,7 @@ namespace ImportadorFopImperium.Model
         public string Obs { get; set; }
         public long Id_Pc1 { get; set; }
         public long Id_Pc2 { get; set; }
+        public decimal Valor_Pago { get; set; }
         public ContaReceber_Recebido Recebido { get; set; }
     }
 }

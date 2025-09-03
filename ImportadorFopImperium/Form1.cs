@@ -2772,7 +2772,7 @@ namespace ImportadorFopImperium
 
             receber.Data_Vencimento = receber.Data_Venda.AddDays(30);
             receber.Loja = ConverterInt32(r["fkLoja"].ToString());
-            receber.ECF = 999;
+            receber.ECF = 99;
             receber.Tipo_Cobranca = "BL";
             receber.Obs = "IMPORTADO";
             receber.Id_Pc1 = 0;

@@ -1,6 +1,6 @@
 ﻿namespace ImportadorFopImperium.Enum
 {   
-    enum OperacaoImportador
+    public enum OperacaoImportador
     {
         Nenhum = 0,
         Carregar = 1,

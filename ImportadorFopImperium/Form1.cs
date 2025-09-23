@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Npgsql;
 
 namespace ImportadorFopImperium
 {
@@ -30,13 +31,16 @@ namespace ImportadorFopImperium
 
         BackgroundWorker mBackGroundWorker = null;
 
-        SqlConnection connectionSqlServer = new SqlConnection();
-        MySqlConnection connecctionMysql = new MySqlConnection();
+        SqlConnection connectionOrigemSqlServer = new SqlConnection();
+        MySqlConnection connecctionDestinoMysql = new MySqlConnection();
+        NpgsqlConnection connectionOrigemPostgreSQL = new NpgsqlConnection();
 
         OperacaoImportador operacaoImportador = new OperacaoImportador();
 
-        string strConexaoSqlServer = string.Empty;
-        string strConexaoMySql = string.Empty;
+        string strConexaoOrigemSqlServer = string.Empty;
+        string strConexaoOrigemPostgreSQL = string.Empty;
+
+        string strConexaoDestinoMySql = string.Empty;
 
         TimeSpan tempoInicio = new TimeSpan();
         TimeSpan tempoFim = new TimeSpan();
@@ -49,9 +53,8 @@ namespace ImportadorFopImperium
             {
                 if (CriaArquivoIni())
                 {
-                    string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-                    System.Diagnostics.Process.Start("notepad.exe", caminho);
-                    CarregarConfiguracoesConfigIni();
+                    AbreArquivoConfigIni();
+                    Close();
                 }
             }
             else
@@ -59,14 +62,15 @@ namespace ImportadorFopImperium
 
             CriarDiretorioLogs();
 
-            if (mConfig.Tipo_Conexao == "2")
-                strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};Database={mConfig.Banco_SQLServer};User Id={mConfig.Usuario_SQLServer};Password={mConfig.Senha_SQLServer}; ";
-            else
-                strConexaoSqlServer = $"Server={mConfig.Servidor_SQLServer};DataBase={mConfig.Banco_SQLServer};Trusted_Connection=True;";
+            mConfig.Conexao_Origem = RecuperaConexaoSelecionada(mConfig);
 
-            strConexaoMySql = $"server={mConfig.Servidor_MySQL};user id={mConfig.Usuario_MySQL};password={mConfig.Senha_MySQL};database={mConfig.Banco_MySQL};";
+            if (!MontaConexaoOrigem())
+            {
+                MessageBox.Show("Não foi possível conectar com a origem dos dados\r\nA aplicação será fechada !");
+                Close();
+            }
 
-            mConfig.Linguagem_SQL_Server = RecuperaLinguagemSQLServer();
+            strConexaoDestinoMySql = $"server={mConfig.Servidor_MySQL};user id={mConfig.Usuario_MySQL};password={mConfig.Senha_MySQL};database={mConfig.Banco_MySQL};";
 
             mBackGroundWorker = new BackgroundWorker();
             mBackGroundWorker.WorkerSupportsCancellation = true;
@@ -196,8 +200,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM MultiLoja.Loja;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM MultiLoja.Loja;";
+                string comandoPostgreSQL = $"SELECT * FROM {mConfig.Schema_PostgreSQL}.\"Loja\"";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -210,7 +221,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * 
+                string comandoSQLServer = @"SELECT * 
                                     FROM CadProduto.AliquotaICMS 
                                     WHERE id IN 
                                     (SELECT aliqICMS 
@@ -218,7 +229,14 @@ namespace ImportadorFopImperium
                                         GROUP BY aliqICMS
                                     );";
 
-                return RecuperaDataTableSQLServer(comando);
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception)
             {
@@ -230,10 +248,16 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * 
+                string comandoSQLServer = @"SELECT * 
                                     FROM CadProduto.AliquotaPIS;";
+                string comandoPostgreSQL = "";
 
-                return RecuperaDataTableSQLServer(comando);
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception)
             {
@@ -245,9 +269,16 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * 
+                string comandoSQLServer = @"SELECT * 
                                     FROM CadProduto.AliquotaCofins;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception)
             {
@@ -259,8 +290,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM CadProduto.Produto;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM CadProduto.Produto;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -273,7 +311,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT e.id, e.razaoSocial, e.nomeFantasia, ISNULL(ce.logradouro, 'SEM ENDERECO') AS endereco, ce.numero, ce.bairro, UPPER(mun.nomeMunicipio) AS cidade, mun.cdMunicipio, uf.siglaUF AS uf, ce.cep,
+                string comandoSQLServer = @"SELECT e.id, e.razaoSocial, e.nomeFantasia, ISNULL(ce.logradouro, 'SEM ENDERECO') AS endereco, ce.numero, ce.bairro, UPPER(mun.nomeMunicipio) AS cidade, mun.cdMunicipio, uf.siglaUF AS uf, ce.cep,
                     e.cnpj, e.inscricaoEstadual, cc.vlRotativoUsado AS usado, cc.vlRotativoTotal AS limite, ISNULL(e.dtNascimento, '1990-01-01') AS dt_nasc, 0 AS usado, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 'TT' AS tipo, 1 AS tipofidelidade, 2 as condicaoPagamento, '' AS fone, '' AS email, e.pessoaJuridica, e.bloqueado, e.isFuncionario, e.isContador, e.isMotorista, e.isCliente, e.isFornecedor, e.isTransportadora, '00' as credito
                     FROM Cadastro.Entidade e
                     LEFT JOIN Cadastro.Endereco ce ON e.id = ce.fkEntidade
@@ -281,8 +319,14 @@ namespace ImportadorFopImperium
                     LEFT JOIN Cadastro.UF uf ON mun.fkUF = uf.cdUF
                     LEFT JOIN CRM.Cadastro cc ON cc.fkEntidade = e.id
                     ORDER BY e.id;";
+                string comandoPostgreSQL = "";
 
-                return RecuperaDataTableSQLServer(comando);
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -296,8 +340,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM Cadastro.Fone;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM Cadastro.Fone;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -310,8 +361,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM Cadastro.Email;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM Cadastro.Email;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -324,8 +382,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM CadProduto.Familia;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM CadProduto.Familia;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -336,30 +401,65 @@ namespace ImportadorFopImperium
         }
         private DataTable CarregarItensFornecedor()
         {
-            string comando = @"SELECT * FROM CadProduto.Referencia;";
-            return RecuperaDataTableSQLServer(comando);
+            string comandoSQLServer = @"SELECT * FROM CadProduto.Referencia;";
+            string comandoPostgreSQL = "";
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+            else
+                return null;
         }
         private DataTable CarregarGrupo()
         {
-            string comando = @"SELECT * FROM CadProduto.SuperDepto;";
-            return RecuperaDataTableSQLServer(comando);
+            string comandoSQLServer = @"SELECT * FROM CadProduto.SuperDepto;";
+            string comandoPostgreSQL = "";
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+            else
+                return null;
         }
         private DataTable CarregarSubGrupo()
         {
-            string comando = @"SELECT * FROM CadProduto.Categoria;";
-            return RecuperaDataTableSQLServer(comando);
+            string comandoSQLServer = @"SELECT * FROM CadProduto.Categoria;";
+            string comandoPostgreSQL = "";
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+            else
+                return null;
         }
         private DataTable CarregarSubGrupo1()
         {
-            string comando = @"SELECT * FROM CadProduto.SubCategoria;";
-            return RecuperaDataTableSQLServer(comando);
+            string comandoSQLServer = @"SELECT * FROM CadProduto.SubCategoria;";
+            string comandoPostgreSQL = "";
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+            else
+                return null;
         }
         private DataTable CarregarContasPagar()
         {
             try
             {
-                string comando = @"SELECT * FROM Financeiro.ContasPagar;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM Financeiro.ContasPagar;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -372,8 +472,15 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comando = @"SELECT * FROM Comercial.VendaPrazo;";
-                return RecuperaDataTableSQLServer(comando);
+                string comandoSQLServer = @"SELECT * FROM Comercial.VendaPrazo;";
+                string comandoPostgreSQL = "";
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -386,27 +493,36 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string de = "";
-                string ate = "";
+                string comandoPostgreSQL = "";
 
-                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                    string de = "";
+                    string ate = "";
+
+                    if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                    {
+                        de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
+                        ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                    }
+                    else
+                    {
+                        de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                        ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                    }
+
+                    string comandoSQLServer = $@"SELECT *
+                                                    FROM NF.NFe n
+                                                    JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
+                                                    WHERE n.natOp = 'COMPRAS'
+                                                    AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
+
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
                 }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
                 else
-                {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
-                }
-
-                string comando = $@"SELECT *
-                FROM NF.NFe n
-                JOIN NF.TipoNFe t ON n.fkTipoNF = t.id
-                WHERE n.natOp = 'COMPRAS'
-                AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
-
-                return RecuperaDataTableSQLServer(comando);
+                    return null;
             }
             catch (Exception)
             {
@@ -420,25 +536,32 @@ namespace ImportadorFopImperium
             {
                 string de = "";
                 string ate = "";
-
-                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
-                {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
-                }
-                else
-                {
-                    de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
-                    ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
-                }
-
-                string comando = $@"SELECT i.*, n.fkLoja
+                string comandoSQLServer = $@"SELECT i.*, n.fkLoja
                                     FROM nf.NFeItens i 
                                     JOIN nf.NFe n ON i.nroNF = n.nroNF AND i.serie = n.serie AND i.emitCNPJ = n.emitCNPJ
                                     WHERE n.natOp = 'COMPRAS'
                                     AND n.dhSaiEnt BETWEEN '{de}' AND '{ate}';";
+                string comandoPostgreSQL = "";
 
-                return RecuperaDataTableSQLServer(comando);
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                {
+                    if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                    {
+                        de = ConverterDateTime(dataNotaDE.Text).ToString("dd-MM-yyyy");
+                        ate = ConverterDateTime(dataNotaATE.Text).ToString("dd-MM-yyyy");
+                    }
+                    else
+                    {
+                        de = ConverterDateTime(dataNotaDE.Text).ToString("yyyy-MM-dd");
+                        ate = ConverterDateTime(dataNotaATE.Text).ToString("yyyy-MM-dd");
+                    }
+
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -450,26 +573,34 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string de = "";
-                string ate = "";
+                string comandoPostgreSQL = "";
 
-                if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 {
-                    de = ConverterDateTime(dataVendaDE.Text).ToString("dd-MM-yyyy");
-                    ate = ConverterDateTime(dataVendaATE.Text).ToString("dd-MM-yyyy");
-                }
-                else
-                {
-                    de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
-                    ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
-                }
+                    string de = "", ate = "";
 
-                string comando = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
+                    if (mConfig.Linguagem_SQL_Server.Contains("Português"))
+                    {
+                        de = ConverterDateTime(dataVendaDE.Text).ToString("dd-MM-yyyy");
+                        ate = ConverterDateTime(dataVendaATE.Text).ToString("dd-MM-yyyy");
+                    }
+                    else
+                    {
+                        de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
+                        ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
+                    }
+
+                    string comandoSQLServer = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
                     FROM Comercial.Venda c 
                     JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
                     WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
 
-                return RecuperaDataTableSQLServer(comando);
+                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+                else
+                    return null;
             }
             catch (Exception ex)
             {
@@ -912,10 +1043,10 @@ namespace ImportadorFopImperium
         {
             try
             {
-                if (connectionSqlServer.State != ConnectionState.Open)
+                if (connectionOrigemSqlServer.State != ConnectionState.Open)
                 {
-                    connectionSqlServer = new SqlConnection(strConexaoSqlServer);
-                    connectionSqlServer.Open();
+                    connectionOrigemSqlServer = new SqlConnection(strConexaoOrigemSqlServer);
+                    connectionOrigemSqlServer.Open();
                 }
             }
             catch (Exception ex)
@@ -928,8 +1059,8 @@ namespace ImportadorFopImperium
         {
             try
             {
-                if (connectionSqlServer.State != ConnectionState.Closed)
-                    connectionSqlServer.Close();
+                if (connectionOrigemSqlServer.State != ConnectionState.Closed)
+                    connectionOrigemSqlServer.Close();
             }
             catch (Exception ex)
             {
@@ -946,10 +1077,10 @@ namespace ImportadorFopImperium
         {
             try
             {
-                if (connecctionMysql.State != ConnectionState.Open)
+                if (connecctionDestinoMysql.State != ConnectionState.Open)
                 {
-                    connecctionMysql = new MySqlConnection(strConexaoMySql);
-                    connecctionMysql.Open();
+                    connecctionDestinoMysql = new MySqlConnection(strConexaoDestinoMySql);
+                    connecctionDestinoMysql.Open();
                 }
             }
             catch (Exception ex)
@@ -962,10 +1093,10 @@ namespace ImportadorFopImperium
         {
             try
             {
-                if (connecctionMysql.State != ConnectionState.Closed)
+                if (connecctionDestinoMysql.State != ConnectionState.Closed)
                 {
-                    connecctionMysql.Close();
-                    connecctionMysql.Dispose();
+                    connecctionDestinoMysql.Close();
+                    connecctionDestinoMysql.Dispose();
                 }
                     
             }
@@ -1012,7 +1143,7 @@ namespace ImportadorFopImperium
                 string comandoTruncar = @"TRUNCATE cadtributacao;";
 
                 AbrirConexaoMysql();
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO cadtributacao (descricao, sittrib, valor, codPDV, aliquotaICMS, reducao, idfop) VALUES ";
@@ -1022,7 +1153,7 @@ namespace ImportadorFopImperium
                 {
                     stringBuilder.Append($"('{t.Descricao}', '{t.Sit_Trib}', '{t.Valor}', '{t.CodPDV}', {AjustaStringDecimal(t.Aliquota_ICMS.ToString())}, {AjustaStringDecimal(t.Reducao.ToString())}, {t.Id_FOP});");
 
-                    command = new MySqlCommand(stringBuilder.ToString(), connecctionMysql);
+                    command = new MySqlCommand(stringBuilder.ToString(), connecctionDestinoMysql);
                     command.ExecuteNonQuery();
                     t.Id_Imperium = command.LastInsertedId;
 
@@ -1043,7 +1174,7 @@ namespace ImportadorFopImperium
             {
                 string comando = @"ALTER TABLE cadtributacao ADD COLUMN `idfop` INTEGER(10) AFTER `reducao`;";
                 AbrirConexaoMysql();
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -1061,7 +1192,7 @@ namespace ImportadorFopImperium
             {
                 string comando = @"ALTER TABLE cadtributacao DROP COLUMN `idfop`;";
                 AbrirConexaoMysql();
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -1167,7 +1298,7 @@ namespace ImportadorFopImperium
                 #region TRUNCATE TABELAS PRODUTO
 
                 string comandoTruncar = "TRUNCATE produto; TRUNCATE produto_preco; TRUNCATE produto_estoque; TRUNCATE produto_tributacao; TRUNCATE produto_ean;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 #endregion
@@ -1760,7 +1891,7 @@ namespace ImportadorFopImperium
                 string comandoRecuperaArvoreMercadologica = @"SELECT idGrupo, idSubGrupo, idSubGrupo1 
                                                                 FROM subgrupo1 
                                                                 WHERE nome = 'A CLASSIFICAR' LIMIT 1;";
-                MySqlCommand command = new MySqlCommand(comandoRecuperaArvoreMercadologica, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoRecuperaArvoreMercadologica, connecctionDestinoMysql);
 
                 using (MySqlDataReader rdr = command.ExecuteReader())
                 {
@@ -1780,7 +1911,7 @@ namespace ImportadorFopImperium
                                         idSubGrupo1 = {subgrupo1}
                                        WHERE (idGrupo = 0 OR idSubGrupo = 0 OR idSubGrupo1 = 0);";
 
-                    command = new MySqlCommand(comando, connecctionMysql);
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
                 }
             }
@@ -1801,7 +1932,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE familia;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = "INSERT INTO familia (idFamilia, nome) VALUES ";
@@ -1852,7 +1983,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE grupo;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO grupo (IDGRUPO, NOME) VALUES ";
@@ -1904,7 +2035,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE subgrupo;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO subgrupo (IdSubGrupo, IdGrupo, Nome) VALUES ";
@@ -1961,7 +2092,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE subgrupo1;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO subgrupo1 (idSubGrupo1, idGrupo, idSubGrupo, Nome) VALUES ";
@@ -2015,7 +2146,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = @"INSERT INTO grupo (NOME) VALUES ('A CLASSIFICAR');";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
                 long idGrupo = command.LastInsertedId;
 
@@ -2035,7 +2166,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = $@"INSERT INTO subgrupo (nome, idgrupo) VALUES ('A CLASSIFICAR', {idGrupo});";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
                 long idSubGrupo = command.LastInsertedId;
 
@@ -2055,7 +2186,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = $@"INSERT INTO subgrupo1 (nome, idgrupo, idsubgrupo) VALUES ('A CLASSIFICAR', {idGrupo}, {idSubGrupo});";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -2083,7 +2214,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoNovoId = "SELECT MAX(idsubgrupo) + 1 FROM subgrupo;";
-                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionDestinoMysql);
                 int novoId = 0;
                 using (MySqlDataReader rdr = command.ExecuteReader())
                 {
@@ -2094,7 +2225,7 @@ namespace ImportadorFopImperium
                 if (novoId > 0)
                 {
                     string comando = $@"UPDATE subgrupo SET idsubgrupo = {novoId} WHERE idsubgrupo IS NULL AND nome = 'A CLASSIFICAR';";
-                    command = new MySqlCommand(comando, connecctionMysql);
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
                     return novoId;
                 }
@@ -2115,7 +2246,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoNovoId = "SELECT MAX(idsubgrupo1) + 1 FROM subgrupo1;";
-                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoNovoId, connecctionDestinoMysql);
                 int novoId = 0;
                 using (MySqlDataReader rdr = command.ExecuteReader())
                 {
@@ -2126,7 +2257,7 @@ namespace ImportadorFopImperium
                 if (novoId > 0)
                 {
                     string comando = $@"UPDATE subgrupo1 SET idsubgrupo1 = {novoId}, idsubgrupo = {idSubGrupo} WHERE idsubgrupo1 IS NULL AND nome = 'A CLASSIFICAR';";
-                    command = new MySqlCommand(comando, connecctionMysql);
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
                 }
 
@@ -2149,7 +2280,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE itensfornecedor;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO itensfornecedor(
@@ -2238,7 +2369,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = @"DELETE FROM produto_ean WHERE CodigoEan IN (SELECT ean FROM produto);";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -2296,7 +2427,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = "TRUNCATE cliente;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 StringBuilder strBuilderComando = new StringBuilder();
@@ -2472,7 +2603,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = "TRUNCATE fornecedor;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 int cont = 0;
@@ -2650,7 +2781,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE pagar;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO pagar(
@@ -2737,11 +2868,11 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = @"UPDATE pagar SET situacao = NULL, dt_pagto = NULL WHERE dt_pagto < dt_vencto;";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando2 = @"UPDATE pagar SET situacao = 'B' WHERE dt_pagto IS NOT NULL;";
-                command = new MySqlCommand(comando2, connecctionMysql);
+                command = new MySqlCommand(comando2, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
             }
@@ -2798,7 +2929,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE debito; TRUNCATE debito_recebido;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO debito(
@@ -2949,7 +3080,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE nfentrada; TRUNCATE itensnfentrada;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO nfentrada (idNFEntrada, NumeroNF, ValorTotalNF, ValorBaseIcms, ValorICMS, Outras, IPI, BaseIcmsSubst, ValorICMSSubst, idFornecedor, Dt_Emissao, Dt_Entrada, Obs, Serie, Especie, Modelo, loja, situacao, ChaveEletronica, ProtocoloNfe, usuario, idCodigoFiscal) VALUES ";
@@ -3154,7 +3285,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comandoTruncar = @"TRUNCATE itensvenda;";
-                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
                 string comando = @"INSERT INTO itensvenda (cupom, idProduto, nsu, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario) VALUES ";
@@ -3226,7 +3357,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(strConexaoMySql))
+                using (MySqlConnection conn = new MySqlConnection(strConexaoDestinoMySql))
                 {
                     conn.Open();
                     string comando = @"SET GLOBAL max_allowed_packet = 1073741824;";
@@ -3240,29 +3371,44 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
             }
         }
-        private DataTable RecuperaDataTableSQLServer(string comando)
+        private DataTable RecuperaDataTable(string comando, TipoConexaoEnum tipoConexao)
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection(strConexaoSqlServer))
+                DataTable dt = new DataTable();
+
+                if (tipoConexao == TipoConexaoEnum.SQLServer)
                 {
-                    DataTable dt = new DataTable();
-                    SqlCommand command = new SqlCommand(comando, conn);
+                    if (connectionOrigemSqlServer.State != ConnectionState.Open)
+                        connectionOrigemSqlServer = AbreConexaoSQLServer(strConexaoOrigemSqlServer);
+
+                    SqlCommand command = new SqlCommand(comando, connectionOrigemSqlServer);
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     adapter.Fill(dt);
                     return dt;
                 }
+                else if (tipoConexao == TipoConexaoEnum.PostgreSQL)
+                {
+                    NpgsqlCommand command = new NpgsqlCommand(comando, connectionOrigemPostgreSQL);
+                    NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(command);
+                    adapter.Fill(dt);
+                    return dt;
+                }
+                else
+                    return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                MessageBox.Show("Erro ao recuperar dados da origem");
+                Logar($"Erro ao recuperar dados da origem {tipoConexao.ToString()}");
+                Logar(ex.Message);
+                return null;
             }
         }
         private void InsertBanco(StringBuilder strBuilder, MySqlCommand command, int posicaoRemover = 3, int qtdeRemover = 1)
         {
             string strComandoProduto = $"{strBuilder.ToString().Remove(strBuilder.ToString().Length - posicaoRemover, qtdeRemover)};";
-            command = new MySqlCommand(strComandoProduto, connecctionMysql);
+            command = new MySqlCommand(strComandoProduto, connecctionDestinoMysql);
             command.ExecuteNonQuery();
         }
         private Dictionary<string, string> RetornaFoneEntidade(long idEntidade)
@@ -3415,7 +3561,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = $@"SELECT idproduto FROM produto WHERE ean1 = {ean1} LIMIT 1";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
 
                 using (MySqlDataReader rdr = command.ExecuteReader())
                 {
@@ -3440,7 +3586,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = @"SELECT idCodigoFiscal, CodigoFiscal FROM codigoFiscal;";
-                MySqlCommand command = new MySqlCommand(comando, connecctionMysql);
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
 
                 using (MySqlDataReader rdr = command.ExecuteReader())
                 {
@@ -3488,14 +3634,21 @@ namespace ImportadorFopImperium
                     sw.WriteLine("usuarioMySQL=root");
                     sw.WriteLine("senhaMySQL=root");
                     sw.WriteLine("bancoMySQL=db_imperium");
-                    sw.WriteLine("");
+                    sw.WriteLine();
                     sw.WriteLine("[FOP]");
                     sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
                     sw.WriteLine("tipoConexao=1");
-                    sw.WriteLine("servidorSQLServer=localhost");
+                    sw.WriteLine("servidorSQLServer=");
                     sw.WriteLine("usuarioSQLServer=");
                     sw.WriteLine("senhaSQLServer=");
-                    sw.WriteLine("bancoSQLServer=sc2010");
+                    sw.WriteLine("bancoSQLServer=");
+                    sw.WriteLine();
+                    sw.WriteLine("hostPostgreSQL=");
+                    sw.WriteLine("portaPostgreSQL=");
+                    sw.WriteLine("usuarioPostgreSQL=");
+                    sw.WriteLine("senhaPostgreSQL=");
+                    sw.WriteLine("bancoPostgreSQL=");
+                    sw.WriteLine("schemaPostgreSQL=");
                     sw.WriteLine();
                     sw.WriteLine("[PARAMETROS]");
                     sw.WriteLine("qtdeImportar=1000");
@@ -3552,6 +3705,24 @@ namespace ImportadorFopImperium
                     case "QTDEIMPORTAR":
                         mConfig.Qtde_Importar = ConverterInt64(valores[1]);
                         break;
+                    case "HOSTPOSTGRESQL":
+                        mConfig.Host_PostgreSQL = valores[1];
+                        break;
+                    case "PORTAPOSTGRESQL":
+                        mConfig.Porta_PostgreSQL = valores[1];
+                        break;
+                    case "USUARIOPOSTGRESQL":
+                        mConfig.Usuario_PostgreSQL = valores[1];
+                        break;
+                    case "SENHAPOSTGRESQL":
+                        mConfig.Senha_PostgreSQL = valores[1];
+                        break;
+                    case "BANCOPOSTGRESQL":
+                        mConfig.Banco_PostgreSQL = valores[1];
+                        break;
+                    case "SCHEMAPOSTGRESQL":
+                        mConfig.Schema_PostgreSQL = valores[1];
+                        break;
                     default:
                         break;
                 }
@@ -3561,7 +3732,7 @@ namespace ImportadorFopImperium
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection(strConexaoSqlServer))
+                using (SqlConnection conn = new SqlConnection(strConexaoOrigemSqlServer))
                 {
                     conn.Open();
                     string comando = "SELECT @@LANGUAGE AS LinguagemAtual;";
@@ -3582,11 +3753,6 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
                 return "";
             }
-        }
-        private void AbreConfigNaTela()
-        {
-            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-            System.Diagnostics.Process.Start("notepad.exe", caminho);
         }
         #endregion
 
@@ -3645,5 +3811,107 @@ namespace ImportadorFopImperium
         }
 
         #endregion
+        private TipoConexaoEnum RecuperaConexaoSelecionada(Config config)
+        {
+            if (!string.IsNullOrEmpty(config.Tipo_Conexao) && !string.IsNullOrEmpty(config.Servidor_SQLServer) && !string.IsNullOrEmpty(config.Banco_SQLServer))
+            {
+                if (config.Tipo_Conexao == "2")
+                {
+                    if (!string.IsNullOrEmpty(config.Usuario_SQLServer) && !string.IsNullOrEmpty(config.Senha_SQLServer))
+                        return TipoConexaoEnum.SQLServer;
+                }
+                else
+                    return TipoConexaoEnum.SQLServer;
+            }
+
+            if (!string.IsNullOrEmpty(config.Host_PostgreSQL) && !string.IsNullOrEmpty(config.Porta_PostgreSQL) && !string.IsNullOrEmpty(config.Usuario_PostgreSQL) && !string.IsNullOrEmpty(config.Senha_PostgreSQL) && !string.IsNullOrEmpty(config.Banco_PostgreSQL))
+                return TipoConexaoEnum.PostgreSQL;
+
+            return TipoConexaoEnum.Nenhuma;
+        }
+
+        private void AbreArquivoConfigIni()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+            System.Diagnostics.Process.Start("notepad.exe", caminho);
+        }
+        private bool MontaConexaoOrigem()
+        {
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            {
+                if (mConfig.Tipo_Conexao == "2")
+                    strConexaoOrigemSqlServer = $"Server={mConfig.Servidor_SQLServer};Database={mConfig.Banco_SQLServer};User Id={mConfig.Usuario_SQLServer};Password={mConfig.Senha_SQLServer}; ";
+                else
+                    strConexaoOrigemSqlServer = $"Server={mConfig.Servidor_SQLServer};DataBase={mConfig.Banco_SQLServer};Trusted_Connection=True;";
+
+                try
+                {
+                    mConfig.Linguagem_SQL_Server = RecuperaLinguagemSQLServer();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao criar conexão SQLServer");
+                    Logar("Erro ao criar conexão SQLServer");
+                    Logar(ex.Message);
+                    return false;
+                }
+            }
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            {
+                strConexaoOrigemPostgreSQL = $"Host={mConfig.Host_PostgreSQL};Port={mConfig.Porta_PostgreSQL};Username={mConfig.Usuario_PostgreSQL};Password={mConfig.Senha_PostgreSQL};Database={mConfig.Banco_PostgreSQL};";
+
+                try
+                {
+                    connectionOrigemPostgreSQL = AbreConexaoPostgreSQL(strConexaoOrigemPostgreSQL);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao criar conexão PostgreSQL");
+                    Logar("Erro ao criar conexão PostgreSQL");
+                    Logar(ex.Message);
+                    return false;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Nenhuma conexão de origem configurada");
+                AbreArquivoConfigIni();
+                return false;
+            }
+        }
+        private NpgsqlConnection AbreConexaoPostgreSQL(string stringConexao)
+        {
+            try
+            {
+                NpgsqlConnection connection = new NpgsqlConnection(stringConexao);
+                connection.Open();
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao criar conexão PostgreSQL");
+                Logar("Erro ao criar conexão PostgreSQL - AbreConexaoPostgreSQL()");
+                Logar(ex.Message);
+                return null;
+            }
+        }
+        private SqlConnection AbreConexaoSQLServer(string stringConexao)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(stringConexao);
+                connection.Open();
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao criar conexão SQLServer");
+                Logar("Erro ao criar conexão SQLServer - AbreConexaoSQLServer()");
+                Logar(ex.Message);
+                return null;
+            }
+        }
     }
 }

@@ -10,5 +10,6 @@
         public string CodPDV { get; set; }
         public decimal Aliquota_ICMS { get; set; }
         public decimal Reducao { get; set; }
+        public string CST { get; set; }
     }
 }

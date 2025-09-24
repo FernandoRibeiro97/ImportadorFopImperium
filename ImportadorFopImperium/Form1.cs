@@ -295,7 +295,9 @@ namespace ImportadorFopImperium
             try
             {
                 string comandoSQLServer = @"SELECT * FROM CadProduto.Produto;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT * 
+                                                FROM {mConfig.Schema_PostgreSQL}.""Produto"" p
+                                                JOIN {mConfig.Schema_PostgreSQL}.""ProdutoMultiLoja"" pp ON p.""Id"" = pp.""FkProduto"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -792,6 +794,7 @@ namespace ImportadorFopImperium
                 {
                     tributacao.Aliquota_ICMS = ConverterDecimal(t["AliqICMS"].ToString());
                     tributacao.Descricao = t["Descricao"].ToString().ToUpper() + " " + t["AliqICMS"].ToString().Substring(0, 5);
+                    tributacao.CST = t["CST"].ToString();
                 }
 
                 if (tributacao.Aliquota_ICMS == 0M)
@@ -819,7 +822,12 @@ namespace ImportadorFopImperium
 
             foreach (DataRow r in ImportacaoImperium.Dt_Produto.Rows)
             {
-                ProdutoImperium produto = RetornaProdutoImperiumPorDataRow(r);
+                ProdutoImperium produto = new ProdutoImperium();
+
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    produto = RetornaProdutoImperiumPorDataRow(r);
+                else
+                    produto = RetornaProdutoImperiumPorDataRowPostgreSQL(r);
 
                 if (produto.Id > 0)
                 {
@@ -835,7 +843,10 @@ namespace ImportadorFopImperium
                     lstProdutoComErro.Add(produto);
             }
 
-            ExecutaComandoProduto(lstProduto);
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                ExecutaComandoProduto(lstProduto);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                ExecutaComandoProdutoPostgreSQL(lstProduto);
 
             if (chkItensFornecedor.Checked)
             {
@@ -1449,6 +1460,142 @@ namespace ImportadorFopImperium
                 FecharConexaoMysql();
             }
         }
+        private void ExecutaComandoProdutoPostgreSQL(List<ProdutoImperium> lstProduto)
+        {
+            try
+            {
+                ExecutaAumentoPacoteMySQL();
+                AbrirConexaoMysql();
+
+                #region TRUNCATE TABELAS PRODUTO
+
+                string comandoTruncar = "TRUNCATE produto; TRUNCATE produto_preco; TRUNCATE produto_estoque; TRUNCATE produto_tributacao; TRUNCATE produto_ean;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
+                command.ExecuteNonQuery();
+
+                #endregion
+
+                #region COMANDOS
+
+                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia) 
+                  VALUES ";
+
+                string comandoPreco = @"INSERT INTO produto_preco(
+                                        IDPRODUTO, ID_LOJA, CUSTO, CUSTO_MEDIO, VENDA1, VENDA2, DTINICIOPROMO, DTFINALPROMO, MARGEM, IDFAMILIA, VENDA1_ANTERIOR
+                                        ) 
+                                        VALUES ";
+
+                string comandoEstoque = @"INSERT INTO produto_estoque(
+                                            idProduto, ID_LOJA, estoque_atual, estoque_minimo, coberturaEstoque
+                                            ) 
+                                            VALUES ";
+
+                string comandoTributacao = @"INSERT INTO produto_tributacao (idproduto, id_loja, origemprod, tipoprod, sittribcompra, icmscompra, redbase, tabicmsprodentrada, sittrib, icms, redbasevenda, tabicmsprod, codtrib, ipi, iva, tipopiscofins, cst_pis, cst_pis_saida, ccs_apurada, cargaTributariaFederal, cargaTributaria, chaveNCM, cst_ipi_saida, cst_ipi_entrada, tipoiva, calculaIvaAjustado, nat_receita, fecoep, pis, cofins, pisentrada, cofinsentrada) VALUES ";
+
+                string comandoProdutoEan = @"INSERT INTO produto_ean (idProduto, CodigoEan, qtde_emb, valor_venda) VALUES ";
+
+                #endregion
+
+                StringBuilder strBuilderProduto = new StringBuilder(comandoProduto);
+                StringBuilder strBuilderPreco = new StringBuilder(comandoPreco);
+                StringBuilder strBuilderEstoque = new StringBuilder(comandoEstoque);
+                StringBuilder strBuilderTributacao = new StringBuilder(comandoTributacao);
+                StringBuilder strBuilderProdutoEan = new StringBuilder(comandoProdutoEan);
+
+                int cont = 0;
+                int contSemDescricao = 0;
+
+                foreach (ProdutoImperium p in lstProduto)
+                {
+                    if (string.IsNullOrEmpty(p.Descricao))
+                    {
+                        contSemDescricao++;
+                        Logar($"Produto sem descrição - {p.Ean1}");
+                        p.Descricao = $"SEM DESCRICAO {contSemDescricao}";
+                        p.Descricao_Reduzida = $"SEM DESCRICAO {contSemDescricao}";
+                    }
+
+                    cont++;
+                    contadorImportacao.Cont_Produtos++;
+                    p.Id = contadorImportacao.Cont_Produtos;
+
+                    //if (CarregaProdutoEan(p) > 0)
+                    //{
+                    //    foreach (ProdutoEan pEan in p.Lst_Ean)
+                    //        strBuilderProdutoEan.Append(RetornaLinhaInserirProdutoEan(pEan));
+
+                    //    InsertBanco(strBuilderProdutoEan, command, 1, 1);
+
+                    //    strBuilderProdutoEan.Clear();
+                    //    strBuilderProdutoEan.Append(comandoProdutoEan);
+                    //}
+
+                    strBuilderProduto.AppendLine(RetornaLinhaInserirProduto(p));
+
+                    foreach (Loja loja in ImportacaoImperium.Lojas)
+                    {
+                        strBuilderPreco.AppendLine(RetornaLinhaInserirPreco(p, loja.Id));
+                        strBuilderEstoque.AppendLine(RetornaLinhaInserirEstoque(p, loja.Id));
+                        strBuilderTributacao.AppendLine(RetornaLinhaInserirTributacao(p, loja.Id));
+                    }
+
+                    if (cont == mConfig.Qtde_Importar)
+                    {
+                        try
+                        {
+                            InsertBanco(strBuilderProduto, command);
+                            InsertBanco(strBuilderPreco, command);
+                            InsertBanco(strBuilderEstoque, command);
+                            InsertBanco(strBuilderTributacao, command);
+
+                            strBuilderProduto.Clear();
+                            strBuilderPreco.Clear();
+                            strBuilderEstoque.Clear();
+                            strBuilderTributacao.Clear();
+
+                            strBuilderProduto.Append(comandoProduto);
+                            strBuilderPreco.Append(comandoPreco);
+                            strBuilderEstoque.Append(comandoEstoque);
+                            strBuilderTributacao.Append(comandoTributacao);
+
+                            cont = 0;
+                        }
+                        catch (Exception ex)
+                        {
+                            var _ = ex.Message;
+                            var __ = strBuilderProduto.ToString();
+                        }
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(strBuilderProduto, command);
+                    InsertBanco(strBuilderPreco, command);
+                    InsertBanco(strBuilderEstoque, command);
+                    InsertBanco(strBuilderTributacao, command);
+
+                    cont = 0;
+                }
+
+                CorrigirProdutoSemArvoreMercadologica();
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao montar comando de inserção produto");
+                Logar(ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    RemoveColunaAuxiliarTributacao();
+                }
+                catch { }
+
+                FecharConexaoMysql();
+            }
+        }
         private ProdutoImperium RetornaProdutoImperiumPorDataRow(DataRow r)
         {
             int loja = ConverterInt32(r["fkCliente"].ToString());
@@ -1523,6 +1670,102 @@ namespace ImportadorFopImperium
             produto.Tributacao.Origem = "0 - NACIONAL";
             produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
             AjustaTributacaoProduto(produto);
+
+            return produto;
+        }
+        private ProdutoImperium RetornaProdutoImperiumPorDataRowPostgreSQL(DataRow r)
+        {
+            int loja = 1;
+            string descricaoReduzida = r["DescricaoReduzida"].ToString().Length > 24 ? r["DescricaoReduzida"].ToString().Substring(0, 24) : r["DescricaoReduzida"].ToString();
+            string cest = r["cest"].ToString().Length > 7 ? r["Cest"].ToString().Substring(0, 7) : r["Cest"].ToString();
+
+            ProdutoImperium produto = new ProdutoImperium();
+            produto.Id = ConverterInt64(r["id"].ToString());
+            produto.Descricao = r["Descricao"].ToString().Trim();
+            produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao : descricaoReduzida;
+            produto.Descricao_Reduzida = produto.Descricao_Reduzida.Trim();
+            produto.Unidade_Entrada = r["Unidade"].ToString();
+            produto.Unidade_Saida = r["Unidade"].ToString();
+            produto.Embalagem_Entrada = ConverterDecimal(r["TamCaixa"].ToString());
+            produto.Embalagem_Saida = ConverterDecimal(r["TamCaixa"].ToString());
+            produto.Obs = "IMPORTADO";
+            produto.Validade = ConverterInt32(r["BalancaValidade"].ToString());
+            produto.Id_Grupo = ConverterInt32(r["FkDepartamento"].ToString());
+            produto.Id_SubGrupo = ConverterInt32(r["FkSecao"].ToString());
+            produto.Id_SubGrupo1 = ConverterInt32(r["FkCategoria"].ToString());
+            produto.Id_Situacao = Convert.ToBoolean(r["Ativo"]) ? 1 : 2;
+            produto.Peso_Variavel = Convert.ToBoolean(r["DeBalanca"]) ? 1 : 0;
+
+            if (produto.Peso_Variavel == 1)
+                produto.Tipo = Convert.ToBoolean(r["Unitario"]) ? "U" : "P";
+            else
+                produto.Tipo = "U";
+
+
+            produto.Etiqueta = 1;
+            produto.Ean = ConverterInt64(r["EAN"].ToString()).ToString();
+
+            if (Convert.ToInt64(produto.Ean) > 200000)
+            {
+                if (produto.Ean.Substring(0, 1) == "2")
+                    produto.Ean = produto.Ean.Substring(1, 5);
+            }
+
+            produto.Ean1 = r["Id"].ToString();
+            produto.ClassFiscal = r["NCM"].ToString();
+            produto.Cest = cest;
+            produto.Vasilhame = 0;
+            produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
+            produto.Id_Familia = 0;
+
+            produto.Preco = new ProdutoPreco();
+            DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]);
+            DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]);
+            produto.Preco.LOJA = loja;
+            produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["CustoFinal"].ToString()));
+            produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());
+            produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["VlVenda"].ToString()), 3);
+            produto.Preco.VENDA2 = 0;
+            produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
+            produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
+            produto.Preco.MARGEM = ConverterDecimal(r["MargemCadastrada"].ToString());
+            produto.Preco.VENDA1_ANTERIOR = Math.Round(ConverterDecimal(r["VlVendaAnterior"].ToString()), 3);
+            produto.Preco.IDFAMILIA = ConverterInt32(r["FkFamilia"].ToString());
+
+            produto.Estoque = new ProdutoEstoque();
+            produto.Estoque.Loja = loja;
+            produto.Estoque.Estoque_Atual = ConverterDecimal(r["EstoqueAtual"].ToString());
+            produto.Estoque.Estoque_Minimo = ConverterDecimal(r["EstoqueMinimo"].ToString());
+            produto.Estoque.Cobertura_Estoque = 0;
+
+            produto.Tributacao = new ProdutoTributacao();
+            produto.Tributacao.Loja = loja;
+            produto.Tributacao.Origem = "0 - NACIONAL";
+            produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
+            decimal aliq = ConverterDecimal(r["AliqICMS"].ToString());
+            string cst = r["TribICMS"].ToString();
+            produto.Tributacao.Sit_Trib_Entrada = produto.Tributacao.Sit_Trib_Saida = string.IsNullOrEmpty(cst) ? 0 : ImportacaoImperium.Lista_Tributacoes.FirstOrDefault(t => t.Aliquota_ICMS == aliq && t.CST == cst).Id_Imperium;
+            produto.Tributacao.ICMS_Entrada = aliq;
+            produto.Tributacao.Reducao_Base = 0;
+            produto.Tributacao.Tab_ICMS_Entrada = produto.Tributacao.Tab_ICMS_Saida = RetornaTabICMSPostgreSQL(cst);
+            produto.Tributacao.Cod_Trib = "99";
+            produto.Tributacao.IPI = 0;
+            produto.Tributacao.IVA = 0;
+            produto.Tributacao.Tipo_PIS_Cofins = RetornaTipoPisCofinsPostgreSQL(r["TribPIS"].ToString());
+            produto.Tributacao.CST_PIS = RetornaCstPisEntradaPostgreSQL(r["TribPIS"].ToString());
+            produto.Tributacao.CST_PIS_Saida = RetornaCstPisSaidaPostgreSQL(r["TribPIS"].ToString());
+            produto.Tributacao.CSS_Apurada = "02 - Contribuição não-cumulativa apurada a alíquotas diferenciadas";
+            produto.Tributacao.Carga_Tributaria_Federal = 0;
+            produto.Tributacao.Carga_Tributaria = 0;
+            produto.Tributacao.Chave_NCM = "M2L5P8";
+            produto.Tributacao.CST_IPI_Saida = produto.Tributacao.CST_IPI_Entrada = "";
+            produto.Tributacao.Tipo_IVA = "P";
+            produto.Tributacao.Calcula_IVA_Ajustado = "N";
+
+            produto.Tributacao.Natureza_Receita = "";
+            produto.Tributacao.FECOEP = 0;
+            produto.Tributacao.PIS_Entrada = produto.Tributacao.PIS_Saida = RetornaAliquotaPisPostgreSQL(produto.Ean1);
+            produto.Tributacao.Cofins_Entrada = produto.Tributacao.Cofins_Saida = RetornaAliquotaCofinsPostgreSQL(produto.Ean1);
 
             return produto;
         }
@@ -1744,6 +1987,31 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
+        private string RetornaTabICMSPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
+                {
+                    case "00":
+                        return "00 - TRIBUTADA INTEGRALMENTE";
+                    case "20":
+                        return "20 - COM REDUÇÃO DE BASE DE CALCULO";
+                    case "60":
+                        return "60 - ICMS COBRADO ANT. POR SUBST. TRIB.";
+                    case "90":
+                        return "90 - OUTRAS";
+                    case "40":
+                    default:
+                        return "40 - ISENTA";
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         private string RetornaCodTrib(string idFOP)
         {
             try
@@ -1768,6 +2036,36 @@ namespace ImportadorFopImperium
                 string valor = RetornaValorCampoDtProduto(idFOP, "tribPIS");
 
                 switch (valor)
+                {
+                    case "01":
+                    case "02":
+                        return "T";
+                    case "03":
+                    case "04":
+                        return "S";
+                    case "07":
+                    case "08":
+                        return "I";
+                    case "09":
+                    case "10":
+                        return "M";
+                    case "05":
+                    case "06":
+                    default:
+                        return "I";
+                }
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return "I";
+            }
+        }
+        private string RetornaTipoPisCofinsPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
                 {
                     case "01":
                     case "02":
@@ -1825,6 +2123,36 @@ namespace ImportadorFopImperium
                 return "I";
             }
         }
+        private string RetornaCstPisEntradaPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
+                {
+                    case "01":
+                    case "02":
+                        return "50 - Operação com Direito a Crédito - Vinculada Exclusivamente a Receita Tributada no Mercado Interno ";
+                    case "03":
+                    case "04":
+                        return "75 - Operação de Aquisição por Substituição Tributária";
+                    case "07":
+                    case "08":
+                        return "74 - Operação de Aquisição sem Incidência da Contribuição";
+                    case "09":
+                    case "10":
+                        return "70 - Operação de Aquisição sem Direito a Crédito";
+                    case "05":
+                    case "06":
+                    default:
+                        return "73 - Operação de Aquisição a Alíquota Zero";
+                }
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return "I";
+            }
+        }
         private string RetornaCstPisSaida(string idFOP)
         {
             try
@@ -1832,6 +2160,36 @@ namespace ImportadorFopImperium
                 string valor = RetornaValorCampoDtProduto(idFOP, "tribPIS");
 
                 switch (valor)
+                {
+                    case "01":
+                    case "02":
+                        return "01 - Operação Tributável com Alíquota Básica";
+                    case "03":
+                    case "04":
+                        return "05 - Operação Tributável por Substituição Tributária";
+                    case "07":
+                    case "08":
+                        return "08 - Operação sem Incidência da Contribuição";
+                    case "09":
+                    case "10":
+                        return "04 - Operação Tributável Monofásica - Revenda a Alíquota Zero";
+                    case "05":
+                    case "06":
+                    default:
+                        return "06 - Operação Tributável a Alíquota Zero";
+                }
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return "06 - Operação Tributável a Alíquota Zero";
+            }
+        }
+        private string RetornaCstPisSaidaPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
                 {
                     case "01":
                     case "02":
@@ -1878,6 +2236,25 @@ namespace ImportadorFopImperium
                 return 0M;
             }
         }
+        private decimal RetornaAliquotaPisPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
+                {
+                    case "01":
+                    case "02":
+                        return 1.65M;
+                    default:
+                        return 0M;
+                }
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return 0M;
+            }
+        }
         private decimal RetornaAliquotaCofins(string idFOP)
         {
             try
@@ -1885,6 +2262,25 @@ namespace ImportadorFopImperium
                 string valor = RetornaValorCampoDtProduto(idFOP, "tribPIS");
 
                 switch (valor)
+                {
+                    case "01":
+                    case "02":
+                        return 7.60M;
+                    default:
+                        return 0M;
+                }
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return 0M;
+            }
+        }
+        private decimal RetornaAliquotaCofinsPostgreSQL(string cst)
+        {
+            try
+            {
+                switch (cst)
                 {
                     case "01":
                     case "02":

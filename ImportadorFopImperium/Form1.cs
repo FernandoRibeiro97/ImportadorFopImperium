@@ -1247,13 +1247,13 @@ namespace ImportadorFopImperium
         }
         private string RetornaCodPDVPorDescritivo(string descritivo)
         {
-            if (descritivo.Contains("ISENTO"))
+            if (descritivo.Contains("ISENTO") || descritivo.Contains("ISENTA"))
                 return "05";
-            else if (descritivo.Contains("SUBSTITUICAO"))
+            else if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
                 return "04";
-            else if (descritivo.Contains("NAO TRIBUTADO"))
+            else if (descritivo.Contains("NAO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADA"))
                 return "05";
-            else if (descritivo.Contains("SERVICO"))
+            else if (descritivo.Contains("SERVICO") || descritivo.Contains("SERVIÇO"))
                 return "20";
             else
                 return "";

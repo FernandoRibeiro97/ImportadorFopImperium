@@ -389,7 +389,7 @@ namespace ImportadorFopImperium
             try
             {
                 string comandoSQLServer = @"SELECT * FROM CadProduto.Familia;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Familia""";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -420,7 +420,7 @@ namespace ImportadorFopImperium
         private DataTable CarregarGrupo()
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.SuperDepto;";
-            string comandoPostgreSQL = "";
+            string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Departamento"";";
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -432,7 +432,7 @@ namespace ImportadorFopImperium
         private DataTable CarregarSubGrupo()
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.Categoria;";
-            string comandoPostgreSQL = "";
+            string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Secao"";";
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -444,7 +444,7 @@ namespace ImportadorFopImperium
         private DataTable CarregarSubGrupo1()
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.SubCategoria;";
-            string comandoPostgreSQL = "";
+            string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Categoria"";";
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -870,7 +870,12 @@ namespace ImportadorFopImperium
             try
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_Familia.Rows)
-                    familias.Add(ConverterInt64(r["id"].ToString()), r["nomeFamilia"].ToString());
+                {
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                        familias.Add(ConverterInt64(r["id"].ToString()), r["nomeFamilia"].ToString());
+                    else
+                        familias.Add(ConverterInt64(r["Id"].ToString()), r["Descricao"].ToString());
+                }
 
                 if (familias.Count > 0)
                 {
@@ -919,11 +924,24 @@ namespace ImportadorFopImperium
             try
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_Grupo.Rows)
-                    grupos.Add(new Grupo()
+                {
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
-                        Id = ConverterInt64(r["id"].ToString()),
-                        Descricao = r["nomeDepto"].ToString()
-                    });
+                        grupos.Add(new Grupo()
+                        {
+                            Id = ConverterInt64(r["id"].ToString()),
+                            Descricao = r["nomeDepto"].ToString()
+                        });
+                    }
+                    else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        grupos.Add(new Grupo()
+                        {
+                            Id = ConverterInt64(r["Id"].ToString()),
+                            Descricao = r["Descricao"].ToString().Replace("'", "")
+                        });
+                    }
+                }
 
                 if (grupos.Count > 0)
                     ExecutaComandoGrupo(grupos);
@@ -941,12 +959,24 @@ namespace ImportadorFopImperium
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo.Rows)
                 {
-                    subgrupos.Add(new SubGrupo()
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
-                        Id = ConverterInt64(r["id"].ToString()),
-                        Id_Grupo = ConverterInt64(r["fkDepto"].ToString()),
-                        Descricao = r["nomeCategoria"].ToString()
-                    });
+                        subgrupos.Add(new SubGrupo()
+                        {
+                            Id = ConverterInt64(r["id"].ToString()),
+                            Id_Grupo = ConverterInt64(r["fkDepto"].ToString()),
+                            Descricao = r["nomeCategoria"].ToString()
+                        });
+                    }
+                    else if(mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        subgrupos.Add(new SubGrupo()
+                        {
+                            Id = ConverterInt64(r["Id"].ToString()),
+                            Id_Grupo = ConverterInt64(r["Departamento_Id"].ToString()),
+                            Descricao = r["Descricao"].ToString().Replace("'", "")
+                        });
+                    }
                 }
 
                 if (subgrupos.Count > 0)
@@ -965,18 +995,33 @@ namespace ImportadorFopImperium
             try
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo1.Rows)
-                    subgrupos1.Add(new SubGrupo1()
+                {
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
-                        Id = ConverterInt64(r["id"].ToString()),
-                        Id_Grupo = RetornaFkDeptoCategoria(ConverterInt64(r["fkCategoria"].ToString())),
-                        Id_SubGrupo = ConverterInt64(r["fkCategoria"].ToString()),
-                        Descricao = r["nomeCategoria"].ToString(),
+                        subgrupos1.Add(new SubGrupo1()
+                        {
+                            Id = ConverterInt64(r["id"].ToString()),
+                            Id_Grupo = RetornaFkDeptoCategoria(ConverterInt64(r["fkCategoria"].ToString())),
+                            Id_SubGrupo = ConverterInt64(r["fkCategoria"].ToString()),
+                            Descricao = r["nomeCategoria"].ToString(),
 
-                    });
+                        });
+                    }
+                    else if(mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        subgrupos1.Add(new SubGrupo1()
+                        {
+                            Id = ConverterInt64(r["Id"].ToString()),
+                            Id_Grupo = RetornaFkDeptoCategoriaPostgreSQL(ConverterInt64(r["Secao_Id"].ToString())),
+                            Id_SubGrupo = ConverterInt64(r["Secao_Id"].ToString()),
+                            Descricao = r["Descricao"].ToString().Replace("'", "")
+
+                        });
+                    }
+                }
 
                 if (subgrupos1.Count > 0)
                     ExecutaComandoSubGrupo1(subgrupos1);
-
             }
             catch (Exception)
             {
@@ -3899,6 +3944,16 @@ namespace ImportadorFopImperium
 
             return 0;
         }
+        private long RetornaFkDeptoCategoriaPostgreSQL(long idCategoria)
+        {
+            if (ImportacaoImperium.Dt_SubGrupo.Rows.Count > 0)
+            {
+                foreach (DataRow r in ImportacaoImperium.Dt_SubGrupo.Select($"id = {idCategoria}"))
+                    return ConverterInt64(r["Departamento_Id"].ToString());
+            }
+
+            return 0;
+        }
         private void HabilitaCheckBox()
         {
             if (ImportacaoImperium != null)
@@ -4175,63 +4230,6 @@ namespace ImportadorFopImperium
                 return "";
             }
         }
-        #endregion
-
-        #region MÉTODOS DE TRATAMENTO/CONVERSÃO DE DADOS
-
-        private int ConverterInt32(string valor)
-        {
-            try
-            {
-                int.TryParse(valor, out int result);
-                return result;
-            }
-            catch { return 0; }
-        }
-        private long ConverterInt64(string valor)
-        {
-            try
-            {
-                Int64.TryParse(valor, out long result);
-                return result;
-            }
-            catch { return 0; }
-        }
-        private decimal ConverterDecimal(string valor, bool trocarPontoPorVirgula = true)
-        {
-            try
-            {
-                valor = trocarPontoPorVirgula ? valor.Replace(".", ",") : valor;
-                decimal.TryParse(valor, out decimal result);
-                return result;
-            }
-            catch { return 0M; }
-        }
-        private DateTime ConverterDateTime(string valor)
-        {
-            try
-            {
-                DateTime.TryParse(valor, out DateTime result);
-                return result;
-            }
-            catch { return DateTime.MinValue; }
-        }
-        private string TiraAspasSimplesString(string valor, string caracterReplace = "", bool trim = true)
-        {
-            var retorno = valor.Replace("'", caracterReplace);
-            return trim ? retorno.Trim() : retorno;
-        }
-        private string LimpaStringDocumento(string valor, bool trim = true)
-        {
-            var retorno = valor.Replace("/", "").Replace(".", "").Replace("-", "");
-            return trim ? retorno.Trim() : retorno;
-        }
-        private string AjustaStringDecimal(string valor)
-        {
-            return valor.Replace(",", ".");
-        }
-
-        #endregion
         private TipoConexaoEnum RecuperaConexaoSelecionada(Config config)
         {
             if (!string.IsNullOrEmpty(config.Tipo_Conexao) && !string.IsNullOrEmpty(config.Servidor_SQLServer) && !string.IsNullOrEmpty(config.Banco_SQLServer))
@@ -4250,7 +4248,6 @@ namespace ImportadorFopImperium
 
             return TipoConexaoEnum.Nenhuma;
         }
-
         private void AbreArquivoConfigIni()
         {
             string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
@@ -4334,5 +4331,62 @@ namespace ImportadorFopImperium
                 return null;
             }
         }
+        #endregion
+
+        #region MÉTODOS DE TRATAMENTO/CONVERSÃO DE DADOS
+
+        private int ConverterInt32(string valor)
+        {
+            try
+            {
+                int.TryParse(valor, out int result);
+                return result;
+            }
+            catch { return 0; }
+        }
+        private long ConverterInt64(string valor)
+        {
+            try
+            {
+                Int64.TryParse(valor, out long result);
+                return result;
+            }
+            catch { return 0; }
+        }
+        private decimal ConverterDecimal(string valor, bool trocarPontoPorVirgula = true)
+        {
+            try
+            {
+                valor = trocarPontoPorVirgula ? valor.Replace(".", ",") : valor;
+                decimal.TryParse(valor, out decimal result);
+                return result;
+            }
+            catch { return 0M; }
+        }
+        private DateTime ConverterDateTime(string valor)
+        {
+            try
+            {
+                DateTime.TryParse(valor, out DateTime result);
+                return result;
+            }
+            catch { return DateTime.MinValue; }
+        }
+        private string TiraAspasSimplesString(string valor, string caracterReplace = "", bool trim = true)
+        {
+            var retorno = valor.Replace("'", caracterReplace);
+            return trim ? retorno.Trim() : retorno;
+        }
+        private string LimpaStringDocumento(string valor, bool trim = true)
+        {
+            var retorno = valor.Replace("/", "").Replace(".", "").Replace("-", "");
+            return trim ? retorno.Trim() : retorno;
+        }
+        private string AjustaStringDecimal(string valor)
+        {
+            return valor.Replace(",", ".");
+        }
+
+        #endregion
     }
 }

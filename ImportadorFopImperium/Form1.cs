@@ -176,10 +176,10 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Cofins = CarregarCofins();
                 ImportacaoImperium.Dt_Produto = CarregarProdutos();
                 ImportacaoImperium.Dt_Entidades = CarregarEntidades();
-                ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
-                ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
                 ImportacaoImperium.Dt_Fone_Entidade = CarregarFoneEntidade();
                 ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
+                ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
+                ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
                 ImportacaoImperium.Dt_Familia = CarregarFamilia();
                 ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
                 ImportacaoImperium.Dt_Grupo = CarregarGrupo();
@@ -326,7 +326,16 @@ namespace ImportadorFopImperium
                     LEFT JOIN Cadastro.UF uf ON mun.fkUF = uf.cdUF
                     LEFT JOIN CRM.Cadastro cc ON cc.fkEntidade = e.id
                     ORDER BY e.id;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT e.""Id"", e.""RazaoSocial"", e.""NomeFantasia"", ce.""Logradouro"" AS endereco, ce.""Numero"", ce.""Bairro"",
+                                ce.""Municipio"" AS cidade, ce.""MunicipioCodigo"" AS cdMunicipio, ce.""UF"" AS uf, ce.""Cep"" AS cep,
+                                e.""Cnpj"" AS cnpj, e.""IE"" AS inscricaoEstadual, cc.""UtilizadoRotativo"" AS usado, cc.""LimiteRotativo"" AS limite,  
+                                e.""DtNascimento"" AS dt_nasc, 'IMPORTADO' AS obs, 1 AS empresa_convenio, 'TT' AS tipo, 1 AS tipofidelidade,
+                                2 AS CondicaoPagamento, '' AS fone, '' AS email, e.""PJ"" AS pessoaJuridica, e.""Ativo"" AS bloqueado,
+                                '' AS isFuncionario, '' AS isContador, '' AS isMotorista, '' AS isCliente, '' AS isFornecedor,
+                                '' AS isTransportadora, '00' AS credito
+                                FROM {mConfig.Schema_PostgreSQL}.""Entidade"" e
+                                LEFT JOIN {mConfig.Schema_PostgreSQL}.""Endereco"" ce ON e.""Id"" = ce.""Entidade_Id""
+                                LEFT JOIN {mConfig.Schema_PostgreSQL}.""Cadastro"" cc ON e.""Id"" = cc.""FkEntidade"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -348,7 +357,7 @@ namespace ImportadorFopImperium
             try
             {
                 string comandoSQLServer = @"SELECT * FROM Cadastro.Fone;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Fone""";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -369,7 +378,7 @@ namespace ImportadorFopImperium
             try
             {
                 string comandoSQLServer = @"SELECT * FROM Cadastro.Email;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Email"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -621,10 +630,21 @@ namespace ImportadorFopImperium
 
             try
             {
-                if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 {
-                    foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"isCliente = 1"))
-                        lstCliente.Add(RetornaClienteImperiumPorDataRow(r));
+                    if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
+                    {
+                        foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"isCliente = 1"))
+                            lstCliente.Add(RetornaClienteImperiumPorDataRow(r));
+                    }
+                }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                {
+                    if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
+                    {
+                        foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"pessoaJuridica = false"))
+                            lstCliente.Add(RetornaClienteImperiumPorDataRow(r));
+                    }
                 }
 
                 return lstCliente;
@@ -644,8 +664,19 @@ namespace ImportadorFopImperium
             {
                 if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
                 {
-                    foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select("isFornecedor = 1"))
-                        lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    {
+                        foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select("isFornecedor = 1"))
+                            lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                    }
+                    else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
+                        {
+                            foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"pessoaJuridica = true"))
+                                lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                        }
+                    }
                 }
 
                 return lstFornecedores;
@@ -3002,10 +3033,10 @@ namespace ImportadorFopImperium
             cliente.Id = ConverterInt32(r["id"].ToString());
             cliente.Nome = TiraAspasSimplesString(r["razaoSocial"].ToString());
             cliente.Fantasia = TiraAspasSimplesString(r["nomeFantasia"].ToString());
-            cliente.Endereco = TiraAspasSimplesString(r["endereco"].ToString());
-            cliente.Numero = TiraAspasSimplesString(r["numero"].ToString());
-            cliente.Bairro = TiraAspasSimplesString(r["bairro"].ToString());
-            cliente.Cidade = TiraAspasSimplesString(r["cidade"].ToString());
+            cliente.Endereco = string.IsNullOrEmpty(r["endereco"].ToString()) ? "SEM ENDERECO CADASTRADO" : TiraAspasSimplesString(r["endereco"].ToString());
+            cliente.Numero = string.IsNullOrEmpty(r["numero"].ToString()) ? "S/N" : TiraAspasSimplesString(r["numero"].ToString());
+            cliente.Bairro = string.IsNullOrEmpty(r["bairro"].ToString()) ? "SEM BAIRRO CADASTRADO" : TiraAspasSimplesString(r["bairro"].ToString());
+            cliente.Cidade = string.IsNullOrEmpty(r["cidade"].ToString()) ? "SEM CIDADE CADASTRADA" : TiraAspasSimplesString(r["cidade"].ToString());
             cliente.Codigo_Municipio = ConverterInt64(r["cdMunicipio"].ToString());
             cliente.UF = r["uf"].ToString();
             cliente.CEP = r["cep"].ToString().Replace("-", "");
@@ -3013,7 +3044,7 @@ namespace ImportadorFopImperium
             cliente.RG = r["inscricaoEstadual"].ToString();
             cliente.Credito = r["credito"].ToString();
             cliente.Limite = ConverterDecimal(r["limite"].ToString());
-            cliente.Data_Nascimento = ConverterDateTime(r["dt_nasc"].ToString()).ToString("yyyy-MM-dd");
+            cliente.Data_Nascimento = ConverterDateTime(r["dt_nasc"].ToString()) < new DateTime(1925, 1, 1) ? "2000-01-01" : ConverterDateTime(r["dt_nasc"].ToString()).ToString("yyyy-MM-dd");
             cliente.Usado = ConverterDecimal(r["usado"].ToString());
             cliente.Obs = r["obs"].ToString();
             cliente.Empresa_Convenio = ConverterInt32(r["empresa_convenio"].ToString());
@@ -3021,8 +3052,16 @@ namespace ImportadorFopImperium
             cliente.Tipo_Fidelidade = ConverterInt32(r["tipofidelidade"].ToString());
             cliente.Condicao_Pagamento = ConverterInt32(r["condicaoPagamento"].ToString());
 
-            AdicionarFoneCliente(cliente);
-            AdicionarEmailCliente(cliente);
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            {
+                AdicionarFoneCliente(cliente);
+                AdicionarEmailCliente(cliente);
+            }
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            {
+                AdicionarFoneClientePostgreSQL(cliente);
+                AdicionarEmailClientePostgreSQL(cliente);
+            }
 
             return cliente;
         }
@@ -3046,6 +3085,31 @@ namespace ImportadorFopImperium
                                 cliente.Celular = valor;
                             else
                                 cliente.Fone2 = string.IsNullOrEmpty(cliente.Fone2) ? valor : (cliente.Fone2 += $";{valor}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao vincular telefone ao cliente");
+                Logar(ex.Message);
+            }
+        }
+        private void AdicionarFoneClientePostgreSQL(ClienteImperium cliente)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Fone_Entidade != null)
+                {
+                    var fones = RetornaFoneEntidadePostgreSQL(cliente.Id);
+
+                    if (fones.Count > 0 || fones != null)
+                    {
+                        foreach (string tipo in fones.Keys)
+                        {
+                            fones.TryGetValue(tipo, out string valor);
+
+                            cliente.Fone = valor;
                         }
                     }
                 }
@@ -3084,6 +3148,31 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
             }
         }
+        private void AdicionarEmailClientePostgreSQL(ClienteImperium cliente)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Email_Entidade != null)
+                {
+                    var emails = RetornaEmailEntidadePostgreSQL(cliente.Id);
+
+                    if (emails.Count > 0 || emails != null)
+                    {
+                        foreach (string tipo in emails.Keys)
+                        {
+                            emails.TryGetValue(tipo, out string valor);
+
+                            cliente.Email = string.IsNullOrEmpty(valor) ? "SEM EMAIL CADASTRADO" : valor;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao adicionar email ao cliente");
+                Logar(ex.Message);
+            }
+        }
 
 
         #endregion
@@ -3105,8 +3194,17 @@ namespace ImportadorFopImperium
             fornecedor.Codigo_Municipio = ConverterInt64(r["cdMunicipio"].ToString());
             fornecedor.UF = r["uf"].ToString();
             fornecedor.CEP = r["cep"].ToString().Replace("-", "");
-            AdicionarFoneFornecedor(fornecedor);
-            AdicionarEmailFornecedor(fornecedor);
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            {
+                AdicionarFoneFornecedor(fornecedor);
+                AdicionarEmailFornecedor(fornecedor);
+            }
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            {
+                AdicionarFoneFornecedorPostgreSQL(fornecedor);
+                AdicionarEmailFornecedorPostgreSQL(fornecedor);
+            }
 
             return fornecedor;
         }
@@ -3217,6 +3315,28 @@ namespace ImportadorFopImperium
                 throw;
             }
         }
+        private void AdicionarFoneFornecedorPostgreSQL(FornecedorImperium fornecedor)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Fone_Entidade != null)
+                {
+                    var fones = RetornaFoneEntidadePostgreSQL(fornecedor.Id);
+
+                    foreach (string tipo in fones.Keys)
+                    {
+                        fones.TryGetValue(tipo, out string valor);
+
+                        fornecedor.Telefone = valor;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         private void AdicionarEmailFornecedor(FornecedorImperium fornecedor)
         {
             try
@@ -3235,6 +3355,28 @@ namespace ImportadorFopImperium
                             fornecedor.Email_Pedido = valor;
                         else
                             fornecedor.Obs = string.IsNullOrEmpty(fornecedor.Obs) ? valor : fornecedor.Obs += $";{valor}";
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        private void AdicionarEmailFornecedorPostgreSQL(FornecedorImperium fornecedor)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Email_Entidade != null)
+                {
+                    var emails = RetornaEmailEntidadePostgreSQL(fornecedor.Id);
+
+                    foreach (string tipo in emails.Keys)
+                    {
+                        emails.TryGetValue(tipo, out string valor);
+
+                        fornecedor.Email = valor;
                     }
                 }
             }
@@ -3950,6 +4092,32 @@ namespace ImportadorFopImperium
                 return new Dictionary<string, string>();
             }
         }
+        private Dictionary<string, string> RetornaFoneEntidadePostgreSQL(long idEntidade)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Fone_Entidade.Rows.Count > 0)
+                {
+                    var dicionarioFones = new Dictionary<string, string>();
+
+                    if (dicionarioFones.Count > 0 || dicionarioFones != null)
+                    {
+                        foreach (DataRow r in ImportacaoImperium.Dt_Fone_Entidade.Select($"Entidade_Id = {idEntidade}"))
+                            dicionarioFones.Add(r["TipoFone"].ToString(), r["Numero"].ToString());
+                    }
+
+                    return dicionarioFones;
+                }
+
+                return new Dictionary<string, string>();
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao retornar fone da entidade");
+                Logar(ex.Message);
+                return new Dictionary<string, string>();
+            }
+        }
         private Dictionary<string, string> RetornaEmailEntidade(long idEntidade)
         {
             try
@@ -3960,6 +4128,27 @@ namespace ImportadorFopImperium
 
                     foreach (DataRow r in ImportacaoImperium.Dt_Email_Entidade.Select($"fkEntidade = {idEntidade}"))
                         dicionarioEmails.Add(r["tipo"].ToString(), r["numero"].ToString());
+                }
+
+                return new Dictionary<string, string>();
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao retornar email da entidade");
+                Logar(ex.Message);
+                return new Dictionary<string, string>(); ;
+            }
+        }
+        private Dictionary<string, string> RetornaEmailEntidadePostgreSQL(long idEntidade)
+        {
+            try
+            {
+                if (ImportacaoImperium.Dt_Email_Entidade.Rows.Count > 0)
+                {
+                    var dicionarioEmails = new Dictionary<string, string>();
+
+                    foreach (DataRow r in ImportacaoImperium.Dt_Email_Entidade.Select($"Entidade_Id = {idEntidade}"))
+                        dicionarioEmails.Add(r["TipoEmail"].ToString(), r["Endereco"].ToString());
                 }
 
                 return new Dictionary<string, string>();

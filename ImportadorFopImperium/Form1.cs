@@ -233,7 +233,8 @@ namespace ImportadorFopImperium
                 string comandoPostgreSQL = $@"SELECT p.""AliqICMS"", t.""Descricao"", t.""CST""
                                                 FROM {mConfig.Schema_PostgreSQL}.""Produto"" p 
                                                 JOIN {mConfig.Schema_PostgreSQL}.""ICMS"" t ON p.""TribICMS"" = t.""CST""
-                                                GROUP BY ""TribICMS"", ""AliqICMS"", t.""Descricao"", t.""CST"" ORDER BY ""TribICMS"";";
+                                                WHERE t.""SimplesNacional"" = false
+                                                GROUP BY ""TribICMS"", ""AliqICMS"", t.""Descricao"", t.""CST"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -780,6 +781,8 @@ namespace ImportadorFopImperium
         {
             ImportacaoImperium.Lista_Tributacoes = new List<Tributacao>();
 
+            int contSitTrib = 1;
+
             foreach (DataRow t in ImportacaoImperium.Dt_Tributacao.Rows)
             {
                 Tributacao tributacao = new Tributacao();
@@ -805,9 +808,10 @@ namespace ImportadorFopImperium
                 }
                 else
                 {
-                    tributacao.Sit_Trib = RetornaSitTribPorAliquota(tributacao.Aliquota_ICMS);
+                    tributacao.Sit_Trib = contSitTrib.ToString().PadLeft(2, '0'); //RetornaSitTribPorAliquota(tributacao.Aliquota_ICMS);
                     tributacao.Valor = RetornaCampoValorTabelaTributacao(tributacao.Aliquota_ICMS);
                     tributacao.CodPDV = "99"; //RetornaCodPDVPorAliquota(tributacao.Aliquota_ICMS); //TODO: FAZER PARÂMETRO
+                    contSitTrib++;
                 }
 
                 ImportacaoImperium.Lista_Tributacoes.Add(tributacao);
@@ -1232,10 +1236,20 @@ namespace ImportadorFopImperium
 
                 foreach (Tributacao t in ImportacaoImperium.Lista_Tributacoes)
                 {
-                    stringBuilder.Append($"('{t.Descricao}', '{t.Sit_Trib}', '{t.Valor}', '{t.CodPDV}', {AjustaStringDecimal(t.Aliquota_ICMS.ToString())}, {AjustaStringDecimal(t.Reducao.ToString())}, {t.Id_FOP});");
+                    t.Valor = t.Valor.Length > 4 ? t.Valor.Substring(0, 4) : t.Valor;
+
+                    stringBuilder.Append($"('{t.Descricao}', '{t.Sit_Trib}', '{t.Valor}', '{t.CodPDV}', {AjustaStringDecimal(t.Aliquota_ICMS.ToString("N2"))}, {AjustaStringDecimal(t.Reducao.ToString("N2"))}, {t.Id_FOP});");
+
+                    Logar("Comando a inserir ...");
+                    Logar(stringBuilder.ToString());
 
                     command = new MySqlCommand(stringBuilder.ToString(), connecctionDestinoMysql);
-                    command.ExecuteNonQuery();
+
+                    if (command.ExecuteNonQuery() > 0)
+                        Logar("Tributação inserida com sucesso");
+                    else
+                        Logar("Tributação não inserida");
+
                     t.Id_Imperium = command.LastInsertedId;
 
                     stringBuilder.Clear();
@@ -1244,7 +1258,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                var xx = ex.Message;
+                Logar("Erro ao inserir tributação");
+                Logar(ex.Message);
             }
             finally { FecharConexaoMysql(); }
 
@@ -1303,16 +1318,14 @@ namespace ImportadorFopImperium
         }
         private string RetornaCodPDVPorDescritivo(string descritivo)
         {
-            if (descritivo.Contains("ISENTO") || descritivo.Contains("ISENTA"))
-                return "05";
-            else if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
+            if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
                 return "04";
             else if (descritivo.Contains("NAO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADA"))
                 return "05";
             else if (descritivo.Contains("SERVICO") || descritivo.Contains("SERVIÇO"))
                 return "20";
             else
-                return "";
+                return "05";
         }
         private string RetornaCampoValorTabelaTributacao(decimal aliquota)
         {
@@ -1325,16 +1338,14 @@ namespace ImportadorFopImperium
         }
         private string RetornaCampoValorTabelaTributacao(string descritivo)
         {
-            if (descritivo.Contains("ISENTO") || descritivo.Contains("ISENTA"))
-                return "II";
-            else if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
+            if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
                 return "FF";
             else if (descritivo.Contains("NAO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADA"))
                 return "N1";
             else if (descritivo.Contains("SERVICO") || descritivo.Contains("SERVIÇO"))
                 return "IS";
             else
-                return "";
+                return "II";
         }
         private string RetornaSitTribPorAliquota(decimal aliquota)
         {
@@ -1354,16 +1365,14 @@ namespace ImportadorFopImperium
         }
         private string RetornaSitTribPorDescritivo(string descritivo)
         {
-            if (descritivo.Contains("ISENTO") || descritivo.Contains("ISENTA"))
-                return "II";
-            else if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
+            if (descritivo.Contains("SUBSTITUICAO") || descritivo.Contains("SUBSTITUIÇÃO"))
                 return "FF";
             else if (descritivo.Contains("NAO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADO") || descritivo.Contains("NÃO TRIBUTADA"))
                 return "N1";
             else if (descritivo.Contains("SERVICO") || descritivo.Contains("SERVIÇO"))
                 return "IS";
             else
-                return "";
+                return "II";
         }
 
         #endregion
@@ -1607,18 +1616,28 @@ namespace ImportadorFopImperium
                         }
                         catch (Exception ex)
                         {
-                            var _ = ex.Message;
-                            var __ = strBuilderProduto.ToString();
+                            Logar("Erro ao inserir lote de produtos");
+                            Logar(ex.Message);
+                            //Logar(strBuilderProduto.ToString());
                         }
                     }
                 }
 
                 if (cont > 0)
                 {
-                    InsertBanco(strBuilderProduto, command);
-                    InsertBanco(strBuilderPreco, command);
-                    InsertBanco(strBuilderEstoque, command);
-                    InsertBanco(strBuilderTributacao, command);
+                    try
+                    {
+                        InsertBanco(strBuilderProduto, command);
+                        InsertBanco(strBuilderPreco, command);
+                        InsertBanco(strBuilderEstoque, command);
+                        InsertBanco(strBuilderTributacao, command);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logar("Erro ao inserir lote de produtos");
+                        Logar(ex.Message);
+                        //Logar(strBuilderProduto.ToString());
+                    }
 
                     cont = 0;
                 }
@@ -1748,7 +1767,8 @@ namespace ImportadorFopImperium
 
 
             produto.Etiqueta = 1;
-            produto.Ean = ConverterInt64(r["EAN"].ToString()).ToString();
+            long ean = ConverterInt64(r["EAN"].ToString());
+            produto.Ean = ean < 0 ? Math.Abs(ean).ToString() : ean.ToString();
 
             if (Convert.ToInt64(produto.Ean) > 200000)
             {
@@ -1819,8 +1839,10 @@ namespace ImportadorFopImperium
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append($"(");
 
+            string descricao = string.IsNullOrEmpty(produto.Descricao) ? "SEM DESCRICAO" : produto.Descricao.Length > 100 ? produto.Descricao.Substring(0, 100) : produto.Descricao;
+
             //stringBuilder.Append($"{produto.Id},");
-            stringBuilder.Append($"'{produto.Descricao.Replace("'", " ")}',");
+            stringBuilder.Append($"'{descricao.Replace("'", " ")}',");
             stringBuilder.Append($"'{produto.Descricao_Reduzida.Replace("'", " ")}',");
             stringBuilder.Append($"{produto.Embalagem_Entrada.ToString().Replace(",", ".")},");
             stringBuilder.Append($"{produto.Embalagem_Saida.ToString().Replace(",", ".")},");

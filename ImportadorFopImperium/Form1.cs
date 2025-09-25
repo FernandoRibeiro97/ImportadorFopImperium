@@ -179,9 +179,9 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Fone_Entidade = CarregarFoneEntidade();
                 ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
                 ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
+                ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
                 ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
                 ImportacaoImperium.Dt_Familia = CarregarFamilia();
-                ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
                 ImportacaoImperium.Dt_Grupo = CarregarGrupo();
                 ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
@@ -646,8 +646,14 @@ namespace ImportadorFopImperium
                 {
                     if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
                     {
-                        foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"pessoaJuridica = false"))
-                            lstCliente.Add(RetornaClienteImperiumPorDataRow(r));
+                        foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Rows)
+                        {
+                            if (lstCliente.Exists(c => c.Id == ConverterInt64(r["Id"].ToString())))
+                                continue;
+                            else
+                                lstCliente.Add(RetornaClienteImperiumPorDataRow(r));
+                        }
+                            
                     }
                 }
 
@@ -677,8 +683,24 @@ namespace ImportadorFopImperium
                     {
                         if (ImportacaoImperium.Dt_Entidades.Rows.Count > 0)
                         {
-                            foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select($"pessoaJuridica = true"))
-                                lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                            foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Rows)
+                            {
+                                if (ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0)
+                                {
+                                    foreach(DataRow ri in ImportacaoImperium.Dt_Itens_Fornecedor.Select($"FkEntidade = {r["Id"]}"))
+                                    {
+                                        if (lstFornecedores.Exists(f => f.Id == ConverterInt64(r["Id"].ToString())))
+                                            continue;
+                                        else
+                                        {
+                                            lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                                
                         }
                     }
                 }

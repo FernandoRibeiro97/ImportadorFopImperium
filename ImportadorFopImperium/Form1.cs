@@ -433,7 +433,7 @@ namespace ImportadorFopImperium
         private DataTable CarregarSubGrupo()
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.Categoria;";
-            string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Secao"";";
+            string comandoPostgreSQL = $@"SELECT ""Id"", ""Descricao"", ""Departamento_Id"" FROM {mConfig.Schema_PostgreSQL}.""Secao"";";
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -692,6 +692,9 @@ namespace ImportadorFopImperium
 
                 if (chkGrupo.Checked)
                 {
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                        AtualizaCampoIdGrupoNullSubGrupoPostgreSQL();
+
                     Logar("IMPORTANDO GRUPOS...");
                     ImportarGrupo();
 
@@ -2757,7 +2760,17 @@ namespace ImportadorFopImperium
             }
             finally { FecharConexaoMysql(); }
         }
-
+        private void AtualizaCampoIdGrupoNullSubGrupoPostgreSQL()
+        {
+            if (ImportacaoImperium.Dt_SubGrupo.Rows.Count > 0)
+            {
+                foreach (DataRow sb in ImportacaoImperium.Dt_SubGrupo.Rows)
+                {
+                    if (string.IsNullOrEmpty(sb["Departamento_Id"].ToString()))
+                        sb["Departamento_Id"] = "1";
+                }
+            }
+        }
         #endregion
 
         #region ITENS FORNECEDOR

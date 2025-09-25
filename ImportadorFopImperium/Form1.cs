@@ -1798,8 +1798,9 @@ namespace ImportadorFopImperium
             produto.Id_Familia = 0;
 
             produto.Preco = new ProdutoPreco();
-            DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]);
-            DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]);
+            DateTime dataMinima = new DateTime(2020, 1, 1);
+            DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoDe"]);
+            DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoAte"]);
             produto.Preco.LOJA = loja;
             produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["CustoFinal"].ToString()));
             produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());

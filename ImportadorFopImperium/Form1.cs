@@ -1762,8 +1762,8 @@ namespace ImportadorFopImperium
             produto.Descricao = r["Descricao"].ToString().Trim();
             produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao : descricaoReduzida;
             produto.Descricao_Reduzida = produto.Descricao_Reduzida.Trim();
-            produto.Unidade_Entrada = r["Unidade"].ToString();
-            produto.Unidade_Saida = r["Unidade"].ToString();
+            produto.Unidade_Entrada = r["Unidade"].ToString().ToUpper() == "KG" ? "KG" : "UN";
+            produto.Unidade_Saida = r["Unidade"].ToString().ToUpper() == "KG" ? "KG" : "UN";
             produto.Embalagem_Entrada = ConverterDecimal(r["TamCaixa"].ToString());
             produto.Embalagem_Saida = ConverterDecimal(r["TamCaixa"].ToString());
             produto.Obs = "IMPORTADO";

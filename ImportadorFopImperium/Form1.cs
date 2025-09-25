@@ -489,7 +489,11 @@ namespace ImportadorFopImperium
             try
             {
                 string comandoSQLServer = @"SELECT * FROM Comercial.VendaPrazo;";
-                string comandoPostgreSQL = "";
+                string comandoPostgreSQL = $@"SELECT d.""FkEntidade"" AS fkEntidade, d.""FkVenda"" AS fkVenda,
+                                                d.""VlVenda"" AS valorvenda, d.""VlPago"" AS valorpago, v.""DtInicio"" AS dtvenda,
+                                                d.""FkLoja"" AS fkLoja
+                                                FROM dbo.""VendaPrazo"" d
+                                                JOIN dbo.""Venda"" v ON d.""FkVenda"" = v.""IdVenda"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -3581,7 +3585,7 @@ namespace ImportadorFopImperium
             receber.Loja = ConverterInt32(r["fkLoja"].ToString());
             receber.ECF = 99;
             receber.Tipo_Cobranca = "BL";
-            receber.Obs = "IMPORTADO";
+            receber.Obs = $"IMPORTADO - {r["fkvenda"]}";
             receber.Id_Pc1 = 0;
             receber.Id_Pc2 = 0;
 
@@ -4124,7 +4128,10 @@ namespace ImportadorFopImperium
                     if (dicionarioFones.Count > 0 || dicionarioFones != null)
                     {
                         foreach (DataRow r in ImportacaoImperium.Dt_Fone_Entidade.Select($"Entidade_Id = {idEntidade}"))
+                        {
                             dicionarioFones.Add(r["TipoFone"].ToString(), r["Numero"].ToString());
+                            break;
+                        }
                     }
 
                     return dicionarioFones;
@@ -4134,7 +4141,7 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-                Logar("Erro ao retornar fone da entidade");
+                Logar($"Erro ao retornar fone da entidade - {idEntidade}");
                 Logar(ex.Message);
                 return new Dictionary<string, string>();
             }
@@ -4169,7 +4176,11 @@ namespace ImportadorFopImperium
                     var dicionarioEmails = new Dictionary<string, string>();
 
                     foreach (DataRow r in ImportacaoImperium.Dt_Email_Entidade.Select($"Entidade_Id = {idEntidade}"))
+                    {
                         dicionarioEmails.Add(r["TipoEmail"].ToString(), r["Endereco"].ToString());
+                        break;
+                    }
+                        
                 }
 
                 return new Dictionary<string, string>();

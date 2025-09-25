@@ -1239,6 +1239,7 @@ namespace ImportadorFopImperium
 
                 foreach (Tributacao t in ImportacaoImperium.Lista_Tributacoes)
                 {
+                    t.Descricao = ValidaDescricaoTributacao(t.Descricao);
                     t.Valor = t.Valor.Length > 4 ? t.Valor.Substring(0, 4) : t.Valor;
 
                     stringBuilder.Append($"('{t.Descricao}', '{t.Sit_Trib}', '{t.Valor}', '{t.CodPDV}', {AjustaStringDecimal(t.Aliquota_ICMS.ToString("N2"))}, {AjustaStringDecimal(t.Reducao.ToString("N2"))}, {t.Id_FOP});");
@@ -1335,7 +1336,7 @@ namespace ImportadorFopImperium
             string strAliquota = aliquota.ToString().Replace(",", "");
 
             if (aliquota < 10)
-                return strAliquota.PadLeft(4, '0');
+                return $"0{strAliquota.Substring(0, 3)}";
             else
                 return strAliquota.Substring(0, 4);
         }
@@ -1377,7 +1378,17 @@ namespace ImportadorFopImperium
             else
                 return "II";
         }
+        private string ValidaDescricaoTributacao(string original)
+        {
+            string valor = original.ToUpper();
 
+            if (valor.Contains("SUBSTITUIÇÃO TRIBUTÁRIA"))
+                valor = valor.Replace("SUBSTITUIÇÃO TRIBUTÁRIA", "ST");
+            else if (valor.Contains("SUBSTITUICAO TRIBUTARIA"))
+                valor = valor.Replace("SUBSTITUICAO TRIBUTARIA", "ST");
+
+            return valor.Length > 45 ? valor.Substring(0, 45) : valor;
+        }
         #endregion
 
         #region PRODUTO

@@ -418,7 +418,7 @@ namespace ImportadorFopImperium
         private DataTable CarregarItensFornecedor()
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.Referencia;";
-            string comandoPostgreSQL = "";
+            string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Referencia"";";
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -934,17 +934,38 @@ namespace ImportadorFopImperium
             {
                 foreach (DataRow r in ImportacaoImperium.Dt_Itens_Fornecedor.Rows)
                 {
-                    var produto = lstProduto.FirstOrDefault(p => p.Ean1 == r["fkProduto"].ToString());
-
-                    if (produto != null)
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
-                        produtosFornecedor.Add(new ProdutoFornecedor()
+                        var produto = lstProduto.FirstOrDefault(p => p.Ean1 == r["fkProduto"].ToString());
+
+                        if (produto != null)
                         {
-                            Id = produto.Id,
-                            Id_Fornecedor = ConverterInt64(r["fkFornecedor"].ToString()),
-                            Cod_Referencia = ConverterInt64(r["sref"].ToString()).ToString(),
-                            Embalagem = ConverterDecimal(r["tamEmb"].ToString())
-                        });
+                            produtosFornecedor.Add(new ProdutoFornecedor()
+                            {
+                                Id = produto.Id,
+                                Id_Fornecedor = ConverterInt64(r["fkFornecedor"].ToString()),
+                                Cod_Referencia = ConverterInt64(r["sref"].ToString()).ToString(),
+                                Embalagem = ConverterDecimal(r["tamEmb"].ToString())
+                            });
+                        }
+                    }
+                    else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        var produto = lstProduto.FirstOrDefault(p => p.Ean1 == r["FkProduto"].ToString());
+
+                        if (produto is null)
+                            produto = lstProduto.FirstOrDefault(p => p.Ean == r["FkProduto"].ToString());
+
+                        if (produto != null)
+                        {
+                            produtosFornecedor.Add(new ProdutoFornecedor()
+                            {
+                                Id = produto.Id,
+                                Id_Fornecedor = ConverterInt64(r["FkEntidade"].ToString()),
+                                Cod_Referencia = ConverterInt64(r["CodigoEntidade"].ToString()).ToString(),
+                                Embalagem = Math.Round(ConverterDecimal(r["FatorEntrada"].ToString()), 2)
+                            });
+                        }
                     }
                 }
 

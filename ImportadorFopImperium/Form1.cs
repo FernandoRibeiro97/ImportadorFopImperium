@@ -1623,7 +1623,7 @@ namespace ImportadorFopImperium
 
                 #region COMANDOS
 
-                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia) 
+                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia, produto_cotacao) 
                   VALUES ";
 
                 string comandoPreco = @"INSERT INTO produto_preco(
@@ -1676,7 +1676,7 @@ namespace ImportadorFopImperium
                     //    strBuilderProdutoEan.Append(comandoProdutoEan);
                     //}
 
-                    strBuilderProduto.AppendLine(RetornaLinhaInserirProduto(p));
+                    strBuilderProduto.AppendLine(RetornaLinhaInserirProdutoPostgreSQL(p));
 
                     foreach (Loja loja in ImportacaoImperium.Lojas)
                     {
@@ -1874,6 +1874,7 @@ namespace ImportadorFopImperium
             produto.Vasilhame = 0;
             produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
             produto.Id_Familia = 0;
+            produto.Cotacao = r["Cotacao"].ToString().ToUpper() == "TRUE" ? "S" : "N";
 
             produto.Preco = new ProdutoPreco();
             DateTime dataMinima = new DateTime(2020, 1, 1);
@@ -1958,6 +1959,43 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"'{produto.Tipo}',");
             stringBuilder.Append($"{produto.Id_TabelaNutricional},");
             stringBuilder.Append($"{produto.Id_Familia}");
+
+            stringBuilder.Append($"),");
+
+            return stringBuilder.ToString();
+        }
+        private string RetornaLinhaInserirProdutoPostgreSQL(ProdutoImperium produto)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append($"(");
+
+            string descricao = string.IsNullOrEmpty(produto.Descricao) ? "SEM DESCRICAO" : produto.Descricao.Length > 100 ? produto.Descricao.Substring(0, 100) : produto.Descricao;
+
+            //stringBuilder.Append($"{produto.Id},");
+            stringBuilder.Append($"'{descricao.Replace("'", " ")}',");
+            stringBuilder.Append($"'{produto.Descricao_Reduzida.Replace("'", " ")}',");
+            stringBuilder.Append($"{produto.Embalagem_Entrada.ToString().Replace(",", ".")},");
+            stringBuilder.Append($"{produto.Embalagem_Saida.ToString().Replace(",", ".")},");
+            stringBuilder.Append($"'{produto.Unidade_Entrada}',");
+            stringBuilder.Append($"'{produto.Unidade_Saida}',");
+            stringBuilder.Append($"'{produto.Obs}',");
+            stringBuilder.Append($"{produto.Validade},");
+            stringBuilder.Append($"{produto.Id_Grupo},");
+            stringBuilder.Append($"{produto.Id_SubGrupo},");
+            stringBuilder.Append($"{produto.Id_SubGrupo1},");
+            stringBuilder.Append($"{produto.Id_Situacao},");
+            stringBuilder.Append($"'{produto.Data_Cadastro:yyyy-MM-dd}',");
+            stringBuilder.Append($"{produto.Peso_Variavel},");
+            stringBuilder.Append($"{produto.Etiqueta},");
+            stringBuilder.Append($"'{produto.Ean}',");
+            stringBuilder.Append($"'{produto.Ean1}',");
+            stringBuilder.Append($"'{produto.ClassFiscal}',");
+            stringBuilder.Append($"'{produto.Cest}',");
+            stringBuilder.Append($"{produto.Vasilhame},");
+            stringBuilder.Append($"'{produto.Tipo}',");
+            stringBuilder.Append($"{produto.Id_TabelaNutricional},");
+            stringBuilder.Append($"{produto.Id_Familia},");
+            stringBuilder.Append($"'{produto.Cotacao}'");
 
             stringBuilder.Append($"),");
 

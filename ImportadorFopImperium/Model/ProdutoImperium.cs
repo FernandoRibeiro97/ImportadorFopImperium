@@ -29,6 +29,7 @@ namespace ImportadorFopImperium.Model
         public string Tipo { get; set; }
         public int Id_TabelaNutricional { get; set; }
         public long Id_Familia { get; set; }
+        public string Cotacao { get; set; }
         public ProdutoPreco Preco { get; set; }
         public ProdutoEstoque Estoque { get; set; }
         public ProdutoTributacao Tributacao { get; set; }

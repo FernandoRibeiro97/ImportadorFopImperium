@@ -1194,7 +1194,7 @@ namespace ImportadorFopImperium
                 foreach (DataRow r in ImportacaoImperium.Dt_Vendas.Rows)
                     lstItemVenda.Add(RetornaItemVendaPorDataRow(r));
 
-                int idCupom = 1;
+                long idCupom = 1;
                 if (lstItemVenda.Count > 0)
                 {
                     foreach (var item in lstItemVenda.GroupBy(i => i.Codigo_FOP))

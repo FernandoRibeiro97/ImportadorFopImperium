@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Npgsql;
+using System.Management;
 
 namespace ImportadorFopImperium
 {
@@ -593,24 +594,38 @@ namespace ImportadorFopImperium
         {
             try
             {
-                string comandoPostgreSQL = "";
+                string de = "", ate = "";
+                de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
+                ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
+
+                string comandoPostgreSQL = $@"SELECT 
+                                                c.""IdVenda"" AS codigo_fop,
+                                                i.""Codigo"" AS codigoEan, 
+                                                CAST(i.""VlTotal"" AS DECIMAL(10, 2)) AS valor,
+                                                CAST(i.""Quantidade"" AS DECIMAL(10, 3)) AS quantidade,
+                                                c.""FkPDV"" AS ecf,
+                                                CAST(i.""VlDesconto"" AS DECIMAL(10, 2)) AS descontoItem,
+                                                c.""FkLoja"" AS loja,
+                                                c.""DtInicio"" AS datamov,
+                                                i.""CustoMedio"" AS custoProduto,
+                                                i.""Cancelado"" AS situacao,
+                                                c.""Cancelado"" AS situacao_cupom,
+                                                i.""VlUnitario"" AS valor_unitario,
+                                                i.""Ordem"" AS nsu
+                                                FROM {mConfig.Schema_PostgreSQL}.""Venda"" c
+                                                JOIN {mConfig.Schema_PostgreSQL}.""VendaItem"" i ON c.""IdVenda"" = i.""FkVenda""
+                                                WHERE c.""DtInicio"" BETWEEN '{de}' AND '{ate}'
+                                                ORDER BY c.""IdVenda"", i.""Ordem"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 {
-                    string de = "", ate = "";
-
                     if (mConfig.Linguagem_SQL_Server.Contains("Português"))
                     {
                         de = ConverterDateTime(dataVendaDE.Text).ToString("dd-MM-yyyy");
                         ate = ConverterDateTime(dataVendaATE.Text).ToString("dd-MM-yyyy");
                     }
-                    else
-                    {
-                        de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
-                        ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
-                    }
 
-                    string comandoSQLServer = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, iif(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
+                    string comandoSQLServer = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, if(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
                     FROM Comercial.Venda c 
                     JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
                     WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
@@ -1179,13 +1194,27 @@ namespace ImportadorFopImperium
                 foreach (DataRow r in ImportacaoImperium.Dt_Vendas.Rows)
                     lstItemVenda.Add(RetornaItemVendaPorDataRow(r));
 
+                int idCupom = 1;
                 if (lstItemVenda.Count > 0)
-                    ExecutaComandoItemVenda(lstItemVenda);
-            }
-            catch (Exception)
-            {
+                {
+                    foreach (var item in lstItemVenda.GroupBy(i => i.Codigo_FOP))
+                    {
+                        string cupom = item.Key;
 
-                throw;
+                        foreach (ItemVenda venda in lstItemVenda.Where(v => v.Codigo_FOP == cupom))
+                            venda.Cupom = idCupom;
+
+                        idCupom++;
+                    }
+
+                    ExecutaComandoItemVenda(lstItemVenda);
+                }
+                    
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao Importar Vendas");
+                Logar(ex.Message);
             }
         }
 
@@ -4002,6 +4031,7 @@ namespace ImportadorFopImperium
         private ItemVenda RetornaItemVendaPorDataRow(DataRow r)
         {
             ItemVenda itemVenda = new ItemVenda();
+            itemVenda.Codigo_FOP = r["codigo_fop"].ToString();
             itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigoEan"].ToString());
             itemVenda.NSU = ConverterInt32(r["nsu"].ToString());
             itemVenda.CodigoEan = ConverterInt64(r["codigoEan"].ToString());
@@ -4038,8 +4068,6 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Venda++;
 
-                    item.Cupom = contadorImportacao.Cont_Venda;
-
                     strBuilderItemVenda.AppendLine(RetornaLinhaInserirItemVenda(item));
 
                     if (cont == mConfig.Qtde_Importar)
@@ -4062,8 +4090,8 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao inserir itensvenda");
+                Logar(ex.Message);
             }
         }
         private string RetornaLinhaInserirItemVenda(ItemVenda item)

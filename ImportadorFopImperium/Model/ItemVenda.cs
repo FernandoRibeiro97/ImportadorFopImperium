@@ -4,6 +4,7 @@ namespace ImportadorFopImperium.Model
 {
     public class ItemVenda
     {
+        public string Codigo_FOP { get; set; }
         public long Cupom { get; set; }
         public long Id_Produto { get; set; }
         public int NSU { get; set; }

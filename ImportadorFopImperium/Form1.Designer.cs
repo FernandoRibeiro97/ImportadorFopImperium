@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lblTituloFormulario = new System.Windows.Forms.Label();
             this.grpTabelas = new System.Windows.Forms.GroupBox();
             this.chkSubGrupo1 = new System.Windows.Forms.CheckBox();
             this.chkSubGrupo = new System.Windows.Forms.CheckBox();
@@ -104,23 +104,23 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.ControlText;
-            this.panel1.Controls.Add(this.label7);
+            this.panel1.Controls.Add(this.lblTituloFormulario);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(800, 46);
             this.panel1.TabIndex = 46;
             // 
-            // label7
+            // lblTituloFormulario
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.SystemColors.Window;
-            this.label7.Location = new System.Drawing.Point(3, 11);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(384, 25);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Importador FOP para Imperium";
+            this.lblTituloFormulario.AutoSize = true;
+            this.lblTituloFormulario.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTituloFormulario.ForeColor = System.Drawing.SystemColors.Window;
+            this.lblTituloFormulario.Location = new System.Drawing.Point(3, 11);
+            this.lblTituloFormulario.Name = "lblTituloFormulario";
+            this.lblTituloFormulario.Size = new System.Drawing.Size(384, 25);
+            this.lblTituloFormulario.TabIndex = 0;
+            this.lblTituloFormulario.Text = "Importador FOP para Imperium";
             // 
             // grpTabelas
             // 
@@ -833,7 +833,7 @@
             this.Controls.Add(this.grpTabelas);
             this.Controls.Add(this.panel1);
             this.Name = "frmPrincipal";
-            this.Text = "Importador";
+            this.Text = "Importador FOP para Imperium";
             this.Load += new System.EventHandler(this.frmPrincipal_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -855,7 +855,7 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblTituloFormulario;
         private System.Windows.Forms.GroupBox grpTabelas;
         private System.Windows.Forms.CheckBox chkLojas;
         private System.Windows.Forms.CheckBox chkFamilias;

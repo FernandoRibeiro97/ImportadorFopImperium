@@ -64,6 +64,7 @@ namespace ImportadorFopImperium
             CriarDiretorioLogs();
 
             mConfig.Conexao_Origem = RecuperaConexaoSelecionada(mConfig);
+            this.Text += mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer ? " - SQL SERVER" : mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL ? " - PostgreSQL" : "";
 
             if (!MontaConexaoOrigem())
             {
@@ -96,6 +97,7 @@ namespace ImportadorFopImperium
             {
                 operacaoImportador = OperacaoImportador.Carregar;
                 ControleTela(false);
+                MudarTituloFormPrincipal("Carregando Dados ...");
                 mBackGroundWorker.RunWorkerAsync();
             }
         }
@@ -105,6 +107,7 @@ namespace ImportadorFopImperium
             {
                 operacaoImportador = OperacaoImportador.Importar;
                 ControleTela(false);
+                MudarTituloFormPrincipal("Importando Dados ...");
                 mBackGroundWorker.RunWorkerAsync();
             }
         }
@@ -117,6 +120,7 @@ namespace ImportadorFopImperium
         }
         private void MBackGroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+
         }
         private void MBackGroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -126,7 +130,8 @@ namespace ImportadorFopImperium
                 HabilitaCheckBox();
 
                 btnImportar.Enabled = true; //TODO: FAZER UMA VERIFICACAO PARA HABILITAR O BOTAO
-
+                
+                MudarTituloFormPrincipal("Carregamento Concluído");
                 MessageBox.Show("Carregamento Concluído !");
                 ControleTela(true);
                 btnCarregar.Enabled = false;
@@ -140,6 +145,8 @@ namespace ImportadorFopImperium
 
                 Logar($"IMPORTACAO CONCLUIDA...");
                 Logar($"TEMPO DECORRIDO - {lblTempoValorImportacao.Text}");
+                
+                MudarTituloFormPrincipal("Importação Concluída");
                 MessageBox.Show("Importação Concluída !");
                 ControleTela(true);
             }
@@ -4686,6 +4693,10 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
                 return null;
             }
+        }
+        private void MudarTituloFormPrincipal(string str)
+        {
+            lblTituloFormulario.Text = $"{str}";
         }
         #endregion
 

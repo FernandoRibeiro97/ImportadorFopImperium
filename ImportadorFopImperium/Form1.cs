@@ -1663,7 +1663,7 @@ namespace ImportadorFopImperium
                   VALUES ";
 
                 string comandoPreco = @"INSERT INTO produto_preco(
-                                        IDPRODUTO, ID_LOJA, CUSTO, CUSTO_MEDIO, VENDA1, VENDA2, DTINICIOPROMO, DTFINALPROMO, MARGEM, IDFAMILIA, VENDA1_ANTERIOR
+                                        IDPRODUTO, ID_LOJA, CUSTO, CUSTO_MEDIO, VENDA1, VENDA2, PRPROMOCAO, DTINICIOPROMO, DTFINALPROMO, MARGEM, IDFAMILIA, VENDA1_ANTERIOR
                                         ) 
                                         VALUES ";
 
@@ -1840,13 +1840,14 @@ namespace ImportadorFopImperium
             DateTime finalPromo = new DateTime(2021, 1, 1);
             decimal precoVenda = r["precoVenda"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoVenda"].ToString());
             decimal precoAnterior = r["precoAnterior"].ToString().Length > 14 ? 0 : ConverterDecimal(r["precoAnterior"].ToString());
+            produto.Preco.PRPROMOCAO = ConverterDecimal(r["precoPromo"].ToString());
             produto.Preco.LOJA = loja;
             produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["custoCaixa"].ToString()) / tamanhoCaixa, 3);
             produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["custoMedio"].ToString());
             produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["precoVenda"].ToString()), 3);
             produto.Preco.VENDA2 = 0;
             produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
-            produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
+            produto.Preco.DTFINALPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
             produto.Preco.MARGEM = ConverterDecimal(r["margemDesejada"].ToString());
             produto.Preco.VENDA1_ANTERIOR = Math.Round(precoAnterior, 3);
             produto.Preco.IDFAMILIA = ConverterInt32(r["fkFamilia"].ToString());
@@ -1921,8 +1922,9 @@ namespace ImportadorFopImperium
             produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());
             produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["VlVenda"].ToString()), 3);
             produto.Preco.VENDA2 = 0;
+            produto.Preco.PRPROMOCAO = ConverterDecimal(r["VlPromocao"].ToString());
             produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
-            produto.Preco.DTINICIOPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
+            produto.Preco.DTFINALPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
             produto.Preco.MARGEM = ConverterDecimal(r["MargemCadastrada"].ToString());
             produto.Preco.VENDA1_ANTERIOR = Math.Round(ConverterDecimal(r["VlVendaAnterior"].ToString()), 3);
             produto.Preco.IDFAMILIA = ConverterInt32(r["FkFamilia"].ToString());
@@ -2048,6 +2050,7 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO_MEDIO.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1.ToString())},");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA2.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.PRPROMOCAO.ToString())},");
             stringBuilder.Append($"'{produto.Preco.DTINICIOPROMOCAO}',");
             stringBuilder.Append($"'{produto.Preco.DTFINALPROMOCAO}',");
             stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.MARGEM.ToString())},");
@@ -4039,7 +4042,11 @@ namespace ImportadorFopImperium
         {
             ItemVenda itemVenda = new ItemVenda();
             itemVenda.Codigo_FOP = r["codigo_fop"].ToString();
-            itemVenda.Id_Produto = RetornaIdProdutoPorEan1(r["codigoEan"].ToString());
+            itemVenda.Id_Produto = RetornaIdProdutoPorEan1(ConverterInt64(r["codigoEan"].ToString()).ToString());
+
+            if (itemVenda.Id_Produto == 0)
+                RetornaIdProdutoPorEan(ConverterInt64(r["codigoEan"].ToString()).ToString());
+
             itemVenda.NSU = ConverterInt32(r["nsu"].ToString());
             itemVenda.CodigoEan = ConverterInt64(r["codigoEan"].ToString());
             itemVenda.Valor = ConverterDecimal(r["valor"].ToString());
@@ -4051,7 +4058,7 @@ namespace ImportadorFopImperium
             itemVenda.Datamov = ConverterDateTime(r["datamov"].ToString()).ToString("yyyy-MM-dd");
             itemVenda.Hora_Cupom = ConverterDateTime(r["datamov"].ToString()).ToString("HH:mm");
             itemVenda.Custo_Produto = ConverterDecimal(r["custoProduto"].ToString());
-            itemVenda.Situacao = r["situacao"].ToString();
+            itemVenda.Situacao = r["situacao"].ToString().ToLower() == "true" ? "C" : "A";
             itemVenda.Valor_Unitario = ConverterDecimal(r["valor_unitario"].ToString());
 
             return itemVenda;
@@ -4065,7 +4072,7 @@ namespace ImportadorFopImperium
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
-                string comando = @"INSERT INTO itensvenda (cupom, idProduto, nsu, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario) VALUES ";
+                string comando = @"INSERT INTO itensvenda (cupom, idProduto, nsu, codigoEan, valor, quantidade, ecf, modelo, descontoItem, loja, datamov, custoProduto, hora_cupom, idVendedor, situacao, valor_unitario, idVenda) VALUES ";
 
                 StringBuilder strBuilderItemVenda = new StringBuilder(comando);
                 int cont = 0;
@@ -4119,7 +4126,8 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"'{item.Hora_Cupom}',");
             stringBuilder.Append($"{item.Id_Vendedor},");
             stringBuilder.Append($"'{item.Situacao}',");
-            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Unitario.ToString())}");
+            stringBuilder.Append($"{AjustaStringDecimal(item.Valor_Unitario.ToString())},");
+            stringBuilder.Append("0");
             stringBuilder.Append("),");
 
             return stringBuilder.ToString();
@@ -4400,6 +4408,30 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
                 string comando = $@"SELECT idproduto FROM produto WHERE ean1 = {ean1} LIMIT 1";
+                MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
+
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    if (rdr.Read())
+                        return ConverterInt64(rdr["idproduto"].ToString());
+                    else
+                        return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao recuperar idproduto pelo ean1");
+                Logar(ex.Message);
+                return 0;
+            }
+            finally { FecharConexaoMysql(); }
+        }
+        private long RetornaIdProdutoPorEan(string ean)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comando = $@"SELECT idproduto FROM produto WHERE ean = {ean} LIMIT 1";
                 MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
 
                 using (MySqlDataReader rdr = command.ExecuteReader())

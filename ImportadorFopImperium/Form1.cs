@@ -193,6 +193,7 @@ namespace ImportadorFopImperium
                 ImportacaoImperium.Dt_Grupo = CarregarGrupo();
                 ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
+                ImportacaoImperium.Dt_Tabela_Nutricional = CarregarTabelaNutriocional();
                 ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
                 ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
                 ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
@@ -471,6 +472,23 @@ namespace ImportadorFopImperium
             else
                 return null;
         }
+        private DataTable CarregarTabelaNutriocional()
+        {
+            string comandoSQLServer = "";
+
+            string comandoPostgreSQL = @"SELECT ""Id"", ""Descricao"", ""Porcao"", ""UnidadePorcao"", ""MCaseira"", ""ParteDecimalMedidaCaseira"", ""MedidaCaseira"", ""VlCalorico"",
+            ""VlProteinas"", ""VlGordurasSaturadas"", ""VlFibraAlimentar"", ""VlFerro"", ""VlGordurasTrans"", ""VlCarboidratos"", ""VlGordurasTotais"", ""VlColesterol"",
+            ""VlCalcio"", ""VlSodio"", ""VlAcucaresTotais"", ""VlAcucaresAdicionados"", ""VlLactose"", ""VlGalatose"", ""AltoEmAcucarAdicionado"", ""AltoEmGorduraSaturada"", ""AltoEmSodio""
+            FROM dbo.""Nutricional""
+            ORDER BY ""Id"";";
+
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
+            else
+                return null;
+        }
         private DataTable CarregarContasPagar()
         {
             try
@@ -736,7 +754,6 @@ namespace ImportadorFopImperium
                 return null;
             }
         }
-
         #endregion
 
         #region IMPORTAR
@@ -787,6 +804,9 @@ namespace ImportadorFopImperium
                     AdicionarGrupoAClassificar();
                     CorrigirArvoreMercadologica();
                 }
+
+                Logar("IMPORTANDO TABELA NUTRICIONAL...");
+                ImportarTabelaNutricional();
 
                 if (chkNFEntrada.Checked)
                 {
@@ -1135,6 +1155,16 @@ namespace ImportadorFopImperium
 
                 throw;
             }
+        }
+        private void ImportarTabelaNutricional()
+        {
+            List<TabelaNutricional> lst = new List<TabelaNutricional>();
+
+            foreach (DataRow r in ImportacaoImperium.Dt_Tabela_Nutricional.Rows)
+                lst.Add(RetornaTabelaNutricionalPorDataRow(r));
+
+            if (lst.Count > 0)
+                ExecutaComandoTabelaNutricional(lst);
         }
         private void ImportarContasPagar()
         {
@@ -1909,7 +1939,7 @@ namespace ImportadorFopImperium
             produto.ClassFiscal = r["NCM"].ToString();
             produto.Cest = cest;
             produto.Vasilhame = 0;
-            produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
+            produto.Id_TabelaNutricional = ConverterInt32(r["FkNutricional"].ToString());
             produto.Id_Familia = 0;
             produto.Cotacao = r["Cotacao"].ToString().ToUpper() == "TRUE" ? "S" : "N";
 
@@ -2938,6 +2968,118 @@ namespace ImportadorFopImperium
                 }
             }
         }
+        #endregion
+
+        #region TABELA NUTRICIONAL
+        private TabelaNutricional RetornaTabelaNutricionalPorDataRow(DataRow r)
+        {
+            TabelaNutricional tabela = new TabelaNutricional();
+            tabela.Id = ConverterInt64(r["Id"].ToString());
+            tabela.Nome = r["Descricao"].ToString();
+            tabela.Quantidade = Convert.ToInt32(r["Porcao"]);
+            tabela.Unidade_Porcao = r["UnidadePorcao"].ToString();
+            tabela.Parte_Inteira = !string.IsNullOrEmpty(r["MCaseira"].ToString()) ? ConverterInt32(r["MCaseira"].ToString().Split(',')[0]) : 0;
+            tabela.Parte_Decimal = r["ParteDecimalMedidaCaseira"].ToString();
+            tabela.Medida_Utilizada = r["MedidaCaseira"].ToString().PadLeft(2, '0');
+            tabela.Valor_Energetico = ConverterDecimal(r["VlCalorico"].ToString());
+            tabela.Proteinas = ConverterDecimal(r["VlProteinas"].ToString());
+            tabela.Gorduras_Saturadas = ConverterDecimal(r["VlGordurasSaturadas"].ToString());
+            tabela.Fibra = ConverterDecimal(r["VlFibraAlimentar"].ToString());
+            tabela.Ferro = ConverterDecimal(r["VlFerro"].ToString());
+            tabela.Gorduras_Trans = ConverterDecimal(r["VlGordurasTrans"].ToString());
+            tabela.Carboidratos = ConverterDecimal(r["VlCarboidratos"].ToString());
+            tabela.Gorduras_Totais = ConverterDecimal(r["VlGordurasTotais"].ToString());
+            tabela.Colesterol = ConverterDecimal(r["VlColesterol"].ToString());
+            tabela.Calcio = ConverterDecimal(r["VlCalcio"].ToString());
+            tabela.Sodio = ConverterDecimal(r["VlSodio"].ToString());
+            tabela.Acucares_Totais = ConverterDecimal(r["VlAcucaresTotais"].ToString());
+            tabela.Acucares_Adicionados = ConverterDecimal(r["VlAcucaresAdicionados"].ToString());
+            tabela.Lactose = ConverterDecimal(r["VlLactose"].ToString());
+            tabela.Galactose = ConverterDecimal(r["VlGalatose"].ToString());
+            tabela.Alto_Acucar = Convert.ToBoolean(r["AltoEmAcucarAdicionado"]);
+            tabela.Alto_Gordura = Convert.ToBoolean(r["AltoEmGorduraSaturada"]);
+            tabela.Alto_Sodio = Convert.ToBoolean(r["AltoEmSodio"]);
+
+            return tabela;
+        }
+        private string RetornaLinhaIserirTabelaNutricional(TabelaNutricional tabela)
+        {
+            bool removeMilhar = true;
+
+            StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{tabela.Id},");
+            stringBuilder.Append($"'{tabela.Nome}',");
+            stringBuilder.Append($"'{tabela.Quantidade}',");
+            stringBuilder.Append($"'{tabela.Unidade_Porcao}',");
+            stringBuilder.Append($"'{tabela.Parte_Inteira}',");
+            stringBuilder.Append($"'{tabela.Parte_Decimal}',");
+            stringBuilder.Append($"'{tabela.Medida_Utilizada}',");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Valor_Energetico.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Proteinas.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Gorduras_Saturadas.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Fibra.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Ferro.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Gorduras_Trans.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Carboidratos.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Gorduras_Totais.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Colesterol.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Calcio.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Sodio.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Acucares_Totais.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Acucares_Adicionados.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Lactose.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{AjustaStringDecimal(tabela.Galactose.ToString("N1"), removeMilhar)},");
+            stringBuilder.Append($"{(tabela.Alto_Acucar ? 1 : 0)},");
+            stringBuilder.Append($"{(tabela.Alto_Gordura ? 1 : 0)},");
+            stringBuilder.Append($"{(tabela.Alto_Sodio ? 1 : 0)}");
+            stringBuilder.Append("),");
+
+            return stringBuilder.ToString();
+        }
+        private void ExecutaComandoTabelaNutricional(List<TabelaNutricional> lst)
+        {
+            try
+            {
+                AbrirConexaoMysql();
+                string comandoTruncar = @"TRUNCATE tabelanutricional;";
+                MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
+                command.ExecuteNonQuery();
+
+                string comando = @"INSERT INTO tabelanutricional (idTabelaNutricional, nome, Quantidade, UnidadePorcao, ParteInteira, ParteDecimal, MedidaUtilizada, ValorEnergetico, Proteinas, GordurasSat, Fibra, Ferro, GordurasTrans, Carboidratos, GordurasTotais, Colesterol, Calcio, Sodio, AcucaresTotais, AcucaresAdicionados, Lactose, Galactose, alto_acucar, alto_gordura, alto_sodio) VALUES ";
+
+                StringBuilder stringBuilder = new StringBuilder(comando);
+
+                int cont = 0;
+                foreach (TabelaNutricional tabela in lst)
+                {
+                    stringBuilder.Append(RetornaLinhaIserirTabelaNutricional(tabela));
+                    cont++;
+
+                    if (cont == mConfig.Qtde_Importar)
+                    {
+                        InsertBanco(stringBuilder, command, 1, 1);
+                        stringBuilder.Clear();
+                        stringBuilder.Append(comando);
+                        cont = 0;
+                    }
+                }
+
+                if (cont > 0)
+                {
+                    InsertBanco(stringBuilder, command, 1, 1);
+                    stringBuilder.Clear();
+                    stringBuilder.Append(comando);
+                    cont = 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logar("Erro ao inserir tabelas nutricionais");
+                Logar(ex.ToString());
+            }
+        }
+
         #endregion
 
         #region ITENS FORNECEDOR
@@ -4781,9 +4923,12 @@ namespace ImportadorFopImperium
             var retorno = valor.Replace("/", "").Replace(".", "").Replace("-", "");
             return trim ? retorno.Trim() : retorno;
         }
-        private string AjustaStringDecimal(string valor)
+        private string AjustaStringDecimal(string valor, bool removerMilhar = false)
         {
-            return valor.Replace(",", ".");
+            if (removerMilhar)
+                return valor.Replace(".", "#").Replace(",", ".").Replace("#", "");
+            else
+                return valor.Replace(",", ".");
         }
 
         #endregion

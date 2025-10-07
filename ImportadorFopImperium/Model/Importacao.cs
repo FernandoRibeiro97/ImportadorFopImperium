@@ -18,6 +18,7 @@ namespace ImportadorFopImperium.Model
         public DataTable Dt_Grupo { get; set; }
         public DataTable Dt_SubGrupo { get; set; }
         public DataTable Dt_SubGrupo1 { get; set; }
+        public DataTable Dt_Tabela_Nutricional { get; set; }
         public DataTable Dt_Contas_Pagar { get; set; }
         public DataTable Dt_Contas_Receber { get; set; }
         public DataTable Dt_Nota_Entrada { get; set; }

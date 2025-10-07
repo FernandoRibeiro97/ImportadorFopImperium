@@ -1681,7 +1681,7 @@ namespace ImportadorFopImperium
 
                 #region COMANDOS
 
-                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia, produto_cotacao) 
+                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia, produto_cotacao, infAdicional) 
                   VALUES ";
 
                 string comandoPreco = @"INSERT INTO produto_preco(
@@ -1934,6 +1934,7 @@ namespace ImportadorFopImperium
             produto.Id_TabelaNutricional = ConverterInt32(r["FkNutricional"].ToString());
             produto.Id_Familia = 0;
             produto.Cotacao = r["Cotacao"].ToString().ToUpper() == "TRUE" ? "S" : "N";
+            produto.Inf_Adicional = RetornaInfAdicional(r); 
 
             produto.Preco = new ProdutoPreco();
             DateTime dataMinima = new DateTime(2020, 1, 1);
@@ -2055,7 +2056,8 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"'{produto.Tipo}',");
             stringBuilder.Append($"{produto.Id_TabelaNutricional},");
             stringBuilder.Append($"{produto.Id_Familia},");
-            stringBuilder.Append($"'{produto.Cotacao}'");
+            stringBuilder.Append($"'{produto.Cotacao}',");
+            stringBuilder.Append($"'{produto.Inf_Adicional}'");
 
             stringBuilder.Append($"),");
 
@@ -4863,6 +4865,29 @@ namespace ImportadorFopImperium
         private void MudarTituloFormPrincipal(string str)
         {
             lblTituloFormulario.Text = $"{str}";
+        }
+        private string RetornaInfAdicional(DataRow r)
+        {
+            List<string> lst = new List<string>
+            {
+                r["BalancaL1"].ToString(),
+                r["BalancaL2"].ToString(),
+                r["BalancaL3"].ToString(),
+                r["BalancaL4"].ToString(),
+                r["BalancaL5"].ToString(),
+                r["BalancaL6"].ToString(),
+                r["BalancaL7"].ToString(),
+                r["BalancaL8"].ToString(),
+                r["BalancaL9"].ToString(),
+                r["BalancaL10"].ToString()
+            };
+
+            string retorno = "";
+
+            foreach (string linha in lst)
+                retorno += string.IsNullOrEmpty(linha) ? "" : linha + "\r\n";
+
+            return retorno;
         }
         #endregion
 

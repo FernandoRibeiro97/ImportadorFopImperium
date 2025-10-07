@@ -34,5 +34,6 @@ namespace ImportadorFopImperium.Model
         public ProdutoEstoque Estoque { get; set; }
         public ProdutoTributacao Tributacao { get; set; }
         public List<ProdutoEan> Lst_Ean { get; set; }
+        public string Inf_Adicional { get; set; }
     }
 }

@@ -1388,15 +1388,7 @@ namespace ImportadorFopImperium
 
                     stringBuilder.Append($"('{t.Descricao}', '{t.Sit_Trib}', '{t.Valor}', '{t.CodPDV}', {AjustaStringDecimal(t.Aliquota_ICMS.ToString("N2"))}, {AjustaStringDecimal(t.Reducao.ToString("N2"))}, {t.Id_FOP});");
 
-                    Logar("Comando a inserir ...");
-                    Logar(stringBuilder.ToString());
-
                     command = new MySqlCommand(stringBuilder.ToString(), connecctionDestinoMysql);
-
-                    if (command.ExecuteNonQuery() > 0)
-                        Logar("Tributação inserida com sucesso");
-                    else
-                        Logar("Tributação não inserida");
 
                     t.Id_Imperium = command.LastInsertedId;
 

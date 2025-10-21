@@ -1,6 +1,7 @@
 ﻿using ImportadorFopImperium.Enum;
 using ImportadorFopImperium.Model;
 using MySql.Data.MySqlClient;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,8 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Npgsql;
-using System.Management;
 
 namespace ImportadorFopImperium
 {
@@ -178,32 +177,53 @@ namespace ImportadorFopImperium
         {
             try
             {
+                Logar("Carregando Lojas");
                 ImportacaoImperium.Dt_Lojas = CarregarLojas();
+                Logar("Carregando Cadastro de Tributacao");
                 ImportacaoImperium.Dt_Tributacao = CarregarTributacao();
+                Logar("Carregando PIS");
                 ImportacaoImperium.Dt_Pis = CarregarPis();
+                Logar("Carregando Cofins");
                 ImportacaoImperium.Dt_Cofins = CarregarCofins();
+                Logar("Carregando Produtos");
                 ImportacaoImperium.Dt_Produto = CarregarProdutos();
+                Logar("Carregando Entidades");
                 ImportacaoImperium.Dt_Entidades = CarregarEntidades();
+                Logar("Carregando Fone Entidades");
                 ImportacaoImperium.Dt_Fone_Entidade = CarregarFoneEntidade();
+                Logar("Carregando Email Entidades");
                 ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
+                Logar("Carregando Entidades do Tipo Cliente");
                 ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
+                Logar("Carregando Itens Fornecedor");
                 ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
+                Logar("Carregando Entidades do Tipo Fornecedor");
                 ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
+                Logar("Carregando Familias");
                 ImportacaoImperium.Dt_Familia = CarregarFamilia();
+                Logar("Carregando Grupos");
                 ImportacaoImperium.Dt_Grupo = CarregarGrupo();
+                Logar("Carregando SubGrupos");
                 ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
+                Logar("Carregando SubGrupos1");
                 ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
+                Logar("Carregando Carregando Tabela Nutricional");
                 ImportacaoImperium.Dt_Tabela_Nutricional = CarregarTabelaNutriocional();
+                Logar("Carregando Contas a Pagar");
                 ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
+                Logar("Carregando Contas a Receber");
                 ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
+                Logar("Carregando Carregando Notas de Entrada");
                 ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
+                Logar("Carregando Itens Nota de Entrada");
                 ImportacaoImperium.Dt_Nota_Entrada_Itens = CarregarNotaEntradaItens();
+                Logar("Carregando Vendas");
                 ImportacaoImperium.Dt_Vendas = CarregarVendas();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao carregar info");
+                Logar(ex.Message);
             }
         }
         private DataTable CarregarLojas()
@@ -482,12 +502,12 @@ namespace ImportadorFopImperium
             FROM dbo.""Nutricional""
             ORDER BY ""Id"";";
 
-            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
-                return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
-            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            //if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            //    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+            if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                 return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
             else
-                return null;
+                return new DataTable();
         }
         private DataTable CarregarContasPagar()
         {
@@ -650,12 +670,14 @@ namespace ImportadorFopImperium
                         ate = ConverterDateTime(dataVendaATE.Text).ToString("dd-MM-yyyy");
                     }
 
-                    string comandoSQLServer = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, if(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
-                    FROM Comercial.Venda c 
-                    JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
-                    WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
+                    //string comandoSQLServer = $@"SELECT c.id AS codigo_fop, i.fkProduto AS codigoEan, i.vlTotal AS valor, qtdade AS quantidade, c.fkPDV AS ecf, i.vlDesconto AS descontoItem, fkLoja AS loja,c.dtInicio AS datamov, i.vlCustoMedioUnit AS custoProduto, if(i.cancelado = 1, 'C', 'A') AS situacao, i.vlUnit AS valor_unitario, i.fkOrdem AS nsu
+                    //FROM Comercial.Venda c 
+                    //JOIN Comercial.ItemVendido i ON c.id = i.fkVenda
+                    //WHERE c.dtInicio BETWEEN '{de}' AND '{ate}';";
 
-                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                    //return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+
+                    return new DataTable();
                 }
                 else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                     return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
@@ -664,8 +686,9 @@ namespace ImportadorFopImperium
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logar("Erro ao recuperar vendas");
+                Logar(ex.Message);
+                return new DataTable();
             }
         }
         private List<ClienteImperium> FiltraEntidadeCliente()
@@ -717,7 +740,12 @@ namespace ImportadorFopImperium
                     if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
                         foreach (DataRow r in ImportacaoImperium.Dt_Entidades.Select("isFornecedor = 1"))
-                            lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                        {
+                            if (lstFornecedores.Exists(f => f.Id == ConverterInt64(r["id"].ToString())))
+                                continue;
+                            else
+                                lstFornecedores.Add(RetornaFornecedorImperiumPorDataRow(r));
+                        }
                     }
                     else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                     {
@@ -729,7 +757,7 @@ namespace ImportadorFopImperium
                                 {
                                     foreach(DataRow ri in ImportacaoImperium.Dt_Itens_Fornecedor.Select($"FkEntidade = {r["Id"]}"))
                                     {
-                                        if (lstFornecedores.Exists(f => f.Id == ConverterInt64(r["Id"].ToString())))
+                                        if (lstFornecedores.Exists(f => f.Id == ConverterInt64(r["id"].ToString())))
                                             continue;
                                         else
                                         {
@@ -1549,7 +1577,7 @@ namespace ImportadorFopImperium
                   VALUES ";
 
                 string comandoPreco = @"INSERT INTO produto_preco(
-                                        IDPRODUTO, ID_LOJA, CUSTO, CUSTO_MEDIO, VENDA1, VENDA2, DTINICIOPROMO, DTFINALPROMO, MARGEM, IDFAMILIA, VENDA1_ANTERIOR
+                                        IDPRODUTO, ID_LOJA, CUSTO, CUSTO_MEDIO, VENDA1, VENDA2, PRPROMOCAO, DTINICIOPROMO, DTFINALPROMO, MARGEM, IDFAMILIA, VENDA1_ANTERIOR
                                         ) 
                                         VALUES ";
 
@@ -1630,8 +1658,15 @@ namespace ImportadorFopImperium
                         }
                         catch (Exception ex)
                         {
-                            var _ = ex.Message;
-                            var __ = strBuilderProduto.ToString();
+                            Logar(ex.Message);
+                            Logar("Comando produto");
+                            Logar(strBuilderProduto.ToString());
+                            Logar("Comando produto_preco");
+                            Logar(strBuilderPreco.ToString());
+                            Logar("Comando produto_estoque");
+                            Logar(strBuilderEstoque.ToString());
+                            Logar("Comando produto_tributacao");
+                            Logar(strBuilderTributacao.ToString());
                         }
                     }
                 }
@@ -1876,7 +1911,7 @@ namespace ImportadorFopImperium
 
             produto.Estoque = new ProdutoEstoque();
             produto.Estoque.Loja = loja;
-            produto.Estoque.Estoque_Atual = ConverterDecimal(r["estoqueAtual"].ToString());
+            produto.Estoque.Estoque_Atual = r["estoqueAtual"].ToString().StartsWith(".") || r["estoqueAtual"].ToString().StartsWith("789") ? 0 : ConverterDecimal(r["estoqueAtual"].ToString());
             produto.Estoque.Estoque_Minimo = ConverterDecimal(r["estoqueMin"].ToString());
             produto.Estoque.Cobertura_Estoque = 0;
 
@@ -2089,8 +2124,8 @@ namespace ImportadorFopImperium
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
             stringBuilder.Append($"{loja},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Estoque.Estoque_Atual.ToString())},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Estoque.Estoque_Minimo.ToString())},");
+            stringBuilder.Append($"{(produto.Estoque.Estoque_Atual > 0 ? AjustaStringDecimal(produto.Estoque.Estoque_Atual.ToString("N4"), true) : "0.000")},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Estoque.Estoque_Minimo.ToString("N4"), true)},");
             stringBuilder.Append($"{produto.Estoque.Cobertura_Estoque}");
             stringBuilder.Append($"),");
 
@@ -3695,6 +3730,11 @@ namespace ImportadorFopImperium
             try
             {
                 AbrirConexaoMysql();
+
+                string comandoChaveEstrageiraDesativa = "SET FOREIGN_KEY_CHECKS=0;";
+                MySqlCommand _command = new MySqlCommand(comandoChaveEstrageiraDesativa, connecctionDestinoMysql);
+                _command.ExecuteNonQuery();
+
                 string comandoTruncar = @"TRUNCATE pagar;";
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
@@ -3729,6 +3769,11 @@ namespace ImportadorFopImperium
                 }
 
                 CorrigirCamposContasPagar();
+
+                AbrirConexaoMysql();
+                string comandoChaveEstrageiraAtiva = "SET FOREIGN_KEY_CHECKS=1;";
+                _command = new MySqlCommand(comandoChaveEstrageiraAtiva, connecctionDestinoMysql);
+                _command.ExecuteNonQuery();
             }
             catch (Exception)
             {
@@ -4394,7 +4439,7 @@ namespace ImportadorFopImperium
                     var dicionarioEmails = new Dictionary<string, string>();
 
                     foreach (DataRow r in ImportacaoImperium.Dt_Email_Entidade.Select($"fkEntidade = {idEntidade}"))
-                        dicionarioEmails.Add(r["tipo"].ToString(), r["numero"].ToString());
+                        dicionarioEmails.Add(r["tipo"].ToString(), r["endereco"].ToString());
                 }
 
                 return new Dictionary<string, string>();
@@ -4532,10 +4577,8 @@ namespace ImportadorFopImperium
                     sw.Close();
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Logar("Erro ao criar arquivo de log");
-                Logar(ex.Message);
             }
         }
         private long RetornaIdProdutoPorEan1(string ean1)

@@ -10,6 +10,7 @@ namespace ImportadorFopImperium.Model
         public string Senha_MySQL { get; set; }
         public string Banco_MySQL { get; set; }
         public long Qtde_Importar { get; set; }
+        public bool Remover_Digito_Verificador_Ean { get; set; }
         public TipoConexaoEnum Conexao_Origem { get; set; }
         public TipoConexaoEnum Conexao_Destino { get; set; }
         #endregion

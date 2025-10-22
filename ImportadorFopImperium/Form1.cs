@@ -1875,14 +1875,23 @@ namespace ImportadorFopImperium
 
 
             produto.Etiqueta = 1;
+
             produto.Ean = ConverterInt64(r["id"].ToString()).ToString();
 
             if (Convert.ToInt64(produto.Ean) > 200000)
             {
                 if (produto.Ean.Substring(0, 1) == "2")
-                    produto.Ean = produto.Ean.ToLower().Substring(1, 5);
+                {
+                    if (mConfig.Remover_Digito_Verificador_Ean)
+                        produto.Ean = produto.Ean.ToLower().Substring(1, 4);
+                    else
+                        produto.Ean = produto.Ean.ToLower().Substring(1, 5);
+                }
+                    produto.Ean = produto.Ean.ToLower().Substring(1, 4);
             }
 
+            long ean = ConverterInt64(r["id"].ToString());
+            string _eanSemDigito = "";
 
             produto.Ean1 = r["id"].ToString();
             produto.ClassFiscal = r["classFiscal"].ToString();
@@ -1959,7 +1968,12 @@ namespace ImportadorFopImperium
             if (Convert.ToInt64(produto.Ean) > 200000)
             {
                 if (produto.Ean.Substring(0, 1) == "2")
-                    produto.Ean = produto.Ean.Substring(1, 5);
+                {
+                    if (mConfig.Remover_Digito_Verificador_Ean)
+                        produto.Ean = produto.Ean.Substring(1, 4);
+                    else
+                        produto.Ean = produto.Ean.Substring(1, 5);
+                }
             }
 
             produto.Ean1 = r["Id"].ToString();
@@ -4701,7 +4715,9 @@ namespace ImportadorFopImperium
                     sw.WriteLine("schemaPostgreSQL=");
                     sw.WriteLine();
                     sw.WriteLine("[PARAMETROS]");
+                    sw.WriteLine("[Valores booleanos aceitos => (true/false | sim/nao | 1/0)]");
                     sw.WriteLine("qtdeImportar=1000");
+                    sw.WriteLine("removerDigitoVerificadorEan=true");
 
                     sw.Flush();
                     sw.Close();
@@ -4754,6 +4770,9 @@ namespace ImportadorFopImperium
                         break;
                     case "QTDEIMPORTAR":
                         mConfig.Qtde_Importar = ConverterInt64(valores[1]);
+                        break;
+                    case "REMOVERDIGITOVERIFICADOREAN":
+                        mConfig.Remover_Digito_Verificador_Ean = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
                         break;
                     case "HOSTPOSTGRESQL":
                         mConfig.Host_PostgreSQL = valores[1];

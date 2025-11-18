@@ -263,6 +263,7 @@ namespace ImportadorFopImperium
                                                 FROM {mConfig.Schema_PostgreSQL}.""Produto"" p 
                                                 JOIN {mConfig.Schema_PostgreSQL}.""ICMS"" t ON p.""TribICMS"" = t.""CST""
                                                 WHERE t.""SimplesNacional"" = false
+                                                AND t.""CST"" IN (SELECT ""TribICMS"" FROM {mConfig.Schema_PostgreSQL}.""Produto"") 
                                                 GROUP BY ""TribICMS"", ""AliqICMS"", t.""Descricao"", t.""CST"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
@@ -919,6 +920,26 @@ namespace ImportadorFopImperium
                 {
                     Tributacao tributacao = new Tributacao();
 
+                    if (t["CST"].ToString() != "00" && t["CST"].ToString() != "20" && t["CST"].ToString() != "40" && t["CST"].ToString() != "60")
+                        continue;
+
+                    if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                    {
+                        if (t["CST"].ToString() == "00" && ConverterDecimal(t["taxa"].ToString()) <= 0)
+                            t["CST"] = "40";
+                    }
+                    else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                    {
+                        if ((t["CST"].ToString() == "00" && ConverterDecimal(t["AliqICMS"].ToString()) <= 0) || (t["CST"].ToString() == "20" && ConverterDecimal(t["AliqICMS"].ToString()) <= 0))
+                            continue;
+                    }
+
+                    if (t["CST"].ToString() == "40" || t["CST"].ToString() == "60")
+                    {
+                        if (ImportacaoImperium.Lista_Tributacoes.Any(_t => _t.CST == t["CST"].ToString()))
+                            continue;
+                    }
+
                     if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
                         tributacao.Aliquota_ICMS = ConverterDecimal(t["taxa"].ToString());
@@ -927,8 +948,26 @@ namespace ImportadorFopImperium
                     }
                     else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                     {
-                        tributacao.Aliquota_ICMS = ConverterDecimal(t["AliqICMS"].ToString());
-                        tributacao.Descricao = t["Descricao"].ToString().ToUpper() + " " + t["AliqICMS"].ToString().Substring(0, 5);
+                        if (t["CST"].ToString() == "00" && ConverterDecimal(t["AliqICMS"].ToString()) <= 0)
+                            t["CST"] = "40";
+
+                        if (t["CST"].ToString() == "40" && t["CST"].ToString() == "60")
+                        {
+                            if (ImportacaoImperium.Lista_Tributacoes.Any(_t => _t.CST == t["CST"].ToString()))
+                                continue;
+                        }
+
+                        if (t["CST"].ToString() == "40" || t["CST"].ToString() == "60")
+                        {
+                            tributacao.Aliquota_ICMS = 0;
+                            tributacao.Descricao = t["Descricao"].ToString().ToUpper();
+                        }
+                        else
+                        {
+                            tributacao.Aliquota_ICMS = ConverterDecimal(t["AliqICMS"].ToString());
+                            tributacao.Descricao = t["Descricao"].ToString().ToUpper() + " " + t["AliqICMS"].ToString().Substring(0, 5);
+                        }
+                        
                         tributacao.CST = t["CST"].ToString();
                     }
 
@@ -2037,9 +2076,50 @@ namespace ImportadorFopImperium
                 produto.Tributacao.Loja = loja;
                 produto.Tributacao.Origem = "0 - NACIONAL";
                 produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
+
                 decimal aliq = ConverterDecimal(r["AliqICMS"].ToString());
                 string cst = r["TribICMS"].ToString();
-                produto.Tributacao.Sit_Trib_Entrada = produto.Tributacao.Sit_Trib_Saida = string.IsNullOrEmpty(cst) ? 0 : ImportacaoImperium.Lista_Tributacoes.FirstOrDefault(t => t.Aliquota_ICMS == aliq && t.CST == cst).Id_Imperium;
+
+                //TRATAMENTOS TRIBUTACAO
+                if (cst == "10" || cst == "70")
+                {
+                    aliq = 0;
+                    cst = "60";
+                }
+
+                if (cst != "00" && cst != "60" && cst != "20")
+                {
+                    cst = "40";
+                    aliq = 0;
+                }
+
+                if ((cst == "40" || cst == "60") && aliq > 0)
+                    aliq = 0;
+
+                if ((cst == "00" || cst == "20") && aliq <= 0)
+                {
+                    cst = "40";
+                    aliq = 0;
+                }
+
+                long idTribImperium = 0;
+
+                try
+                {
+                    idTribImperium = ImportacaoImperium.Lista_Tributacoes.FirstOrDefault(t => t.Aliquota_ICMS == aliq && t.CST == cst).Id_Imperium;
+                }
+                catch
+                {
+                    Logar($"Produto = {produto.Descricao} - Ean = {produto.Ean} => Marcado como tributado mas sem alíquota, mudando para ISENTO");
+                    idTribImperium = 0;
+                }
+                finally
+                {
+                    if (idTribImperium == 0)
+                        idTribImperium = ImportacaoImperium.Lista_Tributacoes.FirstOrDefault(t => t.CST == "40").Id_Imperium;
+                }
+
+                produto.Tributacao.Sit_Trib_Entrada = produto.Tributacao.Sit_Trib_Saida = idTribImperium;
                 produto.Tributacao.ICMS_Entrada = produto.Tributacao.ICMS_Saida = aliq;
                 produto.Tributacao.Reducao_Base = 0;
                 produto.Tributacao.Tab_ICMS_Entrada = produto.Tributacao.Tab_ICMS_Saida = RetornaTabICMSPostgreSQL(cst);

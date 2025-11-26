@@ -2055,15 +2055,15 @@ namespace ImportadorFopImperium
                 DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoDe"]);
                 DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoAte"]);
                 produto.Preco.LOJA = loja;
-                produto.Preco.CUSTO = Math.Round(ConverterDecimal(r["CustoFinal"].ToString()));
+                produto.Preco.CUSTO = ConverterDecimal(r["CustoFinal"].ToString());
                 produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());
-                produto.Preco.VENDA1 = Math.Round(ConverterDecimal(r["VlVenda"].ToString()), 3);
+                produto.Preco.VENDA1 = ConverterDecimal(r["VlVenda"].ToString());
                 produto.Preco.VENDA2 = 0;
                 produto.Preco.PRPROMOCAO = ConverterDecimal(r["VlPromocao"].ToString());
                 produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
                 produto.Preco.DTFINALPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
                 produto.Preco.MARGEM = ConverterDecimal(r["MargemCadastrada"].ToString());
-                produto.Preco.VENDA1_ANTERIOR = Math.Round(ConverterDecimal(r["VlVendaAnterior"].ToString()), 3);
+                produto.Preco.VENDA1_ANTERIOR = ConverterDecimal(r["VlVendaAnterior"].ToString());
                 produto.Preco.IDFAMILIA = ConverterInt32(r["FkFamilia"].ToString());
 
                 produto.Estoque = new ProdutoEstoque();
@@ -2232,16 +2232,17 @@ namespace ImportadorFopImperium
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{produto.Id},");
             stringBuilder.Append($"{loja},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO.ToString())},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO_MEDIO.ToString())},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1.ToString())},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA2.ToString())},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.PRPROMOCAO.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO.ToString("N2"), true)},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.CUSTO_MEDIO.ToString("N2"), true)},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1.ToString("N2"), true)},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA2.ToString("N2"), true)},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.PRPROMOCAO.ToString("N2"), true)},");
             stringBuilder.Append($"'{produto.Preco.DTINICIOPROMOCAO}',");
             stringBuilder.Append($"'{produto.Preco.DTFINALPROMOCAO}',");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.MARGEM.ToString())},");
+            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.MARGEM.ToString("N2"), true)},");   
             stringBuilder.Append($"{produto.Preco.IDFAMILIA},");
-            stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1_ANTERIOR > 0 ? produto.Preco.VENDA1_ANTERIOR.ToString() : "0.00")}");
+            stringBuilder.Append($"0.00");
+            //stringBuilder.Append($"{AjustaStringDecimal(produto.Preco.VENDA1_ANTERIOR > 0 ? produto.Preco.VENDA1_ANTERIOR.ToString("N2") : "0.00")}");
             stringBuilder.Append($"),");
 
             return stringBuilder.ToString();

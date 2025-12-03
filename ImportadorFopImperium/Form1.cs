@@ -2046,7 +2046,7 @@ namespace ImportadorFopImperium
                 produto.Cest = cest;
                 produto.Vasilhame = 0;
                 produto.Id_TabelaNutricional = ConverterInt32(r["FkNutricional"].ToString());
-                produto.Id_Familia = 0;
+                produto.Id_Familia = ConverterInt32(r["FkFamilia"].ToString());
                 produto.Cotacao = r["Cotacao"].ToString().ToUpper() == "TRUE" ? "S" : "N";
                 produto.Inf_Adicional = RetornaInfAdicional(r);
 

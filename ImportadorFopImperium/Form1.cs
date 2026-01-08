@@ -2201,8 +2201,8 @@ namespace ImportadorFopImperium
             //stringBuilder.Append($"{produto.Id},");
             stringBuilder.Append($"'{descricao.Replace("'", " ")}',");
             stringBuilder.Append($"'{produto.Descricao_Reduzida.Replace("'", " ")}',");
-            stringBuilder.Append($"CAST({produto.Embalagem_Entrada.ToString().Replace(",", ".")} AS DECIMAL(10, 4)),");
-            stringBuilder.Append($"CAST({produto.Embalagem_Saida.ToString().Replace(",", ".")} AS DECIMAL(10,4)),");
+            stringBuilder.Append($"CAST({produto.Embalagem_Entrada.ToString().Replace(",", ".")} AS DECIMAL(10, 2)),");
+            stringBuilder.Append($"CAST({produto.Embalagem_Saida.ToString().Replace(",", ".")} AS DECIMAL(10,2)),");
             stringBuilder.Append($"'{produto.Unidade_Entrada}',");
             stringBuilder.Append($"'{produto.Unidade_Saida}',");
             stringBuilder.Append($"'{produto.Obs}',");

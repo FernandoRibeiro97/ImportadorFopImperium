@@ -1861,7 +1861,9 @@ namespace ImportadorFopImperium
                         {
                             Logar("Erro ao inserir lote de produtos");
                             Logar(ex.Message);
-                            //Logar(strBuilderProduto.ToString());
+
+                            if (mConfig.Mostrar_Insert_Produto_Erro)
+                                Logar(strBuilderProduto.ToString());
                         }
                     }
                 }
@@ -2003,9 +2005,11 @@ namespace ImportadorFopImperium
                 string descricaoReduzida = r["DescricaoReduzida"].ToString().Length > 24 ? r["DescricaoReduzida"].ToString().Substring(0, 24) : r["DescricaoReduzida"].ToString();
                 string cest = r["cest"].ToString().Length > 7 ? r["Cest"].ToString().Substring(0, 7) : r["Cest"].ToString();
 
+                descricaoReduzida = LimparCampoDescricaoProduto(descricaoReduzida);
+
                 ProdutoImperium produto = new ProdutoImperium();
                 produto.Id = ConverterInt64(r["id"].ToString());
-                produto.Descricao = r["Descricao"].ToString().Trim();
+                produto.Descricao = LimparCampoDescricaoProduto(r["Descricao"].ToString());
                 produto.Descricao_Reduzida = string.IsNullOrEmpty(descricaoReduzida) ? produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao : descricaoReduzida;
                 produto.Descricao_Reduzida = produto.Descricao_Reduzida.Trim();
                 produto.Unidade_Entrada = r["Unidade"].ToString().ToUpper() == "KG" ? "KG" : "UN";
@@ -2046,7 +2050,7 @@ namespace ImportadorFopImperium
                 produto.Cest = cest;
                 produto.Vasilhame = 0;
                 produto.Id_TabelaNutricional = ConverterInt32(r["FkNutricional"].ToString());
-                produto.Id_Familia = ConverterInt32(r["FkFamilia"].ToString());
+                //produto.Id_Familia = ConverterInt32(r["FkFamilia"].ToString());
                 produto.Cotacao = r["Cotacao"].ToString().ToUpper() == "TRUE" ? "S" : "N";
                 produto.Inf_Adicional = RetornaInfAdicional(r);
 
@@ -2197,8 +2201,8 @@ namespace ImportadorFopImperium
             //stringBuilder.Append($"{produto.Id},");
             stringBuilder.Append($"'{descricao.Replace("'", " ")}',");
             stringBuilder.Append($"'{produto.Descricao_Reduzida.Replace("'", " ")}',");
-            stringBuilder.Append($"{produto.Embalagem_Entrada.ToString().Replace(",", ".")},");
-            stringBuilder.Append($"{produto.Embalagem_Saida.ToString().Replace(",", ".")},");
+            stringBuilder.Append($"CAST({produto.Embalagem_Entrada.ToString().Replace(",", ".")} AS DECIMAL(10, 4)),");
+            stringBuilder.Append($"CAST({produto.Embalagem_Saida.ToString().Replace(",", ".")} AS DECIMAL(10,4)),");
             stringBuilder.Append($"'{produto.Unidade_Entrada}',");
             stringBuilder.Append($"'{produto.Unidade_Saida}',");
             stringBuilder.Append($"'{produto.Obs}',");
@@ -2217,7 +2221,7 @@ namespace ImportadorFopImperium
             stringBuilder.Append($"{produto.Vasilhame},");
             stringBuilder.Append($"'{produto.Tipo}',");
             stringBuilder.Append($"{produto.Id_TabelaNutricional},");
-            stringBuilder.Append($"{produto.Id_Familia},");
+            stringBuilder.Append($"{produto.Preco.IDFAMILIA},");
             stringBuilder.Append($"'{produto.Cotacao}',");
             stringBuilder.Append($"'{produto.Inf_Adicional}'");
 
@@ -2756,6 +2760,10 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
             }
             finally { FecharConexaoMysql(); }
+        }
+        private string LimparCampoDescricaoProduto(string descricaoFOP)
+        {
+            return descricaoFOP.Replace("'", "").Replace("\\", "").Trim();
         }
         #endregion
 
@@ -4920,6 +4928,7 @@ namespace ImportadorFopImperium
                     sw.WriteLine("[Valores booleanos aceitos => (true/false | sim/nao | 1/0)]");
                     sw.WriteLine("qtdeImportar=1000");
                     sw.WriteLine("removerDigitoVerificadorEan=true");
+                    sw.WriteLine("mostrarInsertProdutoErro=false");
 
                     sw.Flush();
                     sw.Close();
@@ -4975,6 +4984,9 @@ namespace ImportadorFopImperium
                         break;
                     case "REMOVERDIGITOVERIFICADOREAN":
                         mConfig.Remover_Digito_Verificador_Ean = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
+                        break;
+                    case "MOSTRARINSERTPRODUTOERRO":
+                        mConfig.Mostrar_Insert_Produto_Erro = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
                         break;
                     case "HOSTPOSTGRESQL":
                         mConfig.Host_PostgreSQL = valores[1];

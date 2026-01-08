@@ -13,6 +13,7 @@ namespace ImportadorFopImperium.Model
         public bool Remover_Digito_Verificador_Ean { get; set; }
         public TipoConexaoEnum Conexao_Origem { get; set; }
         public TipoConexaoEnum Conexao_Destino { get; set; }
+        public bool Mostrar_Insert_Produto_Erro { get; set; }
         #endregion
 
         #region SQL Server

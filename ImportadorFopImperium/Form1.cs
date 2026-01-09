@@ -2058,6 +2058,8 @@ namespace ImportadorFopImperium
                 DateTime dataMinima = new DateTime(2020, 1, 1);
                 DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoDe"]);
                 DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoAte"]);
+                decimal margem = ConverterDecimal(r["MargemCadastrada"].ToString());
+
                 produto.Preco.LOJA = loja;
                 produto.Preco.CUSTO = ConverterDecimal(r["CustoCompra"].ToString());
                 produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());
@@ -2066,7 +2068,7 @@ namespace ImportadorFopImperium
                 produto.Preco.PRPROMOCAO = ConverterDecimal(r["VlPromocao"].ToString());
                 produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
                 produto.Preco.DTFINALPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
-                produto.Preco.MARGEM = ConverterDecimal(r["MargemCadastrada"].ToString());
+                produto.Preco.MARGEM = mConfig.Zerar_Margem_Menor_Que_Zero && margem < 0M ? 0M : margem;
                 produto.Preco.VENDA1_ANTERIOR = ConverterDecimal(r["VlVendaAnterior"].ToString());
                 produto.Preco.IDFAMILIA = ConverterInt32(r["FkFamilia"].ToString());
 
@@ -4888,129 +4890,6 @@ namespace ImportadorFopImperium
             grpDataVenda.Enabled = ativa;
             grpDataNotaEntrada.Enabled = ativa;
         }
-        private bool VerificaArquivoINI()
-        {
-            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-            return File.Exists(caminho);
-        }
-        private bool CriaArquivoIni()
-        {
-            try
-            {
-                string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-
-                File.Create(caminho).Close();
-
-                using (StreamWriter sw = new StreamWriter(caminho))
-                {
-                    sw.WriteLine("[IMPERIUM]");
-                    sw.WriteLine("servidorMySQL=localhost");
-                    sw.WriteLine("usuarioMySQL=root");
-                    sw.WriteLine("senhaMySQL=root");
-                    sw.WriteLine("bancoMySQL=db_imperium");
-                    sw.WriteLine();
-                    sw.WriteLine("[FOP]");
-                    sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
-                    sw.WriteLine("tipoConexao=1");
-                    sw.WriteLine("servidorSQLServer=");
-                    sw.WriteLine("usuarioSQLServer=");
-                    sw.WriteLine("senhaSQLServer=");
-                    sw.WriteLine("bancoSQLServer=");
-                    sw.WriteLine();
-                    sw.WriteLine("hostPostgreSQL=");
-                    sw.WriteLine("portaPostgreSQL=");
-                    sw.WriteLine("usuarioPostgreSQL=");
-                    sw.WriteLine("senhaPostgreSQL=");
-                    sw.WriteLine("bancoPostgreSQL=");
-                    sw.WriteLine("schemaPostgreSQL=");
-                    sw.WriteLine();
-                    sw.WriteLine("[PARAMETROS]");
-                    sw.WriteLine("[Valores booleanos aceitos => (true/false | sim/nao | 1/0)]");
-                    sw.WriteLine("qtdeImportar=1000");
-                    sw.WriteLine("removerDigitoVerificadorEan=true");
-                    sw.WriteLine("mostrarInsertProdutoErro=false");
-
-                    sw.Flush();
-                    sw.Close();
-                }
-
-                return true;
-            }
-            catch (Exception)
-            {
-                Logar("Erro ao criar arquivo config");
-                return false;
-            }
-        }
-        private void CarregarConfiguracoesConfigIni()
-        {
-            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
-
-            foreach (string linha in File.ReadAllLines(caminho))
-            {
-                var valores = linha.Split('=');
-
-                switch (valores[0].ToUpper())
-                {
-                    case "SERVIDORMYSQL":
-                        mConfig.Servidor_MySQL = valores[1];
-                        break;
-                    case "USUARIOMYSQL":
-                        mConfig.Usuario_MySQL = valores[1];
-                        break;
-                    case "SENHAMYSQL":
-                        mConfig.Senha_MySQL = valores[1];
-                        break;
-                    case "BANCOMYSQL":
-                        mConfig.Banco_MySQL = valores[1];
-                        break;
-                    case "TIPOCONEXAO":
-                        mConfig.Tipo_Conexao = valores[1];
-                        break;
-                    case "SERVIDORSQLSERVER":
-                        mConfig.Servidor_SQLServer = valores[1];
-                        break;
-                    case "USUARIOSQLSERVER":
-                        mConfig.Usuario_SQLServer = valores[1];
-                        break;
-                    case "SENHASQLSERVER":
-                        mConfig.Senha_SQLServer = valores[1];
-                        break;
-                    case "BANCOSQLSERVER":
-                        mConfig.Banco_SQLServer = valores[1];
-                        break;
-                    case "QTDEIMPORTAR":
-                        mConfig.Qtde_Importar = ConverterInt64(valores[1]);
-                        break;
-                    case "REMOVERDIGITOVERIFICADOREAN":
-                        mConfig.Remover_Digito_Verificador_Ean = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
-                        break;
-                    case "MOSTRARINSERTPRODUTOERRO":
-                        mConfig.Mostrar_Insert_Produto_Erro = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
-                        break;
-                    case "HOSTPOSTGRESQL":
-                        mConfig.Host_PostgreSQL = valores[1];
-                        break;
-                    case "PORTAPOSTGRESQL":
-                        mConfig.Porta_PostgreSQL = valores[1];
-                        break;
-                    case "USUARIOPOSTGRESQL":
-                        mConfig.Usuario_PostgreSQL = valores[1];
-                        break;
-                    case "SENHAPOSTGRESQL":
-                        mConfig.Senha_PostgreSQL = valores[1];
-                        break;
-                    case "BANCOPOSTGRESQL":
-                        mConfig.Banco_PostgreSQL = valores[1];
-                        break;
-                    case "SCHEMAPOSTGRESQL":
-                        mConfig.Schema_PostgreSQL = valores[1];
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
         private string RecuperaLinguagemSQLServer()
         {
             try
@@ -5224,6 +5103,136 @@ namespace ImportadorFopImperium
                 return valor.Replace(",", ".");
         }
 
+        #endregion
+
+        #region CONFIG
+        private bool VerificaArquivoINI()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+            return File.Exists(caminho);
+        }
+        private bool CriaArquivoIni()
+        {
+            try
+            {
+                string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+
+                File.Create(caminho).Close();
+
+                using (StreamWriter sw = new StreamWriter(caminho))
+                {
+                    sw.WriteLine("[IMPERIUM]");
+                    sw.WriteLine("servidorMySQL=localhost");
+                    sw.WriteLine("usuarioMySQL=root");
+                    sw.WriteLine("senhaMySQL=root");
+                    sw.WriteLine("bancoMySQL=db_imperium");
+                    sw.WriteLine();
+                    sw.WriteLine("[FOP]");
+                    sw.WriteLine("[tipoConexao (1 = Autenticacao Windows, 2 = Usuario/Senha)]");
+                    sw.WriteLine("tipoConexao=1");
+                    sw.WriteLine("servidorSQLServer=");
+                    sw.WriteLine("usuarioSQLServer=");
+                    sw.WriteLine("senhaSQLServer=");
+                    sw.WriteLine("bancoSQLServer=");
+                    sw.WriteLine();
+                    sw.WriteLine("hostPostgreSQL=");
+                    sw.WriteLine("portaPostgreSQL=");
+                    sw.WriteLine("usuarioPostgreSQL=");
+                    sw.WriteLine("senhaPostgreSQL=");
+                    sw.WriteLine("bancoPostgreSQL=");
+                    sw.WriteLine("schemaPostgreSQL=");
+                    sw.WriteLine();
+                    sw.WriteLine("[PARAMETROS]");
+                    sw.WriteLine("[Valores booleanos aceitos => (true/false | sim/nao | 1/0)]");
+                    sw.WriteLine("qtdeImportar=1000");
+                    sw.WriteLine("removerDigitoVerificadorEan=true");
+                    sw.WriteLine("mostrarInsertProdutoErro=false");
+                    sw.WriteLine("zerarMargemMenorQueZero=false");
+
+                    sw.Flush();
+                    sw.Close();
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                Logar("Erro ao criar arquivo config");
+                return false;
+            }
+        }
+        private void CarregarConfiguracoesConfigIni()
+        {
+            string caminho = Directory.GetCurrentDirectory() + "\\config.ini";
+
+            foreach (string linha in File.ReadAllLines(caminho))
+            {
+                var valores = linha.Split('=');
+
+                switch (valores[0].ToUpper())
+                {
+                    case "SERVIDORMYSQL":
+                        mConfig.Servidor_MySQL = valores[1];
+                        break;
+                    case "USUARIOMYSQL":
+                        mConfig.Usuario_MySQL = valores[1];
+                        break;
+                    case "SENHAMYSQL":
+                        mConfig.Senha_MySQL = valores[1];
+                        break;
+                    case "BANCOMYSQL":
+                        mConfig.Banco_MySQL = valores[1];
+                        break;
+                    case "TIPOCONEXAO":
+                        mConfig.Tipo_Conexao = valores[1];
+                        break;
+                    case "SERVIDORSQLSERVER":
+                        mConfig.Servidor_SQLServer = valores[1];
+                        break;
+                    case "USUARIOSQLSERVER":
+                        mConfig.Usuario_SQLServer = valores[1];
+                        break;
+                    case "SENHASQLSERVER":
+                        mConfig.Senha_SQLServer = valores[1];
+                        break;
+                    case "BANCOSQLSERVER":
+                        mConfig.Banco_SQLServer = valores[1];
+                        break;
+                    case "QTDEIMPORTAR":
+                        mConfig.Qtde_Importar = ConverterInt64(valores[1]);
+                        break;
+                    case "REMOVERDIGITOVERIFICADOREAN":
+                        mConfig.Remover_Digito_Verificador_Ean = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
+                        break;
+                    case "MOSTRARINSERTPRODUTOERRO":
+                        mConfig.Mostrar_Insert_Produto_Erro = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
+                        break;
+                    case "ZERARMARGEMMENORQUEZERO":
+                        mConfig.Zerar_Margem_Menor_Que_Zero = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
+                        break;
+                    case "HOSTPOSTGRESQL":
+                        mConfig.Host_PostgreSQL = valores[1];
+                        break;
+                    case "PORTAPOSTGRESQL":
+                        mConfig.Porta_PostgreSQL = valores[1];
+                        break;
+                    case "USUARIOPOSTGRESQL":
+                        mConfig.Usuario_PostgreSQL = valores[1];
+                        break;
+                    case "SENHAPOSTGRESQL":
+                        mConfig.Senha_PostgreSQL = valores[1];
+                        break;
+                    case "BANCOPOSTGRESQL":
+                        mConfig.Banco_PostgreSQL = valores[1];
+                        break;
+                    case "SCHEMAPOSTGRESQL":
+                        mConfig.Schema_PostgreSQL = valores[1];
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
         #endregion
     }
 }

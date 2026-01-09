@@ -14,6 +14,7 @@ namespace ImportadorFopImperium.Model
         public TipoConexaoEnum Conexao_Origem { get; set; }
         public TipoConexaoEnum Conexao_Destino { get; set; }
         public bool Mostrar_Insert_Produto_Erro { get; set; }
+        public bool Zerar_Margem_Menor_Que_Zero { get; set; }
         #endregion
 
         #region SQL Server

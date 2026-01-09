@@ -2059,7 +2059,7 @@ namespace ImportadorFopImperium
                 DateTime inicioPromo = Convert.ToDateTime(r["DtPromocaoDe"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoDe"]);
                 DateTime finalPromo = Convert.ToDateTime(r["DtPromocaoAte"]) < dataMinima ? dataMinima : Convert.ToDateTime(r["DtPromocaoAte"]);
                 produto.Preco.LOJA = loja;
-                produto.Preco.CUSTO = ConverterDecimal(r["CustoFinal"].ToString());
+                produto.Preco.CUSTO = ConverterDecimal(r["CustoCompra"].ToString());
                 produto.Preco.CUSTO_MEDIO = ConverterDecimal(r["CustoCompra"].ToString());
                 produto.Preco.VENDA1 = ConverterDecimal(r["VlVenda"].ToString());
                 produto.Preco.VENDA2 = 0;

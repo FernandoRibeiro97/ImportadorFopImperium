@@ -156,7 +156,7 @@ namespace ImportadorFopImperium
             chkItensFornecedor.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Itens_Fornecedor.Rows.Count > 0;
             chkGrupo.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Grupo.Rows.Count > 0;
             chkNFEntrada.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Nota_Entrada.Rows.Count > 0;
-            chkVenda.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
+            //chkVenda.Enabled = chkProdutos.Checked && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
         }
         private void chkFornecedores_CheckedChanged(object sender, EventArgs e)
         {
@@ -177,48 +177,55 @@ namespace ImportadorFopImperium
         {
             try
             {
-                Logar("Carregando Lojas");
-                ImportacaoImperium.Dt_Lojas = CarregarLojas();
-                Logar("Carregando Cadastro de Tributacao");
-                ImportacaoImperium.Dt_Tributacao = CarregarTributacao();
-                Logar("Carregando PIS");
-                ImportacaoImperium.Dt_Pis = CarregarPis();
-                Logar("Carregando Cofins");
-                ImportacaoImperium.Dt_Cofins = CarregarCofins();
-                Logar("Carregando Produtos");
-                ImportacaoImperium.Dt_Produto = CarregarProdutos();
-                Logar("Carregando Entidades");
-                ImportacaoImperium.Dt_Entidades = CarregarEntidades();
-                Logar("Carregando Fone Entidades");
-                ImportacaoImperium.Dt_Fone_Entidade = CarregarFoneEntidade();
-                Logar("Carregando Email Entidades");
-                ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
-                Logar("Carregando Entidades do Tipo Cliente");
-                ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
-                Logar("Carregando Itens Fornecedor");
-                ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
-                Logar("Carregando Entidades do Tipo Fornecedor");
-                ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
-                Logar("Carregando Familias");
-                ImportacaoImperium.Dt_Familia = CarregarFamilia();
-                Logar("Carregando Grupos");
-                ImportacaoImperium.Dt_Grupo = CarregarGrupo();
-                Logar("Carregando SubGrupos");
-                ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
-                Logar("Carregando SubGrupos1");
-                ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
-                Logar("Carregando Carregando Tabela Nutricional");
-                ImportacaoImperium.Dt_Tabela_Nutricional = CarregarTabelaNutriocional();
-                Logar("Carregando Contas a Pagar");
-                ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
-                Logar("Carregando Contas a Receber");
-                ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
-                Logar("Carregando Carregando Notas de Entrada");
-                ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
-                Logar("Carregando Itens Nota de Entrada");
-                ImportacaoImperium.Dt_Nota_Entrada_Itens = CarregarNotaEntradaItens();
-                Logar("Carregando Vendas");
-                ImportacaoImperium.Dt_Vendas = CarregarVendas();
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    ImportacaoSistemaSantSystem();
+                }
+                else
+                {
+                    Logar("Carregando Lojas");
+                    ImportacaoImperium.Dt_Lojas = CarregarLojas();
+                    Logar("Carregando Cadastro de Tributacao");
+                    ImportacaoImperium.Dt_Tributacao = CarregarTributacao();
+                    Logar("Carregando PIS");
+                    ImportacaoImperium.Dt_Pis = CarregarPis();
+                    Logar("Carregando Cofins");
+                    ImportacaoImperium.Dt_Cofins = CarregarCofins();
+                    Logar("Carregando Produtos");
+                    ImportacaoImperium.Dt_Produto = CarregarProdutos();
+                    Logar("Carregando Entidades");
+                    ImportacaoImperium.Dt_Entidades = CarregarEntidades();
+                    Logar("Carregando Fone Entidades");
+                    ImportacaoImperium.Dt_Fone_Entidade = CarregarFoneEntidade();
+                    Logar("Carregando Email Entidades");
+                    ImportacaoImperium.Dt_Email_Entidade = CarregarEmailEntidade();
+                    Logar("Carregando Entidades do Tipo Cliente");
+                    ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
+                    Logar("Carregando Itens Fornecedor");
+                    ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
+                    Logar("Carregando Entidades do Tipo Fornecedor");
+                    ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
+                    Logar("Carregando Familias");
+                    ImportacaoImperium.Dt_Familia = CarregarFamilia();
+                    Logar("Carregando Grupos");
+                    ImportacaoImperium.Dt_Grupo = CarregarGrupo();
+                    Logar("Carregando SubGrupos");
+                    ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
+                    Logar("Carregando SubGrupos1");
+                    ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
+                    Logar("Carregando Carregando Tabela Nutricional");
+                    ImportacaoImperium.Dt_Tabela_Nutricional = CarregarTabelaNutriocional();
+                    Logar("Carregando Contas a Pagar");
+                    ImportacaoImperium.Dt_Contas_Pagar = CarregarContasPagar();
+                    Logar("Carregando Contas a Receber");
+                    ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
+                    Logar("Carregando Carregando Notas de Entrada");
+                    ImportacaoImperium.Dt_Nota_Entrada = CarregarNotaEntrada();
+                    Logar("Carregando Itens Nota de Entrada");
+                    ImportacaoImperium.Dt_Nota_Entrada_Itens = CarregarNotaEntradaItens();
+                    Logar("Carregando Vendas");
+                    ImportacaoImperium.Dt_Vendas = CarregarVendas();
+                }
             }
             catch (Exception ex)
             {
@@ -233,8 +240,18 @@ namespace ImportadorFopImperium
                 string comandoSQLServer = @"SELECT * FROM MultiLoja.Loja;";
                 string comandoPostgreSQL = $"SELECT * FROM {mConfig.Schema_PostgreSQL}.\"Assinante\"";
 
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    comandoSQLServer = @"SELECT  
+                                            IdEmpresa as id,
+                                            IdEmpresa as entidadeLoja,
+                                            REPLACE(REPLACE(REPLACE(CNPJ, '.', ''), '/', ''), '-', '') as cnpjLoja,
+                                            1 as ativo
+                                            FROM Empresa;";
+                }
+
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
-                    return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                   return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
                 else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                     return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
                 else
@@ -265,6 +282,19 @@ namespace ImportadorFopImperium
                                                 WHERE t.""SimplesNacional"" = false
                                                 AND t.""CST"" IN (SELECT ""TribICMS"" FROM {mConfig.Schema_PostgreSQL}.""Produto"") 
                                                 GROUP BY ""TribICMS"", ""AliqICMS"", t.""Descricao"", t.""CST"";";
+
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    comandoSQLServer = @"SELECT 
+                                        IIF(ICMS <> '0,00' AND (CST = '60' OR CST = '40' OR CST = '41'), '0,00', ICMS) AS taxa,
+                                        CST,
+                                        CASE
+	                                        WHEN ICMS <> '0,00' AND (CST <> '60' AND CST <> '40' AND CST <> '41') THEN CONCAT('TRIBUTADO ', ICMS, '%')
+	                                        WHEN ICMS = '0,00' AND CST = '60' THEN 'SUBST. TRIBUTARIA'
+	                                        ELSE 'ISENTO'
+                                        END AS descricaoAliquota
+                                        FROM dbo.Itens WHERE CST <> '' GROUP BY ICMS, CST;";
+                }
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -331,6 +361,30 @@ namespace ImportadorFopImperium
                                                 FROM {mConfig.Schema_PostgreSQL}.""Produto"" p
                                                 JOIN {mConfig.Schema_PostgreSQL}.""ProdutoMultiLoja"" pp ON p.""Id"" = pp.""FkProduto"";";
 
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    comandoSQLServer = @"SELECT id, REPLACE(Descr, ';', '') as descricao, SUBSTRING(REPLACE(Descr, ';', ''), 1, 24) descricao_reduzida, QtdC as embEntra, QtdV as embSaida, IIF(UNMED = 'KG', 'KG', 'UN') as UnidEntra, IIF(UNMED = 'KG', 'KG', 'UN') as UnidSaida, 'IMPORTADO' as obs,
+                            CAST(Val AS int) as validade, Setor1 as idgrupo, Setor1 as idsubgrupo, Setor1 as idsubgrupo1, sit as idsituacao, '2026-01-26' DataCadastro, PP as PesoVariavel, 1 as Etiqueta, 
+                            IIF(CODIGOEANGTIN = '' OR CODIGOEANGTIN IS NULL, IIF(DATALENGTH(cod) > 13, SUBSTRING(cod, 1, 13), cod), IIF(DATALENGTH(CODIGOEANGTIN) > 13, SUBSTRING(CODIGOEANGTIN, 1, 13), CODIGOEANGTIN)) as ean,
+                            CODIGOEANGTIN as ean1, 
+                            IIF(NCM = '' OR NCM = '00000000', '12345678', NCM) as ClassFiscal,
+                            CEST,
+                            0 as vasilhame,
+                            IIF(UNMED = 'KG', 'P', 'U') as tipo,
+                            0 as idTabelaNutricao,
+                            0 as IDFAMILIA,
+                            Custo,
+                            PrecVen as venda1,
+                            Marg as margem,
+                            Estoque,
+                            Min as EstoqueMinimo,
+                            ICMS,
+                            CST
+
+                            FROM Itens
+                            ORDER BY Descr;";
+                }
+
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
                 else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
@@ -369,7 +423,43 @@ namespace ImportadorFopImperium
                                 LEFT JOIN {mConfig.Schema_PostgreSQL}.""Cadastro"" cc ON e.""Id"" = cc.""FkEntidade"";";
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                {
+                    if (mConfig.ImportacaoSistemaSantSystem)
+                    {
+                        comandoSQLServer = @"SELECT
+                                                chvcadastros as id,
+                                                nom as razaoSocial,
+                                                apdoftsia as nomeFantasia,
+                                                Ende as endereco,
+                                                Num as numero,
+                                                Bairro as bairro,
+                                                Cidade as cidade,
+                                                0 as cdMunicipio,
+                                                UF as uf,
+                                                Cep as cep,
+                                                CPF as cnpj,
+                                                RG as rg,
+                                                RG as inscricaoEstadual,
+                                                '00' as credito,
+                                                LimiteCredito as limite,
+                                                IIF(nasc = '__/__/____', '2000-01-01', CAST(nasc AS DATE)) as dt_nasc,
+                                                0 as usado,
+                                                observaçoes as obs,
+                                                1 as empresa_convenio,
+                                                'TT' as tipo,
+                                                2 as tipofidelidade,
+                                                0 as condicaoPagamento,
+                                                Fone1 as fone1,
+                                                Fone1 as fone2,
+                                                Cel as celular,
+                                                '' as email,
+                                                IIF(Descr = 'Clientes', 1, 0) as isCliente,
+                                                IIF(Descr = 'Fornecedores', 1, 0) as isFornecedor
+                                                FROM dbo.Cadastros;";
+                    }
+
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
+                }
                 else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
                     return RecuperaDataTable(comandoPostgreSQL, TipoConexaoEnum.PostgreSQL);
                 else
@@ -451,6 +541,17 @@ namespace ImportadorFopImperium
             string comandoSQLServer = @"SELECT * FROM CadProduto.Referencia;";
             string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Referencia"";";
 
+            if (mConfig.ImportacaoSistemaSantSystem)
+            {
+                comandoSQLServer = @"SELECT 
+                                        CHVFOR AS fkFornecedor,
+                                        CHVPROD AS fkProduto,
+                                        i.Cod AS sref,
+                                        1 AS tamEmb
+                                        FROM dbo.ForProd f
+                                        JOIN dbo.Itens i ON i.id = f.CHVPROD;";
+            }
+
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
             else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
@@ -462,6 +563,11 @@ namespace ImportadorFopImperium
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.SuperDepto;";
             string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Departamento"";";
+
+            if (mConfig.ImportacaoSistemaSantSystem)
+            {
+                comandoSQLServer = @"SELECT Id AS id, Descr AS nomeDepto FROM dbo.Setor;";
+            }
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -475,6 +581,11 @@ namespace ImportadorFopImperium
             string comandoSQLServer = @"SELECT * FROM CadProduto.Categoria;";
             string comandoPostgreSQL = $@"SELECT ""Id"", ""Descricao"", ""Departamento_Id"" FROM {mConfig.Schema_PostgreSQL}.""Secao"";";
 
+            if (mConfig.ImportacaoSistemaSantSystem)
+            {
+                comandoSQLServer = @"SELECT Id AS id, Descr AS nomeCategoria, Id AS fkDepto FROM dbo.Setor;";
+            }
+
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
             else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
@@ -486,6 +597,11 @@ namespace ImportadorFopImperium
         {
             string comandoSQLServer = @"SELECT * FROM CadProduto.SubCategoria;";
             string comandoPostgreSQL = $@"SELECT * FROM {mConfig.Schema_PostgreSQL}.""Categoria"";";
+
+            if (mConfig.ImportacaoSistemaSantSystem)
+            {
+                comandoSQLServer = @"SELECT Id AS id, Descr AS nomeCategoria, Id AS fkDepto, Id AS fkCategoria FROM dbo.Setor;";
+            }
 
             if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -542,6 +658,19 @@ namespace ImportadorFopImperium
                                                 d.""FkLoja"" AS fkLoja
                                                 FROM dbo.""VendaPrazo"" d
                                                 JOIN dbo.""Venda"" v ON d.""FkVenda"" = v.""IdVenda"";";
+
+
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    comandoSQLServer = @"SELECT
+                                            ChvCad as fkentidade,
+                                            Id as fkvenda,
+                                            TotConv as valorvenda,
+                                            VlReceber as valorpago,
+                                            Data as dtvenda,
+                                            1 as fkloja
+                                            FROM dbo.Convenio;";
+                }
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     return RecuperaDataTable(comandoSQLServer, TipoConexaoEnum.SQLServer);
@@ -645,7 +774,8 @@ namespace ImportadorFopImperium
                 de = ConverterDateTime(dataVendaDE.Text).ToString("yyyy-MM-dd");
                 ate = ConverterDateTime(dataVendaATE.Text).ToString("yyyy-MM-dd");
 
-                string comandoPostgreSQL = $@"SELECT 
+                string comandoPostgreSQL = $@"SELECT
+                                                c.""COO"" as cupom,
                                                 c.""IdVenda"" AS codigo_fop,
                                                 i.""Codigo"" AS codigoEan, 
                                                 CAST(i.""VlTotal"" AS DECIMAL(10, 2)) AS valor,
@@ -654,16 +784,18 @@ namespace ImportadorFopImperium
                                                 CAST(i.""VlDesconto"" AS DECIMAL(10, 2)) AS descontoItem,
                                                 c.""FkLoja"" AS loja,
                                                 c.""DtInicio"" AS datamov,
-                                                i.""CustoMedio"" AS custoProduto,
+                                                CAST(i.""CustoMedio"" AS DECIMAL(10, 2)) AS custoProduto,
                                                 i.""Cancelado"" AS situacao,
                                                 c.""Cancelado"" AS situacao_cupom,
-                                                i.""VlUnitario"" AS valor_unitario,
+                                                CAST((i.""VlUnitario"" - i.""VlDesconto"") AS DECIMAL(10, 2)) AS valor_unitario,
                                                 i.""Ordem"" AS nsu
                                                 FROM {mConfig.Schema_PostgreSQL}.""Venda"" c
                                                 JOIN {mConfig.Schema_PostgreSQL}.""VendaItem"" i ON c.""IdVenda"" = i.""FkVenda""
-                                                WHERE c.""DtInicio"" BETWEEN '{de}' AND '{ate}'
+                                                WHERE i.""Cancelado"" = false
+                                                AND c.""Cancelado"" = false
+                                                AND c.""DtInicio"" BETWEEN '{de}' AND '{ate}'
+                                                
                                                 ORDER BY c.""IdVenda"", i.""Ordem"";";
-
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                 {
                     if (mConfig.Linguagem_SQL_Server.Contains("Português"))
@@ -844,11 +976,19 @@ namespace ImportadorFopImperium
                     ImportarNotaEntrada();
                 }
 
-                if (chkVenda.Checked)
-                {
-                    Logar("IMPORTANDO ITENS VENDA...");
-                    ImportarItemVenda();
-                }
+                //if (chkVenda.Checked)
+                //{
+                //    Logar("IMPORTANDO ITENS VENDA...");
+                //    Logar($"{ImportacaoImperium.Dt_Vendas.Rows.Count}");
+                //    ImportarItemVenda();
+                //}
+            }
+
+            if (chkVenda.Checked)
+            {
+                Logar("IMPORTANDO ITENS VENDA...");
+                Logar($"{ImportacaoImperium.Dt_Vendas.Rows.Count}");
+                ImportarItemVenda();
             }
 
             if (chkClientes.Checked)
@@ -1006,7 +1146,12 @@ namespace ImportadorFopImperium
                 ProdutoImperium produto = new ProdutoImperium();
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
-                    produto = RetornaProdutoImperiumPorDataRow(r);
+                {
+                    if (mConfig.ImportacaoSistemaSantSystem)
+                        produto = RetornaProdutoImperiumPorDataRowSantSystem(r);
+                    else
+                        produto = RetornaProdutoImperiumPorDataRow(r);
+                }
                 else
                     produto = RetornaProdutoImperiumPorDataRowPostgreSQL(r);
 
@@ -1017,7 +1162,11 @@ namespace ImportadorFopImperium
                     else
                     {
                         lstProduto.Add(produto);
-                        lstIdInserido.Add(produto.Ean1);
+
+                        if (mConfig.ImportacaoSistemaSantSystem)
+                            lstIdInserido.Add(produto.Id.ToString());
+                        else
+                            lstIdInserido.Add(produto.Ean1);
                     }
                 }
                 else
@@ -1079,7 +1228,9 @@ namespace ImportadorFopImperium
                 {
                     if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
                     {
-                        var produto = lstProduto.FirstOrDefault(p => p.Ean1 == r["fkProduto"].ToString());
+                        ProdutoImperium produto = null;
+
+                        produto = lstProduto.FirstOrDefault(p => p.Ean1 == r["fkProduto"].ToString());
 
                         if (produto != null)
                         {
@@ -1132,7 +1283,7 @@ namespace ImportadorFopImperium
                         grupos.Add(new Grupo()
                         {
                             Id = ConverterInt64(r["id"].ToString()),
-                            Descricao = r["nomeDepto"].ToString()
+                            Descricao = RetornarStringFormatada(r["nomeDepto"].ToString()).ToUpper()
                         });
                     }
                     else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
@@ -1140,7 +1291,7 @@ namespace ImportadorFopImperium
                         grupos.Add(new Grupo()
                         {
                             Id = ConverterInt64(r["Id"].ToString()),
-                            Descricao = r["Descricao"].ToString().Replace("'", "")
+                            Descricao = RetornarStringFormatada(r["Descricao"].ToString().Replace("'", "")).ToUpper()
                         });
                     }
                 }
@@ -1167,7 +1318,7 @@ namespace ImportadorFopImperium
                         {
                             Id = ConverterInt64(r["id"].ToString()),
                             Id_Grupo = ConverterInt64(r["fkDepto"].ToString()),
-                            Descricao = r["nomeCategoria"].ToString()
+                            Descricao = RetornarStringFormatada(r["nomeCategoria"].ToString()).ToUpper()
                         });
                     }
                     else if(mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
@@ -1176,7 +1327,7 @@ namespace ImportadorFopImperium
                         {
                             Id = ConverterInt64(r["Id"].ToString()),
                             Id_Grupo = ConverterInt64(r["Departamento_Id"].ToString()),
-                            Descricao = r["Descricao"].ToString().Replace("'", "")
+                            Descricao = RetornarStringFormatada(r["Descricao"].ToString().Replace("'", "")).ToUpper()
                         });
                     }
                 }
@@ -1205,7 +1356,7 @@ namespace ImportadorFopImperium
                             Id = ConverterInt64(r["id"].ToString()),
                             Id_Grupo = RetornaFkDeptoCategoria(ConverterInt64(r["fkCategoria"].ToString())),
                             Id_SubGrupo = ConverterInt64(r["fkCategoria"].ToString()),
-                            Descricao = r["nomeCategoria"].ToString(),
+                            Descricao = RetornarStringFormatada(r["nomeCategoria"].ToString()).ToUpper(),
 
                         });
                     }
@@ -1216,7 +1367,7 @@ namespace ImportadorFopImperium
                             Id = ConverterInt64(r["Id"].ToString()),
                             Id_Grupo = RetornaFkDeptoCategoriaPostgreSQL(ConverterInt64(r["Secao_Id"].ToString())),
                             Id_SubGrupo = ConverterInt64(r["Secao_Id"].ToString()),
-                            Descricao = r["Descricao"].ToString().Replace("'", "")
+                            Descricao = RetornarStringFormatada(r["Descricao"].ToString().Replace("'", "")).ToUpper()
 
                         });
                     }
@@ -1650,7 +1801,7 @@ namespace ImportadorFopImperium
                 StringBuilder strBuilderTributacao = new StringBuilder(comandoTributacao);
                 StringBuilder strBuilderProdutoEan = new StringBuilder(comandoProdutoEan);
 
-                int cont = 0;
+                long cont = 0;
                 int contSemDescricao = 0;
 
                 foreach (ProdutoImperium p in lstProduto)
@@ -1665,17 +1816,21 @@ namespace ImportadorFopImperium
 
                     cont++;
                     contadorImportacao.Cont_Produtos++;
+
                     p.Id = contadorImportacao.Cont_Produtos;
 
-                    if (CarregaProdutoEan(p) > 0)
+                    if (!mConfig.ImportacaoSistemaSantSystem)
                     {
-                        foreach (ProdutoEan pEan in p.Lst_Ean)
-                            strBuilderProdutoEan.Append(RetornaLinhaInserirProdutoEan(pEan));
+                        if (CarregaProdutoEan(p) > 0)
+                        {
+                            foreach (ProdutoEan pEan in p.Lst_Ean)
+                                strBuilderProdutoEan.Append(RetornaLinhaInserirProdutoEan(pEan));
 
-                        InsertBanco(strBuilderProdutoEan, command, 1, 1);
+                            InsertBanco(strBuilderProdutoEan, command, 1, 1);
 
-                        strBuilderProdutoEan.Clear();
-                        strBuilderProdutoEan.Append(comandoProdutoEan);
+                            strBuilderProdutoEan.Clear();
+                            strBuilderProdutoEan.Append(comandoProdutoEan);
+                        }
                     }
 
                     strBuilderProduto.AppendLine(RetornaLinhaInserirProduto(p));
@@ -2156,6 +2311,121 @@ namespace ImportadorFopImperium
                 Logar(ex.Message);
                 return new ProdutoImperium();
             }
+        }
+        private ProdutoImperium RetornaProdutoImperiumPorDataRowSantSystem(DataRow r)
+        {
+            int loja = 1;
+            string cest = r["cest"].ToString().Length > 7 ? r["cest"].ToString().Substring(0, 7) : r["cest"].ToString();
+
+            ProdutoImperium produto = new ProdutoImperium();
+            produto.Id = Convert.ToInt32(r["id"].ToString());
+            produto.Descricao = RetornarStringFormatada(r["descricao"].ToString().Trim());
+            produto.Descricao_Reduzida = produto.Descricao.Length > 24 ? produto.Descricao.Substring(0, 24) : produto.Descricao;
+            produto.Descricao_Reduzida = produto.Descricao_Reduzida.Trim();
+            produto.Unidade_Entrada = r["UnidEntra"].ToString();
+            produto.Unidade_Saida = r["UnidSaida"].ToString();
+            produto.Embalagem_Entrada = ConverterDecimal(r["embEntra"].ToString().Replace(",", "."));
+            produto.Embalagem_Saida = ConverterDecimal(r["embSaida"].ToString().Replace(",", "."));
+            produto.Obs = "IMPORTADO";
+            produto.Validade = ConverterInt32(r["validade"].ToString());
+            produto.Id_Grupo = ConverterInt32(r["idgrupo"].ToString());
+            produto.Id_SubGrupo = ConverterInt32(r["idsubgrupo"].ToString());
+            produto.Id_SubGrupo1 = ConverterInt32(r["idsubgrupo1"].ToString());
+            produto.Id_Situacao = r["idsituacao"].ToString() == "0" ? 2 : 1;
+            produto.Peso_Variavel = ConverterInt32(r["PesoVariavel"].ToString());
+
+            if (produto.Peso_Variavel == 1)
+            {
+                produto.Tipo = produto.Unidade_Saida == "KG" ? "P" : "U";
+            }
+            else
+                produto.Tipo = "U";
+
+
+            produto.Etiqueta = 1;
+
+            long ean = ConverterInt64(r["ean"].ToString());
+            produto.Ean = ean.ToString();
+
+            if (ean > 200000 && produto.Ean.StartsWith("0"))
+            {
+                if (produto.Ean.Substring(0, 1) == "2")
+                {
+                    if (mConfig.Remover_Digito_Verificador_Ean)
+                        produto.Ean = produto.Ean.ToLower().Substring(1, 4);
+                    else
+                        produto.Ean = produto.Ean.ToLower().Substring(1, 5);
+                }
+            }
+            
+            produto.Ean1 = r["id"].ToString();
+            produto.ClassFiscal = r["ClassFiscal"].ToString();
+            produto.Cest = cest;
+            produto.Vasilhame = 0;
+            produto.Id_TabelaNutricional = 0; //TODO: VERIFICAR CAMPO
+            produto.Id_Familia = 0; //TODO: VERIFICAR CAMPO
+
+            produto.Preco = new ProdutoPreco();
+            //int tamanhoCaixa = ConverterInt32(r["tamCaixa"].ToString()) == 0 ? 1 : ConverterInt32(r["tamCaixa"].ToString());
+            DateTime inicioPromo = new DateTime(2021, 1, 1);
+            DateTime finalPromo = new DateTime(2021, 1, 1);
+            decimal precoVenda = r["venda1"].ToString().Length > 14 ? 0 : ConverterDecimal(r["venda1"].ToString());
+            produto.Preco.PRPROMOCAO = 0;
+            produto.Preco.LOJA = loja;
+            produto.Preco.CUSTO = ConverterDecimal(r["Custo"].ToString());
+            produto.Preco.CUSTO_MEDIO = 0m;
+            produto.Preco.VENDA1 = ConverterDecimal(r["venda1"].ToString());
+            produto.Preco.VENDA2 = 0;
+            produto.Preco.DTINICIOPROMOCAO = inicioPromo.ToString("yyyy-MM-dd");
+            produto.Preco.DTFINALPROMOCAO = finalPromo.ToString("yyyy-MM-dd");
+            produto.Preco.MARGEM = ConverterDecimal(r["margem"].ToString());
+            produto.Preco.VENDA1_ANTERIOR = 0m;
+            produto.Preco.IDFAMILIA = 0;
+
+            produto.Estoque = new ProdutoEstoque();
+            produto.Estoque.Loja = loja;
+            produto.Estoque.Estoque_Atual = ConverterDecimal(r["Estoque"].ToString());
+            produto.Estoque.Estoque_Minimo = ConverterDecimal(r["EstoqueMinimo"].ToString());
+            produto.Estoque.Cobertura_Estoque = 0;
+
+            produto.Tributacao = new ProdutoTributacao();
+            produto.Tributacao.Loja = loja;
+            produto.Tributacao.Origem = "0 - NACIONAL";
+            produto.Tributacao.Tipo_Produto = "00 - MERCADORIA PARA REVENDA";
+            //AjustaTributacaoProduto(produto);
+
+            decimal aliqICMS = ConverterDecimal(r["ICMS"].ToString());
+            string cst = r["CST"].ToString();
+
+            if (cst == "60" && aliqICMS > 0m)
+                aliqICMS = 0m;
+
+            if (cst == "40")
+                aliqICMS = -1;
+
+            produto.Tributacao.Sit_Trib_Entrada = produto.Tributacao.Sit_Trib_Saida = RetornarSitTribSantSystem(aliqICMS);
+            produto.Tributacao.ICMS_Entrada = produto.Tributacao.ICMS_Saida = aliqICMS;
+            produto.Tributacao.Reducao_Base = produto.Tributacao.Reducao_Base_Saida = 0;
+            produto.Tributacao.Tab_ICMS_Entrada = produto.Tributacao.Tab_ICMS_Saida = RetornarTabICMSSantSystem(cst);
+            produto.Tributacao.Cod_Trib = RetornarCodTribSantSystem(aliqICMS);
+            produto.Tributacao.IPI = 0;
+            produto.Tributacao.IVA = 0;
+            produto.Tributacao.Tipo_PIS_Cofins = "I";
+            produto.Tributacao.CST_PIS = "73 - Operação de Aquisição a Alíquota Zero";
+            produto.Tributacao.CST_PIS_Saida = "06 - Operação Tributável a Alíquota Zero";
+            produto.Tributacao.CSS_Apurada = "02 - Contribuição não-cumulativa apurada a alíquotas diferenciadas";
+            produto.Tributacao.Carga_Tributaria_Federal = 0;
+            produto.Tributacao.Carga_Tributaria = 0;
+            produto.Tributacao.Chave_NCM = "M2L5P8";
+            produto.Tributacao.CST_IPI_Saida = produto.Tributacao.CST_IPI_Entrada = "";
+            produto.Tributacao.Tipo_IVA = "P";
+            produto.Tributacao.Calcula_IVA_Ajustado = "N";
+            produto.Tributacao.Natureza_Receita = "";
+            produto.Tributacao.FECOEP = 0;
+            produto.Tributacao.PIS_Entrada = 0m;
+            produto.Tributacao.Cofins_Entrada = 0m;
+
+            return produto;
         }
         private string RetornaLinhaInserirProduto(ProdutoImperium produto)
         {
@@ -2883,7 +3153,7 @@ namespace ImportadorFopImperium
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
-                string comando = @"INSERT INTO subgrupo (IdSubGrupo, IdGrupo, Nome) VALUES ";
+                string comando = @"INSERT INTO subgrupo (id, IdSubGrupo, IdGrupo, Nome) VALUES ";
                 StringBuilder strGrupo = new StringBuilder(comando);
                 int cont = 0;
 
@@ -2925,6 +3195,7 @@ namespace ImportadorFopImperium
         {
             StringBuilder stringBuilder = new StringBuilder("(");
             stringBuilder.Append($"{subgrupo.Id},");
+            stringBuilder.Append($"{subgrupo.Id},");
             stringBuilder.Append($"{subgrupo.Id_Grupo},");
             stringBuilder.Append($"'{subgrupo.Descricao}'");
             stringBuilder.Append("),");
@@ -2940,7 +3211,7 @@ namespace ImportadorFopImperium
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
 
-                string comando = @"INSERT INTO subgrupo1 (idSubGrupo1, idGrupo, idSubGrupo, Nome) VALUES ";
+                string comando = @"INSERT INTO subgrupo1 (id, idSubGrupo1, idGrupo, idSubGrupo, Nome) VALUES ";
                 StringBuilder strSubGrupo = new StringBuilder(comando);
                 int cont = 0;
 
@@ -2977,6 +3248,7 @@ namespace ImportadorFopImperium
         private string RetornaLinhaInserirSubGrupo1(SubGrupo1 subgrupo1)
         {
             StringBuilder stringBuilder = new StringBuilder("(");
+            stringBuilder.Append($"{subgrupo1.Id},");
             stringBuilder.Append($"{subgrupo1.Id},");
             stringBuilder.Append($"{subgrupo1.Id_Grupo},");
             stringBuilder.Append($"{subgrupo1.Id_SubGrupo},");
@@ -3359,12 +3631,12 @@ namespace ImportadorFopImperium
             builder.Append("(");
 
             builder.Append($"{cliente.Id},");
-            builder.Append($"'{cliente.Nome}',");
-            builder.Append($"'{cliente.Fantasia}',");
-            builder.Append($"'{cliente.Endereco}',");
+            builder.Append($"'{RetornarStringFormatada(cliente.Nome).ToUpper()}',");
+            builder.Append($"'{RetornarStringFormatada(cliente.Fantasia).ToUpper()}',");
+            builder.Append($"'{RetornarStringFormatada(cliente.Endereco).ToUpper()}',");
             builder.Append($"'{cliente.Numero}',");
-            builder.Append($"'{cliente.Bairro}',");
-            builder.Append($"'{cliente.Cidade}',");
+            builder.Append($"'{RetornarStringFormatada(cliente.Bairro).ToUpper()}',");
+            builder.Append($"'{RetornarStringFormatada(cliente.Cidade).ToUpper()}',");
             builder.Append($"{cliente.Codigo_Municipio},");
             builder.Append($"'{cliente.UF}',");
             builder.Append($"'{cliente.CEP}',");
@@ -3393,6 +3665,21 @@ namespace ImportadorFopImperium
             try
             {
                 AbrirConexaoMysql();
+
+                //if (true) //TODO: VERIFICAR PARA ADICIONAR NOVAMENTE
+                //{
+                //    string comandoRemoverFK1 = @"ALTER TABLE autorizacaopagamento DROP FOREIGN KEY FK_AutorizacaoPagamento_Empresa;";
+                //    string comandoRemoverFK2 = @"ALTER TABLE autorizacaopagamento DROP FOREIGN KEY FK_AutorizacaoPagamento_Fornecedor;";
+                //    string comandoRemoverFK3 = @"ALTER TABLE autorizacaopagamento DROP FOREIGN KEY FK_AutorizacaoPagamento_Usuario;";
+
+                //    MySqlCommand _command = new MySqlCommand(comandoRemoverFK1, connecctionDestinoMysql);
+                //    _command.ExecuteNonQuery();
+                //    _command = new MySqlCommand(comandoRemoverFK2, connecctionDestinoMysql);
+                //    _command.ExecuteNonQuery();
+                //    _command = new MySqlCommand(comandoRemoverFK3, connecctionDestinoMysql);
+                //    _command.ExecuteNonQuery();
+                //}
+
                 string comandoTruncar = "TRUNCATE cliente;";
                 MySqlCommand command = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
                 command.ExecuteNonQuery();
@@ -3475,15 +3762,24 @@ namespace ImportadorFopImperium
             cliente.Tipo_Fidelidade = ConverterInt32(r["tipofidelidade"].ToString());
             cliente.Condicao_Pagamento = ConverterInt32(r["condicaoPagamento"].ToString());
 
-            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            if (mConfig.ImportacaoSistemaSantSystem)
             {
-                AdicionarFoneCliente(cliente);
-                AdicionarEmailCliente(cliente);
+                cliente.Fone = r["fone1"].ToString();
+                cliente.Fone2 = r["fone2"].ToString();
+                cliente.Celular = r["celular"].ToString();
             }
-            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            else
             {
-                AdicionarFoneClientePostgreSQL(cliente);
-                AdicionarEmailClientePostgreSQL(cliente);
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                {
+                    AdicionarFoneCliente(cliente);
+                    AdicionarEmailCliente(cliente);
+                }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                {
+                    AdicionarFoneClientePostgreSQL(cliente);
+                    AdicionarEmailClientePostgreSQL(cliente);
+                }
             }
 
             return cliente;
@@ -3618,15 +3914,26 @@ namespace ImportadorFopImperium
             fornecedor.UF = r["uf"].ToString();
             fornecedor.CEP = r["cep"].ToString().Replace("-", "");
 
-            if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+            if (mConfig.ImportacaoSistemaSantSystem)
             {
-                AdicionarFoneFornecedor(fornecedor);
-                AdicionarEmailFornecedor(fornecedor);
+                fornecedor.Telefone = "";
+                fornecedor.Fax = "";
+                fornecedor.Obs = "";
+                fornecedor.Email = "";
+                fornecedor.Email_Pedido = "";
             }
-            else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+            else
             {
-                AdicionarFoneFornecedorPostgreSQL(fornecedor);
-                AdicionarEmailFornecedorPostgreSQL(fornecedor);
+                if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
+                {
+                    AdicionarFoneFornecedor(fornecedor);
+                    AdicionarEmailFornecedor(fornecedor);
+                }
+                else if (mConfig.Conexao_Origem == TipoConexaoEnum.PostgreSQL)
+                {
+                    AdicionarFoneFornecedorPostgreSQL(fornecedor);
+                    AdicionarEmailFornecedorPostgreSQL(fornecedor);
+                }
             }
 
             return fornecedor;
@@ -3689,14 +3996,14 @@ namespace ImportadorFopImperium
             strBuilder.Append("(");
 
             strBuilder.Append($"{fornecedor.Id},");
-            strBuilder.Append($"'{fornecedor.Nome}',");
+            strBuilder.Append($"'{RetornarStringFormatada(fornecedor.Nome).ToUpper()}',");
             strBuilder.Append($"'{fornecedor.CPF_CGC}',");
             strBuilder.Append($"'{fornecedor.RG_IE}',");
-            strBuilder.Append($"'{fornecedor.Fantasia}',");
-            strBuilder.Append($"'{fornecedor.Endereco}',");
+            strBuilder.Append($"'{RetornarStringFormatada(fornecedor.Fantasia).ToUpper()}',");
+            strBuilder.Append($"'{RetornarStringFormatada(fornecedor.Endereco).ToUpper()}',");
             strBuilder.Append($"'{fornecedor.Numero}',");
-            strBuilder.Append($"'{fornecedor.Bairro}',");
-            strBuilder.Append($"'{fornecedor.Cidade}',");
+            strBuilder.Append($"'{RetornarStringFormatada(fornecedor.Bairro)}',");
+            strBuilder.Append($"'{RetornarStringFormatada(fornecedor.Cidade)}',");
             strBuilder.Append($"{fornecedor.Codigo_Municipio},");
             strBuilder.Append($"'{fornecedor.UF}',");
             strBuilder.Append($"'{fornecedor.CEP}',");
@@ -3979,7 +4286,12 @@ namespace ImportadorFopImperium
         {
             ContaReceber receber = new ContaReceber();
             receber.Id_Cliente = ConverterInt64(r["fkEntidade"].ToString());
-            receber.Numero_Venda = r["fkvenda"].ToString().Substring(13, 6);
+
+            if (mConfig.ImportacaoSistemaSantSystem)
+                receber.Numero_Venda = r["fkvenda"].ToString();
+            else
+                receber.Numero_Venda = r["fkvenda"].ToString().Substring(13, 6);
+
             receber.Valor_Vista = ConverterDecimal(r["valorvenda"].ToString());
             receber.Valor_Pago = ConverterDecimal(r["valorpago"].ToString());
             receber.Data_Venda = ConverterDateTime(r["dtvenda"].ToString());
@@ -4356,12 +4668,13 @@ namespace ImportadorFopImperium
             if (itemVenda.Id_Produto == 0)
                 RetornaIdProdutoPorEan(ConverterInt64(r["codigoEan"].ToString()).ToString());
 
+            //itemVenda.Cupom = ConverterInt64(r["cupom"].ToString());
             itemVenda.NSU = ConverterInt32(r["nsu"].ToString());
             itemVenda.CodigoEan = ConverterInt64(r["codigoEan"].ToString());
             itemVenda.Valor = ConverterDecimal(r["valor"].ToString());
             itemVenda.Qtde = ConverterDecimal(r["quantidade"].ToString());
             itemVenda.ECF = ConverterInt32(r["ecf"].ToString());
-            itemVenda.Modelo = "2D";
+            itemVenda.Modelo = "65";
             itemVenda.Desconto = ConverterDecimal(r["descontoItem"].ToString());
             itemVenda.Loja = ConverterInt32(r["loja"].ToString());
             itemVenda.Datamov = ConverterDateTime(r["datamov"].ToString()).ToString("yyyy-MM-dd");
@@ -4469,16 +4782,23 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
 
-                using (MySqlConnection conn = new MySqlConnection(strConexaoDestinoMySql))
+                using (connecctionDestinoMysql)
                 {
-                    string comando = @"SELECT COUNT(*) FROM cadtributacao;";
-                    MySqlCommand command = new MySqlCommand(comando, conn);
-                    return Convert.ToInt64(command.ExecuteScalar()) > 0;
+                    string comando = @"SELECT 1 FROM cadtributacao;";
+                    MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
+
+                    using (MySqlDataReader rdr = command.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                            return Convert.ToInt64(rdr[0]) > 0;
+                        else
+                            return false;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Logar("Erro ao criar casdastro de tributacao");
+                Logar("Erro ao criar cadastro de tributacao");
                 Logar(ex.Message);
                 return false;
             }
@@ -4493,7 +4813,11 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
 
-                using (MySqlConnection conn = new MySqlConnection(strConexaoDestinoMySql))
+                string comandoTruncar = "TRUNCATE cadtributacao;";
+                MySqlCommand commandTruncar = new MySqlCommand(comandoTruncar, connecctionDestinoMysql);
+                commandTruncar.ExecuteNonQuery();
+
+                using (connecctionDestinoMysql)
                 {
                     string comando = @"INSERT INTO cadtributacao(idCadTributacao, descricao, sittrib, valor, codPDV, aliquotaIcms, reducao)
                                                                 (1, 'TRIBUTADO EM 18%', '01', '1800', '00', 18.00, 0.00),
@@ -4504,13 +4828,13 @@ namespace ImportadorFopImperium
                                                                 (6, 'SUBSTITUICAO TRIBUTARIA', 'FF', 'FF', '04', 0.00, 0.00),
                                                                 (7, 'NAO TRIBUTADO', 'N1', 'N1', '05', 0.00, 0.00),
                                                                 (8, 'IMPOSTO SOBRE SERVICO', 'IS', 'ISS', '20', 0.00, 0.00);";
-                    MySqlCommand command = new MySqlCommand(comando, conn);
+                    MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
-                Logar("Erro ao criar casdastro de tributacao");
+                Logar("Erro ao criar cadastro de tributacao");
                 Logar(ex.Message);
             }
             finally
@@ -4524,7 +4848,7 @@ namespace ImportadorFopImperium
             {
                 AbrirConexaoMysql();
 
-                using (MySqlConnection conn = new MySqlConnection(strConexaoDestinoMySql))
+                using (connecctionDestinoMysql)
                 {
                     MySqlCommand command = new MySqlCommand();
 
@@ -4535,7 +4859,7 @@ namespace ImportadorFopImperium
                                         icmscompra = 0, icms = 0
                                         WHERE (sittrib = 0 OR sittrib IS NULL);";
 
-                    command = new MySqlCommand(comando, conn);
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
 
                     comando = @"UPDATE produto_tributacao
@@ -4546,9 +4870,17 @@ namespace ImportadorFopImperium
                                         WHERE tabicmsprod = '00 - TRIBUTADA INTEGRALMENTE'
                                         AND icms = 0;";
 
-                    command = new MySqlCommand(comando, conn);
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
                     command.ExecuteNonQuery();
 
+                    //IMPORTAÇÃO SANT SYSTEM
+                    comando = @"UPDATE  produto_tributacao
+                                        SET icmscompra = 0, icms = 0
+                                        WHERE icmscompra = -1
+                                        AND icms = -1;";
+
+                    command = new MySqlCommand(comando, connecctionDestinoMysql);
+                    command.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -4741,7 +5073,7 @@ namespace ImportadorFopImperium
                 chkContasReceber.Enabled = chkClientes.Enabled && ImportacaoImperium.Dt_Contas_Receber.Rows.Count > 0;
                 chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores.Count > 0;
                 chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
-                chkVenda.Enabled = chkProdutos.Enabled && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
+                //chkVenda.Enabled = chkProdutos.Enabled && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
             }
         }
         private void InformaContadorRegistrosCarregados()
@@ -5102,7 +5434,63 @@ namespace ImportadorFopImperium
             else
                 return valor.Replace(",", ".");
         }
+        private string RetornarStringFormatada(string str, bool removerCaracteresEspeciais = true)
+        {
+            str = str.Replace("Á", "A");
+            str = str.Replace("á", "a");
+            str = str.Replace("À", "A");
+            str = str.Replace("à", "a");
+            str = str.Replace("Â", "A");
+            str = str.Replace("â", "a");
+            str = str.Replace("Ã", "A");
+            str = str.Replace("ã", "a");
 
+            str = str.Replace("É", "E");
+            str = str.Replace("é", "e");
+            str = str.Replace("È", "E");
+            str = str.Replace("è", "e");
+            str = str.Replace("Ê", "E");
+            str = str.Replace("ê", "e");
+
+            str = str.Replace("Í", "I");
+            str = str.Replace("í", "i");
+            str = str.Replace("Ì", "I");
+            str = str.Replace("ì", "i");
+
+            str = str.Replace("Ó", "O");
+            str = str.Replace("ó", "o");
+            str = str.Replace("Ò", "O");
+            str = str.Replace("ò", "o");
+            str = str.Replace("Ô", "O");
+            str = str.Replace("ô", "o");
+            str = str.Replace("Õ", "O");
+            str = str.Replace("õ", "o");
+
+            str = str.Replace("Ú", "U");
+            str = str.Replace("ú", "u");
+            str = str.Replace("Ù", "U");
+            str = str.Replace("ù", "u");
+
+            str = str.Replace("Ç", "C");
+            str = str.Replace("ç", "c");
+
+            if (removerCaracteresEspeciais)
+            {
+                str = str.Replace("\\", "");
+                str = str.Replace("'", "");
+                str = str.Replace("~", "");
+                str = str.Replace("*", "");
+                str = str.Replace(".", "");
+                str = str.Replace(",", "");
+                str = str.Replace("=", "");
+                str = str.Replace("(", "");
+                str = str.Replace(")", "");
+                str = str.Replace("-", "");
+                str = str.Replace(";", "");
+            }
+
+            return str;
+        }
         #endregion
 
         #region CONFIG
@@ -5148,6 +5536,7 @@ namespace ImportadorFopImperium
                     sw.WriteLine("removerDigitoVerificadorEan=true");
                     sw.WriteLine("mostrarInsertProdutoErro=false");
                     sw.WriteLine("zerarMargemMenorQueZero=false");
+                    sw.WriteLine("importacaoSistemaSantSystem=false");
 
                     sw.Flush();
                     sw.Close();
@@ -5210,6 +5599,9 @@ namespace ImportadorFopImperium
                     case "ZERARMARGEMMENORQUEZERO":
                         mConfig.Zerar_Margem_Menor_Que_Zero = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
                         break;
+                    case "IMPORTACAOSISTEMASANTSYSTEM":
+                        mConfig.ImportacaoSistemaSantSystem = (valores[1].ToLower() == "true" || valores[1].ToLower() == "sim" || valores[1].ToLower() == "1");
+                        break;
                     case "HOSTPOSTGRESQL":
                         mConfig.Host_PostgreSQL = valores[1];
                         break;
@@ -5233,6 +5625,109 @@ namespace ImportadorFopImperium
                 }
             }
         }
+        #endregion
+
+        #region SANTSYSTEM
+
+        public int RetornarSitTribSantSystem(decimal aliq)
+        {
+            switch (aliq)
+            {
+                case 18.00m:
+                    return 1;
+                case 25.00m:
+                    return 2;
+                case 12.00m:
+                    return 3;
+                case 7.00m:
+                    return 4;
+                case -1m:
+                    return 5;
+                default:
+                    return 6;
+            }
+        }
+        public string RetornarTabICMSSantSystem(string cst)
+        {
+            switch (cst)
+            {
+                case "00":
+                    return "00 - TRIBUTADA INTEGRALMENTE";
+                case "20":
+                    return "20 - COM REDUÇÃO DE BASE DE CALCULO";
+                case "60":
+                    return "60 - ICMS COBRADO ANT. POR SUBST. TRIB.";
+                case "90":
+                    return "90 - OUTRAS";
+                case "40":
+                default:
+                    return "40 - ISENTA";
+            }
+        }
+        public string RetornarCodTribSantSystem(decimal aliq)
+        {
+            switch (aliq)
+            {
+                case 18.00m:
+                    return "00";
+                case 25.00m:
+                    return "07";
+                case 12.00m:
+                    return "08";
+                case 7.00m:
+                    return "09";
+                case -1m:
+                    return "05";
+                default:
+                    return "04";
+            }
+        }
+        public void AdicionarIdTributacaoSantSystem(DataTable dt)
+        {
+            dt.Columns.Add("id", typeof(int));
+
+            int i = 1;
+            foreach (DataRow r in dt.Rows)
+            {
+                r["id"] = i;
+                i++;
+            }
+        }
+        public void ImportacaoSistemaSantSystem()
+        {
+            Logar("Carregando informações importação SantSystem");
+            Logar("Carregando Lojas");
+            ImportacaoImperium.Dt_Lojas = CarregarLojas();
+            Logar("Carregando Tributações");
+            ImportacaoImperium.Dt_Tributacao = CarregarTributacao();
+            AdicionarIdTributacaoSantSystem(ImportacaoImperium.Dt_Tributacao);
+            Logar("Carregando Produtos");
+            ImportacaoImperium.Dt_Produto = CarregarProdutos();
+
+            ImportacaoImperium.Dt_Entidades = CarregarEntidades();
+            Logar("Carregando Clientes");
+            ImportacaoImperium.Lista_Clientes = FiltraEntidadeCliente();
+            Logar("Carregando Fornecedores");
+            ImportacaoImperium.Lista_Fornecedores = FiltraEntidadeFornecedor();
+            Logar("Carregando Itens Fornecedor");
+            ImportacaoImperium.Dt_Itens_Fornecedor = CarregarItensFornecedor();
+            Logar("Carregando Contas a Receber");
+            ImportacaoImperium.Dt_Contas_Receber = CarregarContasReceber();
+
+            Logar("Carregando Grupos");
+            ImportacaoImperium.Dt_Grupo = CarregarGrupo();
+            Logar("Carregando SubGrupos");
+            ImportacaoImperium.Dt_SubGrupo = CarregarSubGrupo();
+            Logar("Carregando SubGrupos1");
+            ImportacaoImperium.Dt_SubGrupo1 = CarregarSubGrupo1();
+
+            //TABELAS QUE NÃO SERÃO POPULADAS
+            ImportacaoImperium.Dt_Familia = new DataTable();
+            ImportacaoImperium.Dt_Nota_Entrada = new DataTable();
+            ImportacaoImperium.Dt_Tabela_Nutricional = new DataTable();
+        }
+
+
         #endregion
     }
 }

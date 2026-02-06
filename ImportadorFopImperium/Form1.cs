@@ -35,7 +35,7 @@ namespace ImportadorFopImperium
         MySqlConnection connecctionDestinoMysql = new MySqlConnection();
         NpgsqlConnection connectionOrigemPostgreSQL = new NpgsqlConnection();
 
-        OperacaoImportador operacaoImportador = new OperacaoImportador();
+        OperacaoImportador operacaoImportador = OperacaoImportador.Nenhum;
 
         string strConexaoOrigemSqlServer = string.Empty;
         string strConexaoOrigemPostgreSQL = string.Empty;
@@ -365,8 +365,8 @@ namespace ImportadorFopImperium
                 {
                     comandoSQLServer = @"SELECT id, REPLACE(Descr, ';', '') as descricao, SUBSTRING(REPLACE(Descr, ';', ''), 1, 24) descricao_reduzida, QtdC as embEntra, QtdV as embSaida, IIF(UNMED = 'KG', 'KG', 'UN') as UnidEntra, IIF(UNMED = 'KG', 'KG', 'UN') as UnidSaida, 'IMPORTADO' as obs,
                             CAST(Val AS int) as validade, Setor1 as idgrupo, Setor1 as idsubgrupo, Setor1 as idsubgrupo1, sit as idsituacao, '2026-01-26' DataCadastro, PP as PesoVariavel, 1 as Etiqueta, 
-                            IIF(CODIGOEANGTIN = '' OR CODIGOEANGTIN IS NULL, IIF(DATALENGTH(cod) > 13, SUBSTRING(cod, 1, 13), cod), IIF(DATALENGTH(CODIGOEANGTIN) > 13, SUBSTRING(CODIGOEANGTIN, 1, 13), CODIGOEANGTIN)) as ean,
-                            CODIGOEANGTIN as ean1, 
+                            IIF(COD = '' OR COD IS NULL, IIF(DATALENGTH(cod) > 13, SUBSTRING(cod, 1, 13), cod), IIF(DATALENGTH(COD) > 13, SUBSTRING(COD, 1, 13), COD)) as ean,
+                            COD as ean1, 
                             IIF(NCM = '' OR NCM = '00000000', '12345678', NCM) as ClassFiscal,
                             CEST,
                             0 as vasilhame,
@@ -442,7 +442,7 @@ namespace ImportadorFopImperium
                                                 RG as inscricaoEstadual,
                                                 '00' as credito,
                                                 LimiteCredito as limite,
-                                                IIF(nasc = '__/__/____', '2000-01-01', CAST(nasc AS DATE)) as dt_nasc,
+                                                nasc  as dt_nasc,
                                                 0 as usado,
                                                 observaçoes as obs,
                                                 1 as empresa_convenio,
@@ -452,8 +452,8 @@ namespace ImportadorFopImperium
                                                 Fone1 as fone1,
                                                 Fone1 as fone2,
                                                 Cel as celular,
-                                                '' as email,
-                                                IIF(Descr = 'Clientes', 1, 0) as isCliente,
+                                                Descr as email,
+                                                IIF(Descr = 'Clientes' OR Descr = 'Funcionarios', 1, 0) as isCliente,
                                                 IIF(Descr = 'Fornecedores', 1, 0) as isFornecedor
                                                 FROM dbo.Cadastros;";
                     }
@@ -662,14 +662,29 @@ namespace ImportadorFopImperium
 
                 if (mConfig.ImportacaoSistemaSantSystem)
                 {
-                    comandoSQLServer = @"SELECT
-                                            ChvCad as fkentidade,
-                                            Id as fkvenda,
-                                            TotConv as valorvenda,
-                                            VlReceber as valorpago,
-                                            Data as dtvenda,
+                    //APARENTEMENTE ESSES SÃO OS PAGOS
+                    //comandoSQLServer = @"SELECT
+                    //                        ChvCad as fkentidade,
+                    //                        Id as fkvenda,
+                    //                        TotConv as valorvenda,
+                    //                        VlReceber as valorpago,
+                    //                        Data as dtvenda,
+                    //                        1 as fkloja
+                    //                        FROM dbo.Convenio;";
+
+                    //APARENTEMENTE TÍTULOS EM ABERTO - FOI UTILIZADA PARA LANÇAR OS DÉBITOS
+                    comandoSQLServer = @"SELECT 
+                                            ChvCAd as fkentidade,
+                                            IDVenda as fkvenda,
+                                            VlConv as valorvenda,
+                                            0.00 as valorpago,
+                                            DataGr as dtvenda,
                                             1 as fkloja
-                                            FROM dbo.Convenio;";
+                                            FROM dbo.Recebimentos
+                                            WHERE BaixaConvenio = 'N'
+                                            AND VlConv <> '0,00';";
+
+
                 }
 
                 if (mConfig.Conexao_Origem == TipoConexaoEnum.SQLServer)
@@ -1776,7 +1791,8 @@ namespace ImportadorFopImperium
 
                 #region COMANDOS
 
-                string comandoProduto = @"INSERT INTO produto(Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia) 
+                //SOMENTE A IMPORTAÇÃO SANT SYSTEM INSERE IDPRODUTO NO MOMENTO
+                string comandoProduto = $@"INSERT INTO produto({(mConfig.ImportacaoSistemaSantSystem ? "idproduto, " : "")}Descricao, DescrRed, EmbEntra, EmbSaida, UnidEntra, UnidSaida, Obs, Validade, idGrupo, idSubGrupo, idSubGrupo1,idSituacao, DtCadastro, PesoVariavel, Etiqueta, Ean, Ean1, ClassFiscal, cest, Vasilhame, Tipo, idTabelaNutricao, idFamilia) 
                   VALUES ";
 
                 string comandoPreco = @"INSERT INTO produto_preco(
@@ -1817,7 +1833,8 @@ namespace ImportadorFopImperium
                     cont++;
                     contadorImportacao.Cont_Produtos++;
 
-                    p.Id = contadorImportacao.Cont_Produtos;
+                    if (!mConfig.ImportacaoSistemaSantSystem)
+                        p.Id = contadorImportacao.Cont_Produtos;
 
                     if (!mConfig.ImportacaoSistemaSantSystem)
                     {
@@ -1890,6 +1907,11 @@ namespace ImportadorFopImperium
 
                 CorrigirProdutoSemArvoreMercadologica();
                 CorrigirTributacaoProdutos();
+
+                if (mConfig.ImportacaoSistemaSantSystem)
+                {
+                    CorrigirEansDuplicados(RetornarListaEansDuplicados());
+                }
             }
             catch (Exception ex)
             {
@@ -2346,6 +2368,15 @@ namespace ImportadorFopImperium
 
             long ean = ConverterInt64(r["ean"].ToString());
             produto.Ean = ean.ToString();
+            produto.Ean1 = r["id"].ToString();
+
+            if (mConfig.ImportacaoSistemaSantSystem)
+            {
+                if (produto.Ean == "0")
+                {
+                    produto.Ean = produto.Ean1;
+                }
+            }
 
             if (ean > 200000 && produto.Ean.StartsWith("0"))
             {
@@ -2358,7 +2389,7 @@ namespace ImportadorFopImperium
                 }
             }
             
-            produto.Ean1 = r["id"].ToString();
+            
             produto.ClassFiscal = r["ClassFiscal"].ToString();
             produto.Cest = cest;
             produto.Vasilhame = 0;
@@ -2434,7 +2465,9 @@ namespace ImportadorFopImperium
 
             string descricao = string.IsNullOrEmpty(produto.Descricao) ? "SEM DESCRICAO" : produto.Descricao.Length > 100 ? produto.Descricao.Substring(0, 100) : produto.Descricao;
 
-            //stringBuilder.Append($"{produto.Id},");
+            if (mConfig.ImportacaoSistemaSantSystem)
+                stringBuilder.Append($"{produto.Id},");
+
             stringBuilder.Append($"'{descricao.Replace("'", " ")}',");
             stringBuilder.Append($"'{produto.Descricao_Reduzida.Replace("'", " ")}',");
             stringBuilder.Append($"{produto.Embalagem_Entrada.ToString().Replace(",", ".")},");
@@ -3767,6 +3800,7 @@ namespace ImportadorFopImperium
                 cliente.Fone = r["fone1"].ToString();
                 cliente.Fone2 = r["fone2"].ToString();
                 cliente.Celular = r["celular"].ToString();
+                cliente.Email = r["email"].ToString(); //UTILIZADO PARA ENVIAR O TIPO FUNCIONÁRIO/CLIENTE NA BASE DE DESENVOLVIMENTE NINGUÉM TINHA EMAIL
             }
             else
             {
@@ -5068,11 +5102,19 @@ namespace ImportadorFopImperium
         {
             if (ImportacaoImperium != null)
             {
-                chkProdutos.Enabled = ImportacaoImperium.Dt_Produto.Rows.Count > 0;
-                chkClientes.Enabled = ImportacaoImperium.Lista_Clientes.Count > 0;
-                chkContasReceber.Enabled = chkClientes.Enabled && ImportacaoImperium.Dt_Contas_Receber.Rows.Count > 0;
-                chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores.Count > 0;
-                chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
+                chkProdutos.Enabled = ImportacaoImperium.Dt_Produto != null ? ImportacaoImperium.Dt_Produto.Rows.Count > 0 : false;
+               
+                chkClientes.Enabled = ImportacaoImperium.Lista_Clientes != null ? ImportacaoImperium.Lista_Clientes.Count > 0 : false;
+
+                if (chkClientes.Enabled)
+                    chkContasReceber.Enabled = chkClientes.Enabled && ImportacaoImperium.Dt_Contas_Receber.Rows.Count > 0;
+
+
+                chkFornecedores.Enabled = ImportacaoImperium.Lista_Fornecedores != null ? ImportacaoImperium.Lista_Fornecedores.Count > 0 : false;
+
+                if (chkFornecedores.Enabled)
+                    chkContasPagar.Enabled = chkFornecedores.Enabled && ImportacaoImperium.Dt_Contas_Pagar.Rows.Count > 0;
+
                 //chkVenda.Enabled = chkProdutos.Enabled && ImportacaoImperium.Dt_Vendas.Rows.Count > 0;
             }
         }
@@ -5283,6 +5325,7 @@ namespace ImportadorFopImperium
                 try
                 {
                     mConfig.Linguagem_SQL_Server = RecuperaLinguagemSQLServer();
+                    Logar($"string de conexão = {strConexaoOrigemSqlServer}");
                     return true;
                 }
                 catch (Exception ex)
@@ -5375,6 +5418,78 @@ namespace ImportadorFopImperium
                 retorno += string.IsNullOrEmpty(linha) ? "" : linha + "\r\n";
 
             return retorno;
+        }
+        private List<string> RetornarListaEansDuplicados()
+        {
+            List<string> lst = new List<string>();
+
+            try
+            {
+                if (connecctionDestinoMysql.State != ConnectionState.Open)
+                {
+                    connecctionDestinoMysql = new MySqlConnection(strConexaoDestinoMySql);
+                    connecctionDestinoMysql.Open();
+                }
+
+                MySqlCommand command;
+
+                string comando = @"select ean
+                                    from produto
+                                    group by ean
+                                    having count(*) > 1; ";
+
+                command = new MySqlCommand(comando, connecctionDestinoMysql);
+
+                using (MySqlDataReader rdr = command.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        lst.Add(rdr["ean"].ToString());
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                Logar($"Erro ao corrigir duplicidade de ean -> {ex.Message}");
+                return lst;
+            }
+        }
+        private void CorrigirEansDuplicados(List<string> eansDuplicados) 
+        {
+            string eans = string.Empty;
+
+            foreach (string ean in eansDuplicados)
+            {
+                eans += $"'{ean}',";
+            }
+
+            if (!string.IsNullOrEmpty(eans))
+            {
+                var _selecionados = eans.Substring(0, eans.Length - 1);
+
+                string comando = $@"UPDATE produto
+                                   SET ean = ean1
+                                   WHERE ean IN
+                                   (
+                                   {_selecionados}
+                                   );";
+
+                try
+                {
+                    Logar("Corrigindo eans duplicados");
+
+                    MySqlCommand command = new MySqlCommand(comando, connecctionDestinoMysql);
+                    command.ExecuteNonQuery();
+
+                    Logar("Comando executado (Correção de duplicidade de ean)");
+                }
+                catch (Exception ex)
+                {
+                    Logar($"Erro ao executar comando de correção de eans duplicados -> {ex.Message}");
+                }
+            }
         }
         #endregion
 
@@ -5703,6 +5818,7 @@ namespace ImportadorFopImperium
             AdicionarIdTributacaoSantSystem(ImportacaoImperium.Dt_Tributacao);
             Logar("Carregando Produtos");
             ImportacaoImperium.Dt_Produto = CarregarProdutos();
+            Logar($"Produtos carregados - {ImportacaoImperium.Dt_Produto.Rows.Count}");
 
             ImportacaoImperium.Dt_Entidades = CarregarEntidades();
             Logar("Carregando Clientes");

@@ -1910,7 +1910,7 @@ namespace ImportadorFopImperium
 
                 if (mConfig.ImportacaoSistemaSantSystem)
                 {
-                    CorrigirEansDuplicados(RetornarListaEansDuplicados());
+                    //CorrigirEansDuplicados(RetornarListaEansDuplicados());
                 }
             }
             catch (Exception ex)

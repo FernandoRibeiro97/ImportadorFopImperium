@@ -18,7 +18,7 @@ O Importador Fop/Imperium foi desenvolvido para simplificar processos de migraç
 
 - C#
 - Windows Forms
-- .NET Framework 4.8
+- .NET Framework 4.6.1
 - SQL Server
 - PostgreSQL
 - MySQL
@@ -32,7 +32,7 @@ O Importador Fop/Imperium foi desenvolvido para simplificar processos de migraç
 
 ### Framework
 
-- .NET Framework 4.8
+- .NET Framework 4.6.1
 
 ### Bancos de Dados Suportados
 
@@ -97,9 +97,6 @@ PostgreSQL
 
 ```text
 ImportadorFopImperium/
-│
-├── Docs/
-│   ├── Images/
 │
 ├── Enum/
 │

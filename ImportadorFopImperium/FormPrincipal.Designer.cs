@@ -220,7 +220,6 @@
             // chkVenda
             // 
             this.chkVenda.AutoSize = true;
-            this.chkVenda.Enabled = false;
             this.chkVenda.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkVenda.Location = new System.Drawing.Point(22, 350);
             this.chkVenda.Name = "chkVenda";
